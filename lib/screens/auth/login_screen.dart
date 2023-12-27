@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 
-import 'main_screen.dart';
+import '../../main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -42,17 +42,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: const Color(0xFF1C1E1F),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
               const SizedBox(height: 50),
-              // Center(
-              //   child: Image.asset('assets/splash.png',
-              //     color: Colors.black,
-              //   ),
-              // ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -253,23 +247,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              // TextButton(
-              //   onPressed: () {
-              //     // Navigator.push(
-              //     //   context,
-              //     //   MaterialPageRoute(
-              //     //       builder: (context) => const SignupScreen()),
-              //     // );
-              //   },
-              //   child: const Text(
-              //     "Don't have an account?\nSign up now.",
-              //     style: TextStyle(
-              //       color: Colors.black,
-              //       // decoration: TextDecoration.underline,
-              //     ),
-              //     textAlign: TextAlign.center,
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -320,7 +297,6 @@ class ImageButton extends StatelessWidget {
         margin: const EdgeInsets.all(8.0),
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          // color: const Color(0xFF1C1E1F),
           borderRadius: BorderRadius.circular(25.0),
           border: Border.all(
             color: Colors.black, // Border color
