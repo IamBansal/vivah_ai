@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vivah_ai/screens/create_invite.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -381,12 +382,26 @@ class _GuestListScreenState extends State<GuestListScreen> {
                             margin: const EdgeInsets.symmetric(
                                 vertical: 5.0, horizontal: 10.0),
                             child: ListTile(
-                              leading: const Icon(Icons.person),
+                              leading: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.asset(
+                                  'assets/pic.png',
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                               title: const Text('Bindu Chachu'),
                               subtitle: const Text('Anika\'s Elder Chachu'),
                               trailing: const Icon(Icons.arrow_forward),
                               onTap: () {
-                                // Handle onTap action for each list item
+                                // TODO - Handle onTap action for each list item
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const CreateInvite(),
+                                  ),
+                                );
                               },
                             ),
                           );
@@ -434,12 +449,26 @@ class _GuestListScreenState extends State<GuestListScreen> {
                             margin: const EdgeInsets.symmetric(
                                 vertical: 5.0, horizontal: 10.0),
                             child: ListTile(
-                              leading: const Icon(Icons.person),
+                              leading: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.asset(
+                                  'assets/pic.png',
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                               title: const Text('Bindu Chachu'),
                               subtitle: const Text('Tanmay\'s Elder Chachu'),
                               trailing: const Icon(Icons.arrow_forward),
                               onTap: () {
-                                // Handle onTap action for each list item
+                                // TODO - Handle onTap action for each list item
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const CreateInvite(),
+                                  ),
+                                );
                               },
                             ),
                           );
