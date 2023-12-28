@@ -4,6 +4,10 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSCameraUsageDescription</key>
+    <string>Your message to the user when the camera is accessed</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Your message to the user when the photo library is accessed</string>
 	<key>CFBundleDisplayName</key>
 	<string>Vivah Ai</string>
 	<key>CFBundleExecutable</key>
