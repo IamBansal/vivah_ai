@@ -20,7 +20,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscureText = true;
   bool _isBrideGroom = true;
-  bool _isGuest = false;
 
   // final FirebaseAuth _auth = FirebaseAuth.instance;
   //
@@ -86,18 +85,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       onTap: () {
                         setState(() {
                           _isBrideGroom = true;
-                          _isGuest = false;
                         });
                       },
-                      child: const LoginAsButton(persona: 'Bride/Groom')),
+                      child: LoginAsButton(persona: 'Bride/Groom', isBrideGroom: _isBrideGroom)),
                   GestureDetector(
                       onTap: () {
                         setState(() {
                           _isBrideGroom = false;
-                          _isGuest = true;
                         });
                       },
-                      child: const LoginAsButton(persona: 'Guest')),
+                      child: LoginAsButton(persona: 'Guest', isBrideGroom: !_isBrideGroom)),
                 ],
               ),
               const SizedBox(height: 35),
@@ -188,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               Visibility(
-                visible: _isGuest,
+                visible: !_isBrideGroom,
                 child: Column(
                   children: [
                     SizedBox(
@@ -394,8 +391,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
 class LoginAsButton extends StatefulWidget {
   final String persona;
+  final bool isBrideGroom;
 
-  const LoginAsButton({super.key, required this.persona});
+  const LoginAsButton({super.key, required this.persona, required this.isBrideGroom});
 
   @override
   State<LoginAsButton> createState() => _LoginAsButtonState();
@@ -408,14 +406,15 @@ class _LoginAsButtonState extends State<LoginAsButton> {
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Column(
         children: [
-          const CircleAvatar(
-            backgroundColor: Color(0xFFD7B2E5),
+          CircleAvatar(
+            backgroundColor: const Color(0xFFD7B2E5),
             child: Icon(
               Icons.person,
-              color: Colors.white,
+              color: widget.isBrideGroom ? Colors.black : Colors.white,
             ),
           ),
-          Text(widget.persona)
+          const SizedBox(height: 10,),
+          Text(widget.persona, style: TextStyle(fontWeight: widget.isBrideGroom ? FontWeight.bold : FontWeight.normal),)
         ],
       ),
     );
