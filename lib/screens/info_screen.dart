@@ -96,7 +96,7 @@ class _InfoScreenState extends State<InfoScreen> {
                       topRight: Radius.circular(20.0),
                     ),
                     child: Card(
-                      // color: Colors.grey,
+                      color: const Color(0xFFF5ECF9),
                       elevation: 5.0,
                       margin: EdgeInsets.zero,
                       child: Column(
@@ -196,15 +196,16 @@ class _InfoScreenState extends State<InfoScreen> {
               Divider(height: 5, color: Colors.grey,),
               SizedBox(height: 8,),
               Text(
-                'Ask a question about the wedding....',
+                'Ask a question about the wedding....\nClick me!!!',
                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(bottom: 20.0),
+        padding: const EdgeInsets.only(bottom: 40.0),
         child: ListView.builder(
           reverse: true,
           padding: const EdgeInsets.all(30),
