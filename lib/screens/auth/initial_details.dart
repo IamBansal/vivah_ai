@@ -114,7 +114,7 @@ class _InitialDetailsState extends State<InitialDetails> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MainScreen(),
+                        builder: (context) => const MainScreen(isBrideGroom: true),
                       ),
                     );
                   },

@@ -71,6 +71,169 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        children: [
+                          Container(
+                              width: 70,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: const Color(0xFFD7B2E5), width: 1)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Stack(
+                                  children: [
+                                    ClipOval(
+                                        child: Image.asset(
+                                          'assets/pic.png',
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        ))
+                                  ],
+                                ),
+                              )
+                          ),
+                          const Text('Our story', style: TextStyle(color: Colors.grey),)
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Container(
+                              width: 70,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: const Color(0xFFD7B2E5), width: 1)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Stack(
+                                  children: [
+                                    ClipOval(
+                                        child: Image.asset(
+                                          'assets/pic.png',
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        ))
+                                  ],
+                                ),
+                              )
+                          ),
+                          const Text('Memories', style: TextStyle(color: Colors.grey),)
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Container(
+                              width: 70,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: const Color(0xFFD7B2E5), width: 1)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Stack(
+                                  children: [
+                                    ClipOval(
+                                        child: Image.asset(
+                                          'assets/pic.png',
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        ))
+                                  ],
+                                ),
+                              )
+                          ),
+                          const Text('Blessings', style: TextStyle(color: Colors.grey),)
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Divider(thickness: 1, color: Colors.grey, indent: 20, endIndent: 20,),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Ceremonies', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17),),
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            // width: MediaQuery.of(context).size.width * 1.5,
+                            width: 400,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: 6,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 6.0),
+                                  width: 150,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        margin: const EdgeInsets.all(2.0),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: Image.asset(
+                                            'assets/pic.png',
+                                            width: 150,
+                                            height: 150,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                                        child: Text('Roka', style: TextStyle(fontWeight: FontWeight.bold),),
+                                      ),
+                                      const Text('hsvcwubcowbcwicoiwbvwnvowvcbskejbqcboqbcoqibcq', style: TextStyle(overflow: TextOverflow.ellipsis, color: Colors.grey), maxLines: 2,)
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Divider(thickness: 1, color: Colors.grey, indent: 20, endIndent: 20,),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Venue on Maps', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17),),
+                  ),
+                  Center(
+                    child: Container(
+                      height: 200,
+                      width: 355,
+                      color: Colors.grey,
+                      child: const Center(child: Text('Placeholder for google maps')),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
         ));
   }
 }
