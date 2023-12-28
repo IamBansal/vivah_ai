@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 
 import '../../main_screen.dart';
+import 'initial_details.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -12,10 +13,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _fullNameController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _hashtagController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureText = true;
+  bool _isBrideGroom = true;
+  bool _isGuest = false;
 
   // final FirebaseAuth _auth = FirebaseAuth.instance;
   //
@@ -33,7 +38,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    _hashtagController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -53,139 +60,250 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     'Vivah',
                     style: GoogleFonts.carattere(
-                        textStyle: const TextStyle(color: Colors.black, fontSize: 75, fontStyle: FontStyle.italic)
-                    ),
+                        textStyle: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 75,
+                            fontStyle: FontStyle.italic)),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(bottom: 8.0),
-                    child: Text('Your wedding, personalised', style: TextStyle(color: Colors.black ,fontSize: 15),),
+                    child: Text(
+                      'Your wedding, personalised',
+                      style: TextStyle(color: Colors.black, fontSize: 15),
+                    ),
                   )
                 ],
               ),
               const SizedBox(height: 10),
-             const Padding(
+              const Padding(
                 padding: EdgeInsets.symmetric(vertical: 10.0),
                 child: Text('login as'),
               ),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  LoginAsButton(persona: 'Bride'),
-                  LoginAsButton(persona: 'Groom'),
-                  LoginAsButton(persona: 'Guest'),
+                  GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isBrideGroom = true;
+                          _isGuest = false;
+                        });
+                      },
+                      child: const LoginAsButton(persona: 'Bride/Groom')),
+                  GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isBrideGroom = false;
+                          _isGuest = true;
+                        });
+                      },
+                      child: const LoginAsButton(persona: 'Guest')),
                 ],
               ),
               const SizedBox(height: 35),
-              SizedBox(
-                width: 340,
-                height: 50,
-                child: TextField(
-                  keyboardType: TextInputType.name,
-                  controller: _fullNameController,
-                  decoration: InputDecoration(
-                    fillColor: const Color(0xFFDFDFDF),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: const BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: const BorderSide(color: Colors.black),
-                    ),
-                    hintText: 'Enter your full name',
-                    hintStyle: const TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.grey,
-                    ),
-                    hintMaxLines: 1,
-                    labelText: 'Full Name',
-                    labelStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  textAlignVertical: TextAlignVertical.center,
-                  style: const TextStyle(color: Colors.black),
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: 340,
-                height: 50,
-                child: TextField(
-                  keyboardType: TextInputType.emailAddress,
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    fillColor: const Color(0xFFDFDFDF),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: const BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: const BorderSide(color: Colors.black),
-                    ),
-                    hintText: 'Enter your email',
-                    hintStyle: const TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.grey,
-                    ),
-                    hintMaxLines: 1,
-                    labelText: 'Email',
-                    labelStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  textAlignVertical: TextAlignVertical.center,
-                  style: const TextStyle(color: Colors.black),
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: 340,
-                height: 50,
-                child: TextField(
-                  controller: _passwordController,
-                  obscureText: _obscureText,
-                  decoration: InputDecoration(
-                    fillColor: const Color(0xFFDFDFDF),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: const BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: const BorderSide(color: Colors.black),
-                    ),
-                    hintText: 'Enter your password',
-                    hintStyle: const TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.grey,
-                    ),
-                    hintMaxLines: 1,
-                    labelText: 'Password',
-                    labelStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16.0,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility : Icons.visibility_off,
-                        color: Colors.black,
+              Visibility(
+                visible: _isBrideGroom,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 340,
+                      height: 50,
+                      child: TextField(
+                        keyboardType: TextInputType.emailAddress,
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          fillColor: const Color(0xFFDFDFDF),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          hintText: 'Enter your email',
+                          hintStyle: const TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.grey,
+                          ),
+                          hintMaxLines: 1,
+                          labelText: 'Email',
+                          labelStyle: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                        textAlignVertical: TextAlignVertical.center,
+                        style: const TextStyle(color: Colors.black),
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
                     ),
-                  ),
-                  textAlignVertical: TextAlignVertical.center,
-                  style: const TextStyle(color: Colors.black),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: 340,
+                      height: 50,
+                      child: TextField(
+                        controller: _passwordController,
+                        obscureText: _obscureText,
+                        decoration: InputDecoration(
+                          fillColor: const Color(0xFFDFDFDF),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          hintText: 'Enter your password',
+                          hintStyle: const TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.grey,
+                          ),
+                          hintMaxLines: 1,
+                          labelText: 'Password',
+                          labelStyle: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16.0,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureText
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.black,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                          ),
+                        ),
+                        textAlignVertical: TextAlignVertical.center,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                  ],
                 ),
               ),
-              const SizedBox(height: 50),
+              Visibility(
+                visible: _isGuest,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 340,
+                      height: 50,
+                      child: TextField(
+                        keyboardType: TextInputType.name,
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          fillColor: const Color(0xFFDFDFDF),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          hintText: 'Enter your name',
+                          hintStyle: const TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.grey,
+                          ),
+                          hintMaxLines: 1,
+                          labelText: 'Name',
+                          labelStyle: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                        textAlignVertical: TextAlignVertical.center,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: 340,
+                      height: 50,
+                      child: TextField(
+                        keyboardType: TextInputType.phone,
+                        controller: _phoneController,
+                        decoration: InputDecoration(
+                          fillColor: const Color(0xFFDFDFDF),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          hintText: 'Enter your phone number',
+                          hintStyle: const TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.grey,
+                          ),
+                          hintMaxLines: 1,
+                          labelText: 'Phone Number',
+                          labelStyle: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                        textAlignVertical: TextAlignVertical.center,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: 340,
+                      height: 50,
+                      child: TextField(
+                        controller: _hashtagController,
+                        // obscureText: _obscureText,
+                        decoration: InputDecoration(
+                          fillColor: const Color(0xFFDFDFDF),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          hintText: 'Enter wedding hashtag',
+                          hintStyle: const TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.grey,
+                          ),
+                          hintMaxLines: 1,
+                          labelText: 'Wedding Tag',
+                          labelStyle: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16.0,
+                          ),
+                          // suffixIcon: IconButton(
+                          //   icon: Icon(
+                          //     _obscureText ? Icons.visibility : Icons.visibility_off,
+                          //     color: Colors.black,
+                          //   ),
+                          //   onPressed: () {
+                          //     setState(() {
+                          //       _obscureText = !_obscureText;
+                          //     });
+                          //   },
+                          // ),
+                        ),
+                        textAlignVertical: TextAlignVertical.center,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                  ],
+                ),
+              ),
               SizedBox(
                 height: 50,
                 width: 340,
@@ -198,55 +316,74 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            MainScreen(),
-                      ),
-                    );
+                    //TODO - Replace with pushReplacement
+                    _isBrideGroom
+                        ? Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const InitialDetails(),
+                            ),
+                          )
+                        : Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MainScreen(),
+                            ),
+                          );
                   },
                   child: const Text(
                     "Login",
-                    style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.black54, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
               const SizedBox(height: 30),
-              const Text(
-                "or log in with",
-                style: TextStyle(color: Colors.black),
-              ),
-              const SizedBox(height: 30),
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 35.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              Visibility(
+                  visible: _isBrideGroom,
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: GestureDetector(
-                            onTap: () async {
-                              // UserCredential? userCredential = await _signInWithGoogle();
-                              // if (userCredential != null) {
-                              //   print("Google Sign-In Success!");
-                              //   Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) => MainScreen()),
-                              //   );
-                              // } else {
-                              //   print("Google Sign-In Failed!");
-                              // }
-                            },
-                            child: const ImageButton(imagePath: 'assets/google.png')),
+                      const Text(
+                        "or log in with",
+                        style: TextStyle(color: Colors.black),
                       ),
-                      if(Platform.isIOS) const Expanded(child: ImageButton(imagePath: 'assets/apple.png'),),
+                      const SizedBox(height: 30),
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 35.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                    onTap: () async {
+                                      // UserCredential? userCredential = await _signInWithGoogle();
+                                      // if (userCredential != null) {
+                                      //   print("Google Sign-In Success!");
+                                      //   Navigator.push(
+                                      //     context,
+                                      //     MaterialPageRoute(
+                                      //         builder: (context) => MainScreen()),
+                                      //   );
+                                      // } else {
+                                      //   print("Google Sign-In Failed!");
+                                      // }
+                                    },
+                                    child: const ImageButton(
+                                        imagePath: 'assets/google.png')),
+                              ),
+                              if (Platform.isIOS)
+                                const Expanded(
+                                  child: ImageButton(
+                                      imagePath: 'assets/apple.png'),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                     ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
+                  ))
             ],
           ),
         ),
@@ -257,6 +394,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
 class LoginAsButton extends StatefulWidget {
   final String persona;
+
   const LoginAsButton({super.key, required this.persona});
 
   @override
@@ -266,24 +404,23 @@ class LoginAsButton extends StatefulWidget {
 class _LoginAsButtonState extends State<LoginAsButton> {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        //Handle click
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: Column(
-          children: [
-            const CircleAvatar(backgroundColor: Color(0xFFD7B2E5), child: Icon(Icons.person, color: Colors.white,),),
-            Text(widget.persona)
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: Column(
+        children: [
+          const CircleAvatar(
+            backgroundColor: Color(0xFFD7B2E5),
+            child: Icon(
+              Icons.person,
+              color: Colors.white,
+            ),
+          ),
+          Text(widget.persona)
+        ],
       ),
-    )
-    ;
+    );
   }
 }
-
 
 class ImageButton extends StatelessWidget {
   final String imagePath;
