@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widgets/custom_button.dart';
+
 class HomeScreen extends StatefulWidget {
 
   // final Function(int) onButtonPressed;
@@ -43,33 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           persistentFooterAlignment: const AlignmentDirectional(0, 0),
           persistentFooterButtons: [
-            SizedBox(
-              height: 50,
-              width: 340,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD7B2E5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(29),
-                    side: const BorderSide(color: Colors.black),
-                  ),
-                ),
-                onPressed: () {
-                  // widget.onButtonPressed(1);
-
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => const BlessingsScreen(),
-                  //   ),
-                  // );
-                },
-                child: const Text(
-                  "Record my blessings",
-                  style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
+            CustomButton(label: 'Record my blessings', onButtonPressed: (context) => null,)
           ],
           body: SingleChildScrollView(
             child: Padding(

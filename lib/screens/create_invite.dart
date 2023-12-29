@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widgets/custom_button.dart';
+
 class CreateInvite extends StatefulWidget {
   const CreateInvite({super.key});
 
@@ -114,32 +116,7 @@ class _CreateInviteState extends State<CreateInvite> {
       ),
       persistentFooterAlignment: const AlignmentDirectional(0, 0),
       persistentFooterButtons: [
-        SizedBox(
-          height: 50,
-          width: 340,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD7B2E5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(29),
-                side: const BorderSide(color: Colors.black),
-              ),
-            ),
-            onPressed: () {
-              //TODO - create a share invite
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => const BlessingsScreen(),
-              //   ),
-              // );
-            },
-            child: const Text(
-              "Create and share this personalised invite",
-              style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
+        CustomButton(label: 'Create and share this personalised invite', onButtonPressed: (context) => null,),
       ],
     ));
   }

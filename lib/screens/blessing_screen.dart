@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widgets/custom_button.dart';
+
 class BlessingsScreen extends StatefulWidget {
   const BlessingsScreen({super.key});
 
@@ -115,32 +117,7 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
       ),
       persistentFooterAlignment: const AlignmentDirectional(0, 0),
       persistentFooterButtons: [
-        SizedBox(
-          height: 50,
-          width: 340,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD7B2E5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(29),
-                side: const BorderSide(color: Colors.black),
-              ),
-            ),
-            onPressed: () {
-              //TODO - create a share invite
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => const BlessingsScreen(),
-              //   ),
-              // );
-            },
-            child: const Text(
-              "Upload your blessing",
-              style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
+        CustomButton(label: 'Upload your blessing', onButtonPressed: (context) => null,)
       ],
     ));
   }

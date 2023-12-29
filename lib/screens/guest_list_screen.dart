@@ -5,6 +5,8 @@ import 'package:vivah_ai/screens/create_invite.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../widgets/custom_button.dart';
+
 class GuestListScreen extends StatefulWidget {
   const GuestListScreen({super.key});
 
@@ -124,45 +126,14 @@ class _GuestListScreenState extends State<GuestListScreen> {
               const SizedBox(
                 height: 15,
               ),
-              SizedBox(
-                width: 340,
-                height: 50,
-                child: TextField(
-                  controller: _contactController,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: false),
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: const BorderSide(color: Color(0xFF5271EF)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: const BorderSide(color: Color(0xFF5271EF)),
-                      ),
-                      hintText: 'Enter contact of relative',
-                      hintStyle: const TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.grey,
-                      ),
-                      hintMaxLines: 1,
-                      labelText: 'Contact',
-                      labelStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16.0,
-                      ),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.add_ic_call_outlined,
-                            color: Color(0xFFD7B2E5)),
-                        onPressed: () {
-                          // TODO - Import contact on click
-                        },
-                      ),
-                      counterText: ''),
-                  textAlignVertical: TextAlignVertical.center,
-                  style: const TextStyle(color: Colors.black),
-                  maxLength: 10,
-                ),
+              CustomTextFieldWithIcon(
+                controller: _contactController,
+                label: 'Contact',
+                hint: 'Enter contact of relative',
+                icon: const Icon(Icons.add_ic_call_outlined, color: Color(0xFFD7B2E5)),
+                // onIconTap: (context) => _selectDate(context),
+                // TODO - Import contact on click
+                onIconTap: (context) => null,
               ),
               const SizedBox(
                 height: 15,
@@ -311,34 +282,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
               const SizedBox(
                 height: 10,
               ),
-              SizedBox(
-                height: 50,
-                width: 340,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD7B2E5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(29),
-                      side: const BorderSide(color: Colors.black),
-                    ),
-                  ),
-                  onPressed: () {
-                    // widget.onButtonPressed(1);
-
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => const BlessingsScreen(),
-                    //   ),
-                    // );
-                  },
-                  child: const Text(
-                    "Add the guest!",
-                    style: TextStyle(
-                        color: Colors.black54, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
+              CustomButton(label: 'Add the guest!', onButtonPressed: (context) => null,),
               const SizedBox(
                 height: 10,
               ),

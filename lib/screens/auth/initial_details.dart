@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vivah_ai/main_screen.dart';
+import 'package:vivah_ai/widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 
 class InitialDetails extends StatefulWidget {
@@ -85,10 +86,13 @@ class _InitialDetailsState extends State<InitialDetails> {
                 const SizedBox(
                   height: 15,
                 ),
-                CustomTextField(
+                CustomTextFieldWithIcon(
                     controller: _dateController,
                     label: 'Date',
-                    hint: 'Enter Date'),
+                    hint: 'Enter Date',
+                  icon: const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
+                  onIconTap: (context) => _selectDate(context),
+                ),
                 const SizedBox(
                   height: 15,
                 ),
@@ -99,39 +103,35 @@ class _InitialDetailsState extends State<InitialDetails> {
                 const SizedBox(
                   height: 25,
                 ),
-                SizedBox(
-                  height: 50,
-                  width: 340,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD7B2E5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(29),
-                        side: const BorderSide(color: Colors.black),
-                      ),
-                    ),
-                    onPressed: () {
-                      //TODO - Replace with pushReplacement
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MainScreen(isBrideGroom: true),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "Save and Continue",
-                      style: TextStyle(
-                          color: Colors.black54, fontWeight: FontWeight.bold),
-                    ),
+                CustomButton(label: 'Save and Continue', onButtonPressed: (context) => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainScreen(isBrideGroom: true),
                   ),
-                ),
+                ),)
               ],
             ),
           ),
     ));
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(DateTime.now().year + 2),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+        _dateController.text = '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}';
+      });
+    }
+  }
+
+  DateTime selectedDate = DateTime.now();
   final _brideNameController = TextEditingController();
   final _groomNameController = TextEditingController();
   final _hashtagController = TextEditingController();

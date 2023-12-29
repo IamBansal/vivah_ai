@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 
 import '../../main_screen.dart';
+import '../../widgets/custom_button.dart';
 import 'initial_details.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -301,40 +302,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              SizedBox(
-                height: 50,
-                width: 340,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD7B2E5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(29),
-                      side: const BorderSide(color: Colors.black),
-                    ),
-                  ),
-                  onPressed: () {
-                    //TODO - Replace with pushReplacement
-                    _isBrideGroom
-                        ? Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const InitialDetails(),
-                            ),
-                          )
-                        : Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MainScreen(isBrideGroom: false),
-                            ),
-                          );
-                  },
-                  child: const Text(
-                    "Login",
-                    style: TextStyle(
-                        color: Colors.black54, fontWeight: FontWeight.bold),
-                  ),
+              CustomButton(label: 'Login', onButtonPressed: (context) => _isBrideGroom
+                  ? Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const InitialDetails(),
                 ),
-              ),
+              )
+                  : Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MainScreen(isBrideGroom: false),
+                ),
+              ),),
               const SizedBox(height: 30),
               Visibility(
                   visible: _isBrideGroom,
