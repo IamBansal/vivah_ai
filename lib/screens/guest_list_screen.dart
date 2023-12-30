@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vivah_ai/screens/create_invite.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
@@ -48,6 +49,12 @@ class _GuestListScreenState extends State<GuestListScreen> {
         _imageFile = File(pickedFile.path);
       });
     }
+  }
+
+  Future<void> _importContact() async {
+    final PhoneContact contact = await FlutterContactPicker.pickPhoneContact();
+    _contactController.text = contact.phoneNumber!.number.toString();
+    _nameController.text = contact.fullName.toString();
   }
 
   @override
@@ -131,9 +138,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                 label: 'Contact',
                 hint: 'Enter contact of relative',
                 icon: const Icon(Icons.add_ic_call_outlined, color: Color(0xFFD7B2E5)),
-                // onIconTap: (context) => _selectDate(context),
-                // TODO - Import contact on click
-                onIconTap: (context) => null,
+                onIconTap: (context) => _importContact(),
               ),
               const SizedBox(
                 height: 15,

@@ -51,6 +51,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
+        isBride: widget.isBrideGroom,
       ),
     );
   }

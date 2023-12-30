@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 class CustomBottomNavigationBar extends StatefulWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
+  final bool isBride;
 
   CustomBottomNavigationBar(
-      {required this.selectedIndex, required this.onItemTapped});
+      {required this.selectedIndex, required this.onItemTapped, required this.isBride});
 
   @override
   _CustomBottomNavigationBarState createState() =>
@@ -20,28 +21,30 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       type: BottomNavigationBarType.fixed,
       currentIndex: widget.selectedIndex,
       onTap: widget.onItemTapped,
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.black12,
-      items: const [
-        BottomNavigationBarItem(
+      selectedItemColor: const Color(0xFFD7B2E5),
+      showSelectedLabels: true,
+      showUnselectedLabels: false,
+      unselectedItemColor: Colors.black38,
+      items: [
+        const BottomNavigationBarItem(
           icon: Icon(Icons.home_filled),
-          label: '',
+          label: 'Home',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.waving_hand_rounded),
-          label: '',
+          label: 'Blessings',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.image),
-          label: '',
+          label: 'Photos',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.info_outline),
-          label: '',
+          label: 'Ask me',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: '',
+          icon: const Icon(Icons.person),
+          label: widget.isBride ? 'Guest List' : 'Invitation',
         ),
       ],
     );

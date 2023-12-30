@@ -4,6 +4,10 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>Can we access your microphone?</string>
+    <key>NSContactsUsageDescription</key>
+    <string>Need access to contacts to provide certain features</string>
 	<key>NSCameraUsageDescription</key>
     <string>Your message to the user when the camera is accessed</string>
     <key>NSPhotoLibraryUsageDescription</key>

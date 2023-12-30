@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
 import '../widgets/custom_button.dart';
 
 class CreateInvite extends StatefulWidget {
@@ -69,23 +72,26 @@ class _CreateInviteState extends State<CreateInvite> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
-                    color: const Color(0xFFD7B2E5),
-                  ),
-                  child: Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
+                GestureDetector(
+                  onTap: () { _listen(); },
+                  child: Container(
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12.0),
+                      color: !_isListening ? const Color(0xFFD7B2E5) : Colors.green,
                     ),
-                    color: Colors.transparent,
-                    child: const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Icon(
-                        Icons.mic,
-                        size: 36,
-                        color: Colors.white,
+                    child: Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      color: Colors.transparent,
+                      child: const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Icon(
+                          Icons.mic,
+                          size: 36,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -101,11 +107,11 @@ class _CreateInviteState extends State<CreateInvite> {
             Container(
               color: Colors.white10,
               height: 150,
-              child: const SingleChildScrollView(
+              child: SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                      _text,
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -120,4 +126,58 @@ class _CreateInviteState extends State<CreateInvite> {
       ],
     ));
   }
+
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  bool _isListening = false;
+  String _text = '';
+
+  Future<bool> requestPermissions() async {
+    PermissionStatus status = await Permission.microphone.request();
+    return status.isGranted;
+  }
+
+  void _listen() async {
+    _text = "";
+    if (!_isListening) {
+      var microphoneStatus = await Permission.microphone.request();
+      if (microphoneStatus.isGranted) {
+        bool available = await _speech.initialize(
+          onStatus: _onSpeechStatus,
+          onError: _onSpeechError,
+        );
+
+        if (available) {
+          debugPrint("it is available $available");
+          setState(() => _isListening = true);
+          _speech.listen(
+            onResult: _onSpeechResult,
+          );
+        } else {
+          debugPrint("Speech recognition is not available");
+        }
+      } else {
+        debugPrint("Permission denied for speech");
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speech.stop();
+    }
+  }
+
+  Future<void> _onSpeechResult(SpeechRecognitionResult result) async {
+    setState(() => _text = result.recognizedWords);
+    debugPrint(_text);
+    if (result.finalResult) {
+      _isListening = !_isListening;
+    }
+  }
+
+  void _onSpeechError(SpeechRecognitionError error) {
+    debugPrint(error.errorMsg);
+  }
+
+  void _onSpeechStatus(String status) {
+    debugPrint("status is $status");
+  }
+
 }
