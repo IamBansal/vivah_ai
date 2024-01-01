@@ -32,7 +32,7 @@ class _MainScreenState extends State<MainScreen> {
    final List<Widget> _screens = [
     // HomeScreen(onButtonPressed: _onItemTapped),
     const HomeScreen(),
-    const BlessingsScreen(),
+    const RecordBlessingScreen(),
     const VivahPhotosScreen(),
     const InfoScreen(),
     const PersonalInvitation(),

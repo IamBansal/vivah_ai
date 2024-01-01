@@ -1,100 +1,131 @@
+import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:video_player/video_player.dart';
 import '../widgets/custom_button.dart';
 
 class BlessingsScreen extends StatefulWidget {
-  const BlessingsScreen({super.key});
+  final String filePath;
+  const BlessingsScreen({super.key, required this.filePath});
 
   @override
   State<BlessingsScreen> createState() => _BlessingsScreenState();
 }
 
 class _BlessingsScreenState extends State<BlessingsScreen> {
+  late VideoPlayerController _videoPlayerController;
+
+  @override
+  void dispose() {
+    _videoPlayerController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initVideoPlayer();
+  }
+
+  Future _initVideoPlayer() async {
+    _videoPlayerController = VideoPlayerController.file(File(widget.filePath));
+    await _videoPlayerController.initialize();
+  }
+
+  bool _isPlaying = false;
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: Scaffold(
+    return SafeArea(
+        child: Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.black26,
+        automaticallyImplyLeading: false,
+        toolbarHeight: 90,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Blessings',
+              style: GoogleFonts.carattere(
+                  textStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 35,
+                      fontStyle: FontStyle.italic)),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                'Bless the couple',
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            )
+          ],
+        ),
+        actions: [
+          IconButton(
+              onPressed: () {},
+              icon: const Icon(
+                Icons.file_upload_outlined,
+                color: Colors.white,
+              )),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Stack(
-              children: [
-                //Shader-mask if for adding a black blend behind text
-                ShaderMask(
-                  blendMode: BlendMode.srcATop,
-                  shaderCallback: (Rect bounds) {
-                    return const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.black38, Colors.transparent],
-                      stops: [0.0, 0.6],
-                    ).createShader(bounds);
-                  },
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(14), bottomRight: Radius.circular(14)),
-                    child: Image.asset(
-                      'assets/pic.png',
-                      height: 500,
-                      width: MediaQuery.of(context).size.width,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                Positioned(
-                    top: 9,
-                    left: 14,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Blessings',
-                          style: GoogleFonts.carattere(
-                              textStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 35,
-                                  fontStyle: FontStyle.italic)),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 8.0),
-                          child: Text(
-                            'Bless the couple',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          ),
-                        )
-                      ],
-                    )),
-                const Positioned(left: 180, top: 210, child: Icon(Icons.play_arrow, color: Colors.white,))
-              ],
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: VideoPlayer(_videoPlayerController),
             ),
-            const SizedBox(height: 10,),
+            const SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
-                    color: const Color(0xFFD7B2E5),
-                  ),
-                  child: Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
+                GestureDetector(
+                  onTap: () async {
+                    !_isPlaying
+                        ? await _videoPlayerController.play()
+                        : await _videoPlayerController.pause();
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12.0),
+                      color: const Color(0xFFD7B2E5),
                     ),
-                    color: Colors.transparent,
-                    child: const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Icon(
-                        Icons.play_arrow,
-                        size: 36,
-                        color: Colors.white,
+                    child: Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      color: Colors.transparent,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Icon(
+                          !_isPlaying ? Icons.play_arrow : Icons.pause,
+                          size: 36,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
                 ),
                 const Column(
                   children: [
-                    Text('Badi dadi\'s blessings', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
-                    Text('A message for Anika and Tanmay', style: TextStyle(color: Colors.black),),
+                    Text(
+                      'Badi dadi\'s blessings',
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'A message for Anika and Tanmay',
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ],
                 )
               ],
@@ -102,11 +133,11 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
             Container(
               color: Colors.white10,
               height: 150,
-              child: const SingleChildScrollView(
+              child: SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                    _videoPlayerController.value.caption.text.isNotEmpty ? _videoPlayerController.value.caption.text : 'No captions found',
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -117,8 +148,127 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
       ),
       persistentFooterAlignment: const AlignmentDirectional(0, 0),
       persistentFooterButtons: [
-        CustomButton(label: 'Upload your blessing', onButtonPressed: (context) => null,)
+        CustomButton(
+          label: 'Upload your blessing',
+          onButtonPressed: (context) => null,
+        )
       ],
     ));
+  }
+}
+
+class RecordBlessingScreen extends StatefulWidget {
+  const RecordBlessingScreen({super.key});
+
+  @override
+  State<RecordBlessingScreen> createState() => _RecordBlessingScreenState();
+}
+
+class _RecordBlessingScreenState extends State<RecordBlessingScreen> {
+  bool _isLoading = true;
+  bool _isRecording = false;
+  late CameraController _cameraController;
+
+  @override
+  void initState() {
+    _initCamera();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _cameraController.dispose();
+    super.dispose();
+  }
+
+  _initCamera() async {
+    final cameras = await availableCameras();
+    final front = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.front);
+    _cameraController = CameraController(front, ResolutionPreset.max);
+    await _cameraController.initialize();
+    setState(() => _isLoading = false);
+  }
+
+  _recordVideo() async {
+    if (_isRecording) {
+      // _listen();
+      final file = await _cameraController.stopVideoRecording();
+      setState(() => _isRecording = false);
+      final route = MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => BlessingsScreen(filePath: file.path),
+      );
+      Navigator.push(context, route);
+    } else {
+      await _cameraController.prepareForVideoRecording();
+      await _cameraController.startVideoRecording();
+      setState(() => _isRecording = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.black26,
+          automaticallyImplyLeading: false,
+          toolbarHeight: 90,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Blessings',
+                style: GoogleFonts.carattere(
+                    textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 35,
+                        fontStyle: FontStyle.italic)),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  'Record good wishes or a memory!',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              )
+            ],
+          ),
+        ),
+        body: _isLoading
+            ? Container(
+                color: Colors.white,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFFD7B2E5),
+                  ),
+                ),
+              )
+            : Stack(
+                alignment: Alignment.bottomCenter,
+                fit: StackFit.expand,
+                children: [
+                  CameraPreview(
+                    _cameraController,
+                    child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.all(25),
+                          child: FloatingActionButton(
+                            backgroundColor:
+                                _isRecording ? Colors.green : Colors.red,
+                            child:
+                                Icon(_isRecording ? Icons.stop : Icons.circle,),
+                            onPressed: () => _recordVideo(),
+                          ),
+                        )),
+                  ),
+                ],
+              ),
+      ),
+    );
   }
 }
