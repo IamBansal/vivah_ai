@@ -192,19 +192,22 @@ class _RecordBlessingScreenState extends State<RecordBlessingScreen> {
 
   _recordVideo() async {
     if (_isRecording) {
-      // _listen();
       final file = await _cameraController.stopVideoRecording();
       setState(() => _isRecording = false);
-      final route = MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => BlessingsScreen(filePath: file.path),
-      );
-      Navigator.push(context, route);
+      toNextScreen(file.path);
     } else {
       await _cameraController.prepareForVideoRecording();
       await _cameraController.startVideoRecording();
       setState(() => _isRecording = true);
     }
+  }
+
+  void toNextScreen(String path) {
+    final route = MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => BlessingsScreen(filePath: path),
+    );
+    Navigator.push(context, route);
   }
 
   @override
