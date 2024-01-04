@@ -39,20 +39,6 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                 )
               ],
             ),
-            actions: [
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.search,
-                    color: Colors.black,
-                  )),
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.more_horiz,
-                    color: Colors.black,
-                  )),
-            ],
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
