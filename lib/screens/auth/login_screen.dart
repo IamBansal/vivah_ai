@@ -308,16 +308,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               CustomButton(
-                label: 'Login',
-                onButtonPressed: (context) => _isBrideGroom
-                    ? Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const InitialDetails(),
-                        ),
-                      )
-                    : saveAndNavigate()
-              ),
+                  label: 'Login',
+                  onButtonPressed: (context) => _isBrideGroom
+                      ? Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InitialDetails(),
+                          ),
+                        )
+                      : saveAndNavigate()),
               const SizedBox(height: 30),
               Visibility(
                   visible: _isBrideGroom,
@@ -382,10 +381,25 @@ class _LoginScreenState extends State<LoginScreen> {
       await firestore.collection('couple').add({
         'id': userCredential.user?.uid,
         'email': userCredential.user!.email.toString(),
-      }).whenComplete(() => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const InitialDetails()),
-          ));
+      });
+
+      QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+          .collection('entries')
+          .where('userId', isEqualTo: userCredential.user?.uid.toString())
+          .get();
+
+      if (snapshot.size == 0) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const InitialDetails()),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const MainScreen(isBrideGroom: true)),
+        );
+      }
     } catch (e) {
       debugPrint("Google Sign-In Failed: $e");
       return null;
@@ -395,14 +409,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   saveAndNavigate() async {
     //TODO - validate it
-    if(_hashtagController.text.isNotEmpty && _hashtagController.text.startsWith('#')) {
-      await LocalData.saveName(_hashtagController.text).whenComplete(() => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-          const MainScreen(isBrideGroom: false),
-        ),
-      ));
+    if (_hashtagController.text.isNotEmpty &&
+        _hashtagController.text.startsWith('#')) {
+      await LocalData.saveName(_hashtagController.text)
+          .whenComplete(() => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MainScreen(isBrideGroom: false),
+                ),
+              ));
     }
   }
 }
