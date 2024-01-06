@@ -55,9 +55,10 @@ class CustomTextFieldWithIcon extends StatefulWidget {
   final String hint;
   final Icon icon;
   final Function(BuildContext)? onIconTap;
+  final TextInputType keyboardType;
 
   const CustomTextFieldWithIcon(
-      {super.key, required this.controller, required this.label, required this.hint, required this.icon, required this.onIconTap});
+      {super.key, required this.controller, required this.label, required this.hint, required this.icon, required this.onIconTap, required this.keyboardType});
 
   @override
   State<CustomTextFieldWithIcon> createState() =>
@@ -72,6 +73,7 @@ class _CustomTextFieldWithIconState extends State<CustomTextFieldWithIcon> {
       height: 50,
       child: TextField(
         controller: widget.controller,
+        keyboardType: widget.keyboardType,
         decoration: InputDecoration(
           fillColor: const Color(0xFFDFDFDF),
           border: OutlineInputBorder(

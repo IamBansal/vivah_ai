@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vivah_ai/providers/shared_pref.dart';
 import 'dart:io';
-
 import '../../main_screen.dart';
 import '../../widgets/custom_button.dart';
 import 'initial_details.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -22,19 +25,19 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
   bool _isBrideGroom = true;
 
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
-  //
-  // Future<bool> authenticate(String email, String password) async {
-  //   try {
-  //     UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-  //       email: email,
-  //       password: password,
-  //     );
-  //     return true;
-  //   } catch (e) {
-  //     return false;
-  //   }
-  // }
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<bool> authenticate(String email, String password) async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   @override
   void dispose() {
@@ -88,14 +91,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           _isBrideGroom = true;
                         });
                       },
-                      child: LoginAsButton(persona: 'Bride/Groom', isBrideGroom: _isBrideGroom)),
+                      child: LoginAsButton(
+                          persona: 'Bride/Groom', isBrideGroom: _isBrideGroom)),
                   GestureDetector(
                       onTap: () {
                         setState(() {
                           _isBrideGroom = false;
                         });
                       },
-                      child: LoginAsButton(persona: 'Guest', isBrideGroom: !_isBrideGroom)),
+                      child: LoginAsButton(
+                          persona: 'Guest', isBrideGroom: !_isBrideGroom)),
                 ],
               ),
               const SizedBox(height: 35),
@@ -302,19 +307,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              CustomButton(label: 'Login', onButtonPressed: (context) => _isBrideGroom
-                  ? Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const InitialDetails(),
-                ),
-              )
-                  : Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MainScreen(isBrideGroom: false),
-                ),
-              ),),
+              CustomButton(
+                label: 'Login',
+                onButtonPressed: (context) => _isBrideGroom
+                    ? Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const InitialDetails(),
+                        ),
+                      )
+                    : saveAndNavigate()
+              ),
               const SizedBox(height: 30),
               Visibility(
                   visible: _isBrideGroom,
@@ -334,17 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               Expanded(
                                 child: GestureDetector(
                                     onTap: () async {
-                                      // UserCredential? userCredential = await _signInWithGoogle();
-                                      // if (userCredential != null) {
-                                      //   print("Google Sign-In Success!");
-                                      //   Navigator.push(
-                                      //     context,
-                                      //     MaterialPageRoute(
-                                      //         builder: (context) => MainScreen()),
-                                      //   );
-                                      // } else {
-                                      //   print("Google Sign-In Failed!");
-                                      // }
+                                      await _signInWithGoogle();
                                     },
                                     child: const ImageButton(
                                         imagePath: 'assets/google.png')),
@@ -367,13 +360,59 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  Future<UserCredential?> _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      if (googleUser == null) return null;
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+
+      final firestore = FirebaseFirestore.instance;
+
+      await firestore.collection('couple').add({
+        'id': userCredential.user?.uid,
+        'email': userCredential.user!.email.toString(),
+      }).whenComplete(() => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const InitialDetails()),
+          ));
+    } catch (e) {
+      debugPrint("Google Sign-In Failed: $e");
+      return null;
+    }
+    return null;
+  }
+
+  saveAndNavigate() async {
+    //TODO - validate it
+    if(_hashtagController.text.isNotEmpty && _hashtagController.text.startsWith('#')) {
+      await LocalData.saveName(_hashtagController.text).whenComplete(() => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+          const MainScreen(isBrideGroom: false),
+        ),
+      ));
+    }
+  }
 }
 
 class LoginAsButton extends StatefulWidget {
   final String persona;
   final bool isBrideGroom;
 
-  const LoginAsButton({super.key, required this.persona, required this.isBrideGroom});
+  const LoginAsButton(
+      {super.key, required this.persona, required this.isBrideGroom});
 
   @override
   State<LoginAsButton> createState() => _LoginAsButtonState();
@@ -393,8 +432,15 @@ class _LoginAsButtonState extends State<LoginAsButton> {
               color: widget.isBrideGroom ? Colors.black : Colors.white,
             ),
           ),
-          const SizedBox(height: 10,),
-          Text(widget.persona, style: TextStyle(fontWeight: widget.isBrideGroom ? FontWeight.bold : FontWeight.normal),)
+          const SizedBox(
+            height: 10,
+          ),
+          Text(
+            widget.persona,
+            style: TextStyle(
+                fontWeight:
+                    widget.isBrideGroom ? FontWeight.bold : FontWeight.normal),
+          )
         ],
       ),
     );

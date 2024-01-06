@@ -1,13 +1,19 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:vivah_ai/screens/guest_list_screen.dart';
 import '../widgets/custom_button.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share/share.dart';
 
 class CreateInvite extends StatefulWidget {
-  const CreateInvite({super.key});
+  final Guest guest;
+  const CreateInvite({super.key, required this.guest});
 
   @override
   State<CreateInvite> createState() => _CreateInviteState();
@@ -20,53 +26,61 @@ class _CreateInviteState extends State<CreateInvite> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Stack(
-              children: [
-                //Shader-mask if for adding a black blend behind text
-                ShaderMask(
-                  blendMode: BlendMode.srcATop,
-                  shaderCallback: (Rect bounds) {
-                    return const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.black38, Colors.transparent],
-                      stops: [0.0, 0.6],
-                    ).createShader(bounds);
-                  },
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(14), bottomRight: Radius.circular(14)),
-                    child: Image.asset(
-                      'assets/pic.png',
-                      height: 500,
-                      width: MediaQuery.of(context).size.width,
-                      fit: BoxFit.cover,
+            Screenshot(
+              controller: _screenshotController,
+              child: Stack(
+                children: [
+                  //Shader-mask if for adding a black blend behind text
+                  ShaderMask(
+                    blendMode: BlendMode.srcATop,
+                    shaderCallback: (Rect bounds) {
+                      return const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.black38, Colors.transparent],
+                        stops: [0.0, 0.6],
+                      ).createShader(bounds);
+                    },
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(14), bottomRight: Radius.circular(14)),
+                      child: isValidURL(widget.guest.url) ? Image.network(
+                        widget.guest.url,
+                        height: 500,
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.cover,
+                      ) : Image.asset(
+                        'assets/pic.png',
+                        height: 500,
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                Positioned(
-                    top: 9,
-                    left: 14,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Create Invite',
-                          style: GoogleFonts.carattere(
-                              textStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 35,
-                                  fontStyle: FontStyle.italic)),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 8.0),
-                          child: Text(
-                            'Upload pictures and audio for them',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
+                  Positioned(
+                      top: 9,
+                      left: 14,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Create Invite',
+                            style: GoogleFonts.carattere(
+                                textStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 35,
+                                    fontStyle: FontStyle.italic)),
                           ),
-                        )
-                      ],
-                    )),
-              ],
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 8.0),
+                            child: Text(
+                              'Upload pictures and audio for them',
+                              style: TextStyle(color: Colors.white, fontSize: 12),
+                            ),
+                          )
+                        ],
+                      )),
+                ],
+              ),
             ),
             const SizedBox(height: 10,),
             Row(
@@ -96,10 +110,10 @@ class _CreateInviteState extends State<CreateInvite> {
                     ),
                   ),
                 ),
-                const Column(
+                Column(
                   children: [
-                    Text('Anika\'s memory with Bindu chachu', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
-                    Text('Voice Record your favorite memories', style: TextStyle(color: Colors.black),),
+                    Text('Your memory with ${widget.guest.name}', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+                    const Text('Voice Record your favorite memories', style: TextStyle(color: Colors.black),),
                   ],
                 )
               ],
@@ -122,7 +136,7 @@ class _CreateInviteState extends State<CreateInvite> {
       ),
       persistentFooterAlignment: const AlignmentDirectional(0, 0),
       persistentFooterButtons: [
-        CustomButton(label: 'Create and share this personalised invite', onButtonPressed: (context) => null,),
+        CustomButton(label: 'Create and share this personalised invite', onButtonPressed: (context) => _shareInvite(),),
       ],
     ));
   }
@@ -179,5 +193,36 @@ class _CreateInviteState extends State<CreateInvite> {
   void _onSpeechStatus(String status) {
     debugPrint("status is $status");
   }
+
+  bool isValidURL(String url) {
+    Uri? uri = Uri.tryParse(url);
+    if (uri != null && uri.hasScheme && uri.hasAuthority) {
+      return true;
+    }
+    return false;
+  }
+
+
+  final _screenshotController = ScreenshotController();
+
+  Future<void> _shareInvite() async {
+    try {
+      final uint8List = await _screenshotController.capture();
+      final tempDir = await getTemporaryDirectory();
+      final imagePath = '${tempDir.path}/image.png';
+
+      File imageFile = File(imagePath);
+      await imageFile.writeAsBytes(uint8List!);
+
+        await Share.shareFiles(
+          [imagePath],
+          text: 'Inviting you!!\nDownload the app (Abhi deploy nhi hui😭😭) --- par still aajana',
+        );
+
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
+  }
+
 
 }
