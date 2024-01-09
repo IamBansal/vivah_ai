@@ -9,6 +9,8 @@ import 'package:vivah_ai/widgets/custom_text_field.dart';
 import 'package:image_picker/image_picker.dart';
 import '../providers/shared_pref.dart';
 import '../widgets/custom_button.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class GuestListScreen extends StatefulWidget {
   const GuestListScreen({super.key});
@@ -39,7 +41,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
   String team = listTeam.first;
   bool ladkiVisible = false;
   bool ladkeVisible = false;
-
+  String buttonText = 'Add the guest!';
   File _imageFile = File('');
   final picker = ImagePicker();
 
@@ -301,7 +303,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                 height: 10,
               ),
               CustomButton(
-                label: 'Add the guest!',
+                label: buttonText,
                 onButtonPressed: (context) => addTheGuestToDB(),
               ),
               const SizedBox(
@@ -478,17 +480,53 @@ class _GuestListScreenState extends State<GuestListScreen> {
     }
   }
 
+  Future<String?> uploadImageToCloudinary(String imagePath) async {
+    String cloudName = 'dagzgbryz';
+    String uploadPreset = 'dt1j3gyl';
+
+    Uri url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+
+    var request = http.MultipartRequest('POST', url)
+      ..fields['upload_preset'] = uploadPreset
+      ..files.add(await http.MultipartFile.fromPath('file', imagePath));
+
+    try {
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+        var parsedResponse = json.decode(responseData);
+        return parsedResponse['secure_url'];
+      } else {
+        debugPrint('Failed to upload image. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error uploading image: $e');
+      return null;
+    }
+  }
+
   addTheGuestToDB() async {
     if (_nameController.text.isNotEmpty &&
         _relationController.text.isNotEmpty &&
         _contactController.text.isNotEmpty &&
         _contactController.text.length >= 10) {
+
+      setState(() {
+        buttonText = 'Adding the guest.....';
+      });
+
       String downloadUrl = '';
       if (_imageFile != File('')) {
-        String url = await uploadImage(_imageFile, _contactController.text);
+        // String url = await uploadImage(_imageFile, _contactController.text);
+        String? url = await uploadImageToCloudinary(_imageFile.path);
 
         setState(() {
-          downloadUrl = url;
+          downloadUrl = url!;
+        });
+      } else {
+        setState(() {
+          downloadUrl = 'https://res.cloudinary.com/dz1lt2wwz/image/upload/v1704534097/WhatsApp_Image_2023-12-21_at_6.55.22_PM_acw9tv.jpg';
         });
       }
 
@@ -507,6 +545,11 @@ class _GuestListScreenState extends State<GuestListScreen> {
         _nameController.clear();
         _relationController.clear();
         _contactController.clear();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Guest added successfully'), duration: Duration(seconds: 2),));
+
+        setState(() {
+          buttonText = 'Add the guest!';
+        });
 
         debugPrint('Guest added');
       } catch (e) {

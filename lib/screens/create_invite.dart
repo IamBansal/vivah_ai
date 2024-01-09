@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -10,9 +11,12 @@ import 'package:vivah_ai/screens/guest_list_screen.dart';
 import '../widgets/custom_button.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share/share.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CreateInvite extends StatefulWidget {
   final Guest guest;
+
   const CreateInvite({super.key, required this.guest});
 
   @override
@@ -20,9 +24,18 @@ class CreateInvite extends StatefulWidget {
 }
 
 class _CreateInviteState extends State<CreateInvite> {
+  String imageUrlEmbed = '';
+
+  @override
+  void initState() {
+    super.initState();
+    imageUrlEmbed = widget.guest.url;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: Scaffold(
+    return SafeArea(
+        child: Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -41,20 +54,74 @@ class _CreateInviteState extends State<CreateInvite> {
                         stops: [0.0, 0.6],
                       ).createShader(bounds);
                     },
+                    // child: FutureBuilder(
+                    //   future: makePhotoLabAPICall(widget.guest.url),
+                    //   builder: (context, snapshot) {
+                    //     if (snapshot.connectionState == ConnectionState
+                    //         .waiting) {
+                    //       return const CircularProgressIndicator();
+                    //     } else if (snapshot.hasError) {
+                    //       return Center(
+                    //           child: Padding(
+                    //             padding: const EdgeInsets.all(13.0),
+                    //             child: Text(
+                    //               'Error loading image ${snapshot.error.toString()}',
+                    //               style: const TextStyle(
+                    //                   color: Colors.white, fontSize: 18),
+                    //               textAlign: TextAlign.center,
+                    //             ),
+                    //           ));
+                    //     } else {
+                    //       // return ClipRRect(
+                    //       //   borderRadius: const BorderRadius.only(
+                    //       //       bottomLeft: Radius.circular(14),
+                    //       //       bottomRight: Radius.circular(14)),
+                    //       //   child: isValidURL(widget.guest.url) ? Image.network(
+                    //       //     widget.guest.url,
+                    //       //     height: 500,
+                    //       //     width: MediaQuery
+                    //       //         .of(context)
+                    //       //         .size
+                    //       //         .width,
+                    //       //     fit: BoxFit.cover,
+                    //       //   ) : Image.asset(
+                    //       //     'assets/pic.png',
+                    //       //     height: 500,
+                    //       //     width: MediaQuery
+                    //       //         .of(context)
+                    //       //         .size
+                    //       //         .width,
+                    //       //     fit: BoxFit.cover,
+                    //       //   ),
+                    //       // );
+                    //       return ClipRRect(
+                    //         borderRadius: const BorderRadius.only(
+                    //             bottomLeft: Radius.circular(14),
+                    //             bottomRight: Radius.circular(14)),
+                    //         child: Image.network(
+                    //           snapshot.data != null ? snapshot.data! : widget.guest.url,
+                    //           height: 500,
+                    //           width: MediaQuery
+                    //               .of(context)
+                    //               .size
+                    //               .width,
+                    //           fit: BoxFit.cover,
+                    //         )
+                    //       );
+                    //     }
+                    //   }
+                    // ),
+
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(14), bottomRight: Radius.circular(14)),
-                      child: isValidURL(widget.guest.url) ? Image.network(
-                        widget.guest.url,
-                        height: 500,
-                        width: MediaQuery.of(context).size.width,
-                        fit: BoxFit.cover,
-                      ) : Image.asset(
-                        'assets/pic.png',
-                        height: 500,
-                        width: MediaQuery.of(context).size.width,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                        borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(14),
+                            bottomRight: Radius.circular(14)),
+                        child: Image.network(
+                          imageUrlEmbed,
+                          height: 500,
+                          width: MediaQuery.of(context).size.width,
+                          fit: BoxFit.cover,
+                        )),
                   ),
                   Positioned(
                       top: 9,
@@ -74,24 +141,36 @@ class _CreateInviteState extends State<CreateInvite> {
                             padding: EdgeInsets.only(bottom: 8.0),
                             child: Text(
                               'Upload pictures and audio for them',
-                              style: TextStyle(color: Colors.white, fontSize: 12),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 12),
                             ),
-                          )
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                makePhotoLabAPICall(widget.guest.url);
+                              },
+                              child: const Text('convert'))
                         ],
                       )),
                 ],
               ),
             ),
-            const SizedBox(height: 10,),
+            const SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 GestureDetector(
-                  onTap: () { _listen(); },
+                  onTap: () {
+                    _listen();
+                  },
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12.0),
-                      color: !_isListening ? const Color(0xFFD7B2E5) : Colors.green,
+                      color: !_isListening
+                          ? const Color(0xFFD7B2E5)
+                          : Colors.green,
                     ),
                     child: Card(
                       elevation: 0,
@@ -112,8 +191,15 @@ class _CreateInviteState extends State<CreateInvite> {
                 ),
                 Column(
                   children: [
-                    Text('Your memory with ${widget.guest.name}', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
-                    const Text('Voice Record your favorite memories', style: TextStyle(color: Colors.black),),
+                    Text(
+                      'Your memory with ${widget.guest.name}',
+                      style: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                    ),
+                    const Text(
+                      'Voice Record your favorite memories',
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ],
                 )
               ],
@@ -125,7 +211,7 @@ class _CreateInviteState extends State<CreateInvite> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                      _text,
+                    _text,
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -136,9 +222,54 @@ class _CreateInviteState extends State<CreateInvite> {
       ),
       persistentFooterAlignment: const AlignmentDirectional(0, 0),
       persistentFooterButtons: [
-        CustomButton(label: 'Create and share this personalised invite', onButtonPressed: (context) => _shareInvite(),),
+        CustomButton(
+          label: 'Create and share this personalised invite',
+          onButtonPressed: (context) => _shareInvite(),
+        ),
       ],
     ));
+  }
+
+  String photoApiKey = dotenv.env['PHOTO_API_KEY'] ?? '';
+
+  Future<String?> makePhotoLabAPICall(String imageUrl) async {
+    String apiUrl = 'https://photolab-me.p.rapidapi.com/photolab/v2/';
+    String rapidApiKey = photoApiKey;
+
+    Map<String, String> headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-Rapidapi-Key': rapidApiKey,
+      'X-Rapidapi-Host': 'photolab-me.p.rapidapi.com',
+    };
+
+    String comboId = '33975893';
+
+    String encodedParams =
+        'image_url=$imageUrl&combo_id=$comboId';
+
+    try {
+      var response = await http.post(
+        Uri.parse(apiUrl),
+        headers: headers,
+        body: encodedParams,
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint('API call successful');
+        debugPrint('Response: ${response.body}');
+        var parsedResponse = json.decode(response.body);
+        setState(() {
+          imageUrlEmbed = parsedResponse['image_url'];
+        });
+        return parsedResponse['image_url'];
+      } else {
+        debugPrint('API call failed with status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error making API call: $e');
+      return null;
+    }
   }
 
   final stt.SpeechToText _speech = stt.SpeechToText();
@@ -202,7 +333,6 @@ class _CreateInviteState extends State<CreateInvite> {
     return false;
   }
 
-
   final _screenshotController = ScreenshotController();
 
   Future<void> _shareInvite() async {
@@ -214,15 +344,13 @@ class _CreateInviteState extends State<CreateInvite> {
       File imageFile = File(imagePath);
       await imageFile.writeAsBytes(uint8List!);
 
-        await Share.shareFiles(
-          [imagePath],
-          text: 'Inviting you!!\nDownload the app (Abhi deploy nhi hui😭😭) --- par still aajana',
-        );
-
+      await Share.shareFiles(
+        [imagePath],
+        text:
+            'Inviting you!!\nDownload the app (Abhi deploy nhi hui😭😭) --- par still aajana',
+      );
     } catch (e) {
       debugPrint('Error: $e');
     }
   }
-
-
 }
