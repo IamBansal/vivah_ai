@@ -593,7 +593,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
             }
           });
         }
-        debugPrint('Found');
+        debugPrint('Found the guest');
       } else {
         debugPrint('No matching documents found.');
       }
