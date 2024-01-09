@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vivah_ai/screens/create_invite.dart';
@@ -44,6 +45,9 @@ class _GuestListScreenState extends State<GuestListScreen> {
   String buttonText = 'Add the guest!';
   File _imageFile = File('');
   final picker = ImagePicker();
+
+  String cloudName = dotenv.env['CLOUD_NAME'] ?? '';
+  String uploadPreset = dotenv.env['UPLOAD_PRESET'] ?? '';
 
   Future getImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
@@ -481,9 +485,6 @@ class _GuestListScreenState extends State<GuestListScreen> {
   }
 
   Future<String?> uploadImageToCloudinary(String imagePath) async {
-    String cloudName = 'dagzgbryz';
-    String uploadPreset = 'dt1j3gyl';
-
     Uri url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
 
     var request = http.MultipartRequest('POST', url)
