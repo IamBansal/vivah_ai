@@ -36,6 +36,40 @@ class _CreateInviteState extends State<CreateInvite> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: Colors.black26,
+            automaticallyImplyLeading: false,
+            toolbarHeight: 90,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Create Invite',
+                  style: GoogleFonts.carattere(
+                      textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 35,
+                          fontStyle: FontStyle.italic)),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Upload pictures and audio for them',
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                )
+              ],
+            ),
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    makePhotoLabAPICall(widget.guest.url);
+                  },
+                  icon: const Icon(Icons.transform),)
+            ],
+          ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -111,47 +145,57 @@ class _CreateInviteState extends State<CreateInvite> {
                     //     }
                     //   }
                     // ),
-
                     child: ClipRRect(
                         borderRadius: const BorderRadius.only(
                             bottomLeft: Radius.circular(14),
                             bottomRight: Radius.circular(14)),
-                        child: Image.network(
-                          imageUrlEmbed,
-                          height: 500,
-                          width: MediaQuery.of(context).size.width,
-                          fit: BoxFit.cover,
-                        )),
+                      child: Image.asset(
+                      'assets/invite.jpg',
+                      height: 500,
+                      width: MediaQuery.of(context).size.width,
+                      fit: BoxFit.cover,
+                    )),
                   ),
                   Positioned(
-                      top: 9,
-                      left: 14,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Create Invite',
-                            style: GoogleFonts.carattere(
-                                textStyle: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 35,
-                                    fontStyle: FontStyle.italic)),
+                    left: MediaQuery.of(context).size.width * 0.26,
+                    top: MediaQuery.of(context).size.height * 0.07,
+                    child: ClipRRect(
+                      child: Image.network(
+                        imageUrlEmbed,
+                        height: 240,
+                        width: 185,
+                        fit: BoxFit.cover,
+                      )),),
+                  Positioned(
+                    bottom: 50,
+                    left: MediaQuery.of(context).size.width * 0.2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Dear ${widget.guest.name},',
+                          style: GoogleFonts.carattere(
+                              textStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 30,
+                                  fontStyle: FontStyle.italic)),
+                        ),
+                        SizedBox(
+                        height: 100,
+                        width: 230,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0, top: 8),
+                          child: Text(
+                            _text,
+                            textAlign: TextAlign.center,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white, fontSize: 13),
                           ),
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 8.0),
-                            child: Text(
-                              'Upload pictures and audio for them',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 12),
-                            ),
-                          ),
-                          ElevatedButton(
-                              onPressed: () {
-                                makePhotoLabAPICall(widget.guest.url);
-                              },
-                              child: const Text('convert'))
-                        ],
-                      )),
+                        ),
+                  ),
+                      ],
+                    ),)
                 ],
               ),
             ),
@@ -347,7 +391,7 @@ class _CreateInviteState extends State<CreateInvite> {
       await Share.shareFiles(
         [imagePath],
         text:
-            'Inviting you!!\nDownload the app (Abhi deploy nhi hui😭😭) --- par still aajana',
+            'Inviting you!!\nDownload the app to know more about what\'s for you',
       );
     } catch (e) {
       debugPrint('Error: $e');

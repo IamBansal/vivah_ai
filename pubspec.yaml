@@ -84,6 +84,7 @@ flutter:
     - assets/facebook.png
     - assets/google.png
     - assets/pic.png
+    - assets/invite.jpg
     - .env
 
   # To add assets to your application, add an assets section, like this:
