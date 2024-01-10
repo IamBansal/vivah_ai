@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
+import 'package:vivah_ai/widgets/custom_text_field.dart';
 import 'dart:io';
 import '../../main_screen.dart';
 import '../../widgets/custom_button.dart';
@@ -22,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _hashtagController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _otpController = TextEditingController();
   bool _obscureText = true;
   bool _isBrideGroom = true;
 
@@ -39,6 +41,67 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  String _verificationId = '';
+
+  Future<void> verifyPhoneNumber() async {
+    if (_nameController.text.isNotEmpty &&
+        _phoneController.text.isNotEmpty &&
+        _hashtagController.text.isNotEmpty) {
+      try {
+        await _auth.verifyPhoneNumber(
+          phoneNumber: _phoneController.text,
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            UserCredential userCredential =
+                await _auth.signInWithCredential(credential);
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(e.message.toString()),
+              duration: const Duration(seconds: 2),
+            ));
+            debugPrint(e.message);
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            setState(() {
+              _verificationId = verificationId;
+            });
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            setState(() {
+              _verificationId = verificationId;
+            });
+          },
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString()),
+          duration: const Duration(seconds: 2),
+        ));
+        debugPrint(e.toString());
+      }
+    }
+  }
+
+  void signInWithPhoneNumber() async {
+    try {
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId,
+        smsCode: _otpController.text,
+      );
+      UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      saveAndNavigate();
+      debugPrint(
+          'Signed in with ${userCredential.user?.phoneNumber.toString()}');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.toString()),
+        duration: const Duration(seconds: 2),
+      ));
+      debugPrint(e.toString());
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -46,6 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _hashtagController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _otpController.dispose();
     super.dispose();
   }
 
@@ -187,6 +251,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 50),
+                    CustomButton(
+                        label: 'Login',
+                        onButtonPressed: (context) => _isBrideGroom
+                            ? Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const InitialDetails(),
+                                ),
+                              )
+                            : saveAndNavigate()),
                   ],
                 ),
               ),
@@ -303,20 +377,40 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: const TextStyle(color: Colors.black),
                       ),
                     ),
-                    const SizedBox(height: 50),
+                    const SizedBox(height: 20),
+                    Visibility(
+                        visible: !_verificationId.isNotEmpty,
+                        child: CustomButton(
+                          label: 'Send OTP',
+                          onButtonPressed: (context) => verifyPhoneNumber(),
+                        )),
+                    Visibility(
+                      visible: _verificationId.isNotEmpty,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          CustomTextField(
+                              controller: _otpController,
+                              label: 'OTP',
+                              hint: 'Enter OTP'),
+                          InkWell(
+                              onTap: verifyPhoneNumber,
+                              child: const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Resend OTP?'),
+                              )),
+                          const SizedBox(height: 10),
+                          CustomButton(
+                            label: 'Verify OTP and Login...',
+                            onButtonPressed: (context) =>
+                                signInWithPhoneNumber(),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-              CustomButton(
-                  label: 'Login',
-                  onButtonPressed: (context) => _isBrideGroom
-                      ? Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const InitialDetails(),
-                          ),
-                        )
-                      : saveAndNavigate()),
               const SizedBox(height: 30),
               Visibility(
                   visible: _isBrideGroom,
