@@ -21,6 +21,8 @@
     <string>Your message to the user when the camera is accessed</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Your message to the user when the photo library is accessed</string>
+    <key>NSAppleMusicUsageDescription</key>
+    <string>Allow access to Apple Music for selecting music files</string>
 	<key>CFBundleDisplayName</key>
 	<string>Vivah Ai</string>
 	<key>CFBundleExecutable</key>

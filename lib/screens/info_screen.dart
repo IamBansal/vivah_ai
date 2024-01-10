@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,6 +29,22 @@ class _InfoScreenState extends State<InfoScreen> {
   ];
   String apiKey = dotenv.env['API_KEY'] ?? '';
 
+  static Future<String?> pickFile() async {
+    try {
+      final file = await FilePicker.platform.pickFiles();
+      if (file == null || file.files.isEmpty) {
+        debugPrint('File is empty');
+        return null;
+      } else {
+        debugPrint('File is not empty and path is : ${file.files.single.path}');
+        return file.files.single.path;
+      }
+    } catch (e) {
+      debugPrint('Error picking file: $e');
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -43,8 +60,10 @@ class _InfoScreenState extends State<InfoScreen> {
             Text(
               'Vivah Guide',
               style: GoogleFonts.carattere(
-                  textStyle: const TextStyle(color: Colors.black, fontSize: 35, fontStyle: FontStyle.italic)
-              ),
+                  textStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 35,
+                      fontStyle: FontStyle.italic)),
             ),
             const Padding(
               padding: EdgeInsets.only(bottom: 8.0),
@@ -57,13 +76,9 @@ class _InfoScreenState extends State<InfoScreen> {
         ),
         actions: [
           IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.search,
-                color: Colors.black,
-              )),
-          IconButton(
-              onPressed: () {},
+              onPressed: () {
+                pickFile();
+              },
               icon: const Icon(
                 Icons.more_horiz,
                 color: Colors.black,
@@ -117,39 +132,38 @@ class _InfoScreenState extends State<InfoScreen> {
                             child: TextField(
                               controller: _askController,
                               decoration: InputDecoration(
-                                fillColor: const Color(0xFFDFDFDF),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  borderSide:
-                                      const BorderSide(color: Colors.black),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  borderSide:
-                                      const BorderSide(color: Colors.black),
-                                ),
-                                hintText: 'Ask anything',
-                                hintStyle: const TextStyle(
-                                  fontSize: 16.0,
-                                  color: Colors.grey,
-                                ),
-                                hintMaxLines: 1,
-                                labelText: 'Ask me',
-                                labelStyle: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16.0,
-                                ),
-                                suffixIcon: IconButton(
-                                  icon: const Icon(
-                                    Icons.send,
-                                    color: Colors.black,
+                                  fillColor: const Color(0xFFDFDFDF),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(25.0),
+                                    borderSide:
+                                        const BorderSide(color: Colors.black),
                                   ),
-                                  onPressed: () {
-                                    sendMessageToChatGPT(_askController.text);
-                                    Navigator.pop(context);
-                                  },
-                                )
-                              ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(25.0),
+                                    borderSide:
+                                        const BorderSide(color: Colors.black),
+                                  ),
+                                  hintText: 'Ask anything',
+                                  hintStyle: const TextStyle(
+                                    fontSize: 16.0,
+                                    color: Colors.grey,
+                                  ),
+                                  hintMaxLines: 1,
+                                  labelText: 'Ask me',
+                                  labelStyle: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16.0,
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: const Icon(
+                                      Icons.send,
+                                      color: Colors.black,
+                                    ),
+                                    onPressed: () {
+                                      sendMessageToChatGPT(_askController.text);
+                                      Navigator.pop(context);
+                                    },
+                                  )),
                               textAlignVertical: TextAlignVertical.center,
                               style: const TextStyle(color: Colors.black),
                             ),
@@ -193,11 +207,17 @@ class _InfoScreenState extends State<InfoScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Divider(height: 5, color: Colors.grey,),
-              SizedBox(height: 8,),
+              Divider(
+                height: 5,
+                color: Colors.grey,
+              ),
+              SizedBox(
+                height: 8,
+              ),
               Text(
                 'Ask a question about the wedding....\nClick me!!!',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -295,8 +315,7 @@ class _InfoScreenState extends State<InfoScreen> {
       Uri.parse('https://api.openai.com/v1/chat/completions'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization':
-            'Bearer $apiKey',
+        'Authorization': 'Bearer $apiKey',
       },
       body: jsonEncode({
         'model': 'gpt-3.5-turbo',
