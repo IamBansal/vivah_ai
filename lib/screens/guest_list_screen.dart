@@ -1,17 +1,15 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vivah_ai/screens/create_invite.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import 'package:image_picker/image_picker.dart';
+import '../models/guest.dart';
+import '../providers/api_calls.dart';
 import '../providers/shared_pref.dart';
 import '../widgets/custom_button.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class GuestListScreen extends StatefulWidget {
   const GuestListScreen({super.key});
@@ -45,9 +43,6 @@ class _GuestListScreenState extends State<GuestListScreen> {
   String buttonText = 'Add the guest!';
   File _imageFile = File('');
   final picker = ImagePicker();
-
-  String cloudName = dotenv.env['CLOUD_NAME'] ?? '';
-  String uploadPreset = dotenv.env['UPLOAD_PRESET'] ?? '';
 
   Future getImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
@@ -372,7 +367,6 @@ class _GuestListScreenState extends State<GuestListScreen> {
                               subtitle: Text(ladkiVale[index].relation),
                               trailing: const Icon(Icons.arrow_forward),
                               onTap: () {
-                                // TODO - Handle onTap action for each list item
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -445,7 +439,6 @@ class _GuestListScreenState extends State<GuestListScreen> {
                               subtitle: Text(ladkeVale[index].relation),
                               trailing: const Icon(Icons.arrow_forward),
                               onTap: () {
-                                // TODO - Handle onTap action for each list item
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -466,47 +459,6 @@ class _GuestListScreenState extends State<GuestListScreen> {
     ));
   }
 
-  Future<String> uploadImage(File imageFile, String imageFileName) async {
-    try {
-      Reference storageReference = FirebaseStorage.instance
-          .ref()
-          .child('images')
-          .child('$imageFileName.jpg');
-
-      UploadTask uploadTask = storageReference.putFile(imageFile);
-      TaskSnapshot taskSnapshot = await uploadTask;
-      String downloadURL = await taskSnapshot.ref.getDownloadURL();
-
-      return downloadURL;
-    } catch (e) {
-      debugPrint('Error uploading image: $e');
-      return e.toString();
-    }
-  }
-
-  Future<String?> uploadImageToCloudinary(String imagePath) async {
-    Uri url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
-
-    var request = http.MultipartRequest('POST', url)
-      ..fields['upload_preset'] = uploadPreset
-      ..files.add(await http.MultipartFile.fromPath('file', imagePath));
-
-    try {
-      var response = await request.send();
-      if (response.statusCode == 200) {
-        var responseData = await response.stream.bytesToString();
-        var parsedResponse = json.decode(responseData);
-        return parsedResponse['secure_url'];
-      } else {
-        debugPrint('Failed to upload image. Status code: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      debugPrint('Error uploading image: $e');
-      return null;
-    }
-  }
-
   addTheGuestToDB() async {
     if (_nameController.text.isNotEmpty &&
         _relationController.text.isNotEmpty &&
@@ -519,8 +471,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
 
       String downloadUrl = '';
       if (_imageFile != File('')) {
-        // String url = await uploadImage(_imageFile, _contactController.text);
-        String? url = await uploadImageToCloudinary(_imageFile.path);
+        String? url = await ApiCalls.uploadImageToCloudinary(_imageFile.path);
 
         setState(() {
           downloadUrl = url!;
@@ -576,16 +527,19 @@ class _GuestListScreenState extends State<GuestListScreen> {
         for(DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
           Map<String, dynamic>? data = entry.data();
           setState(() {
-            Guest guest = Guest(
-                category: data!['category'].toString(),
-                contact: data['contact'].toString(),
-                hashtag: data['hashtag'].toString(),
-                name: data['name'].toString(),
-                relation: data['relation'].toString(),
-                team: data['team'].toString(),
-                url: data['url'].toString(),
-                userId: data['userId'].toString()
-            );
+
+            Guest guest = Guest.fromMap(data!);
+
+            // Guest guest = Guest(
+            //     category: data!['category'].toString(),
+            //     contact: data['contact'].toString(),
+            //     hashtag: data['hashtag'].toString(),
+            //     name: data['name'].toString(),
+            //     relation: data['relation'].toString(),
+            //     team: data['team'].toString(),
+            //     url: data['url'].toString(),
+            //     userId: data['userId'].toString()
+            // );
             if(guest.team == 'Ladki wale') {
               ladkiVale.add(guest);
             } else {
@@ -612,55 +566,3 @@ class _GuestListScreenState extends State<GuestListScreen> {
   }
 
 }
-
-class Guest {
-  String category;
-  String contact;
-  String hashtag;
-  String name;
-  String relation;
-  String team;
-  String url;
-  String userId;
-
-  // Constructor
-  Guest({
-    required this.category,
-    required this.contact,
-    required this.hashtag,
-    required this.name,
-    required this.relation,
-    required this.team,
-    required this.url,
-    required this.userId,
-  });
-
-  // Factory method to create a Guest instance from a Map
-  factory Guest.fromMap(Map<String, dynamic> map) {
-    return Guest(
-      category: map['category'],
-      contact: map['contact'],
-      hashtag: map['hashtag'],
-      name: map['name'],
-      relation: map['relation'],
-      team: map['team'],
-      url: map['url'],
-      userId: map['userId'],
-    );
-  }
-
-  // Method to convert Guest instance to a Map
-  Map<String, dynamic> toMap() {
-    return {
-      'category': category,
-      'contact': contact,
-      'hashtag': hashtag,
-      'name': name,
-      'relation': relation,
-      'team': team,
-      'url': url,
-      'userId': userId,
-    };
-  }
-}
-

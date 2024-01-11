@@ -1,18 +1,14 @@
-import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:vivah_ai/screens/guest_list_screen.dart';
+import '../models/guest.dart';
+import '../providers/api_calls.dart';
 import '../widgets/custom_button.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:share/share.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class CreateInvite extends StatefulWidget {
   final Guest guest;
@@ -25,6 +21,7 @@ class CreateInvite extends StatefulWidget {
 
 class _CreateInviteState extends State<CreateInvite> {
   String imageUrlEmbed = '';
+  final _screenshotController = ScreenshotController();
 
   @override
   void initState() {
@@ -64,10 +61,19 @@ class _CreateInviteState extends State<CreateInvite> {
             ),
             actions: [
               IconButton(
-                  onPressed: () {
-                    makePhotoLabAPICall(widget.guest.url);
+                  onPressed: () async {
+                    String url = (await ApiCalls.makePhotoLabAPICall(widget.guest.url))!;
+                    setState(() {
+                      imageUrlEmbed = url;
+                    });
                   },
-                  icon: const Icon(Icons.transform),)
+                  icon: const Icon(Icons.transform),),
+              IconButton(
+                  onPressed: () {
+                    //TODO - add invite to database
+                    // addTheInviteToDB();
+                  },
+                  icon: const Icon(Icons.file_upload_outlined),)
             ],
           ),
       body: SingleChildScrollView(
@@ -268,52 +274,10 @@ class _CreateInviteState extends State<CreateInvite> {
       persistentFooterButtons: [
         CustomButton(
           label: 'Create and share this personalised invite',
-          onButtonPressed: (context) => _shareInvite(),
+          onButtonPressed: (context) => ApiCalls.shareInvite(_screenshotController),
         ),
       ],
     ));
-  }
-
-  String photoApiKey = dotenv.env['PHOTO_API_KEY'] ?? '';
-
-  Future<String?> makePhotoLabAPICall(String imageUrl) async {
-    String apiUrl = 'https://photolab-me.p.rapidapi.com/photolab/v2/';
-    String rapidApiKey = photoApiKey;
-
-    Map<String, String> headers = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-Rapidapi-Key': rapidApiKey,
-      'X-Rapidapi-Host': 'photolab-me.p.rapidapi.com',
-    };
-
-    String comboId = '33975893';
-
-    String encodedParams =
-        'image_url=$imageUrl&combo_id=$comboId';
-
-    try {
-      var response = await http.post(
-        Uri.parse(apiUrl),
-        headers: headers,
-        body: encodedParams,
-      );
-
-      if (response.statusCode == 200) {
-        debugPrint('API call successful');
-        debugPrint('Response: ${response.body}');
-        var parsedResponse = json.decode(response.body);
-        setState(() {
-          imageUrlEmbed = parsedResponse['image_url'];
-        });
-        return parsedResponse['image_url'];
-      } else {
-        debugPrint('API call failed with status code: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      debugPrint('Error making API call: $e');
-      return null;
-    }
   }
 
   final stt.SpeechToText _speech = stt.SpeechToText();
@@ -377,24 +341,22 @@ class _CreateInviteState extends State<CreateInvite> {
     return false;
   }
 
-  final _screenshotController = ScreenshotController();
+  Future<void> addTheInviteToDB() async {
 
-  Future<void> _shareInvite() async {
     try {
-      final uint8List = await _screenshotController.capture();
-      final tempDir = await getTemporaryDirectory();
-      final imagePath = '${tempDir.path}/image.png';
+      final firestore = FirebaseFirestore.instance;
+      // FirebaseAuth auth = FirebaseAuth.instance;
+      // User? user = auth.currentUser;
 
-      File imageFile = File(imagePath);
-      await imageFile.writeAsBytes(uint8List!);
+      DocumentReference newDocumentRef =
+          await firestore.collection('entries').add({
 
-      await Share.shareFiles(
-        [imagePath],
-        text:
-            'Inviting you!!\nDownload the app to know more about what\'s for you',
-      );
-    } catch (e) {
-      debugPrint('Error: $e');
+      });
+
+      debugPrint('Data added successfully with ID: ${newDocumentRef.id}');
+    } catch (error) {
+      debugPrint('Error adding data: $error');
     }
+
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vivah_ai/main_screen.dart';
 import 'package:vivah_ai/widgets/custom_button.dart';
+import '../../providers/api_calls.dart';
 import '../../providers/shared_pref.dart';
 import '../../widgets/custom_text_field.dart';
 import 'login_screen.dart';
@@ -106,7 +107,9 @@ class _InitialDetailsState extends State<InitialDetails> {
               label: 'Date',
               hint: 'Enter Date',
               icon: const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
-              onIconTap: (context) => _selectDate(context),
+              onIconTap: (context) async => {
+                _dateController.text = (await ApiCalls.selectDate(context))!
+              },
               keyboardType: TextInputType.text,
             ),
             const SizedBox(
@@ -129,24 +132,6 @@ class _InitialDetailsState extends State<InitialDetails> {
     ));
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(DateTime.now().year + 2),
-    );
-
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-        _dateController.text =
-            '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}';
-      });
-    }
-  }
-
-  DateTime selectedDate = DateTime.now();
   final _brideNameController = TextEditingController();
   final _groomNameController = TextEditingController();
   final _hashtagController = TextEditingController();

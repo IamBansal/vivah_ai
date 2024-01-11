@@ -18,100 +18,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _hashtagController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _otpController = TextEditingController();
-  bool _obscureText = true;
-  bool _isBrideGroom = true;
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  Future<bool> authenticate(String email, String password) async {
-    try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  String _verificationId = '';
-
-  Future<void> verifyPhoneNumber() async {
-    if (_nameController.text.isNotEmpty &&
-        _phoneController.text.isNotEmpty &&
-        _hashtagController.text.isNotEmpty) {
-      try {
-        await _auth.verifyPhoneNumber(
-          phoneNumber: _phoneController.text,
-          verificationCompleted: (PhoneAuthCredential credential) async {
-            UserCredential userCredential =
-                await _auth.signInWithCredential(credential);
-          },
-          verificationFailed: (FirebaseAuthException e) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(e.message.toString()),
-              duration: const Duration(seconds: 2),
-            ));
-            debugPrint(e.message);
-          },
-          codeSent: (String verificationId, int? resendToken) {
-            setState(() {
-              _verificationId = verificationId;
-            });
-          },
-          codeAutoRetrievalTimeout: (String verificationId) {
-            setState(() {
-              _verificationId = verificationId;
-            });
-          },
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString()),
-          duration: const Duration(seconds: 2),
-        ));
-        debugPrint(e.toString());
-      }
-    }
-  }
-
-  void signInWithPhoneNumber() async {
-    try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId,
-        smsCode: _otpController.text,
-      );
-      UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      saveAndNavigate();
-      debugPrint(
-          'Signed in with ${userCredential.user?.phoneNumber.toString()}');
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.toString()),
-        duration: const Duration(seconds: 2),
-      ));
-      debugPrint(e.toString());
-    }
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    _hashtagController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _otpController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -454,6 +360,106 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _hashtagController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _otpController = TextEditingController();
+  bool _obscureText = true;
+  bool _isBrideGroom = true;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<bool> authenticate(String email, String password) async {
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  String _verificationId = '';
+
+  Future<void> verifyPhoneNumber() async {
+    if (_nameController.text.isNotEmpty &&
+        _phoneController.text.isNotEmpty &&
+        _hashtagController.text.isNotEmpty &&
+        _hashtagController.text.startsWith('#')) {
+      try {
+        await _auth.verifyPhoneNumber(
+          phoneNumber: _phoneController.text,
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            await _auth.signInWithCredential(credential);
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(e.message.toString()),
+              duration: const Duration(seconds: 2),
+            ));
+            debugPrint(e.message);
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            setState(() {
+              _verificationId = verificationId;
+            });
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            setState(() {
+              _verificationId = verificationId;
+            });
+          },
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString()),
+          duration: const Duration(seconds: 2),
+        ));
+        debugPrint(e.toString());
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Check for the inputs and hashtags (Hashtag must start with #)'),
+        duration: Duration(seconds: 2),
+      ));
+    }
+  }
+
+  void signInWithPhoneNumber() async {
+    try {
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId,
+        smsCode: _otpController.text,
+      );
+      UserCredential userCredential =
+      await _auth.signInWithCredential(credential);
+      saveAndNavigate();
+      debugPrint(
+          'Signed in with ${userCredential.user?.phoneNumber.toString()}');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.toString()),
+        duration: const Duration(seconds: 2),
+      ));
+      debugPrint(e.toString());
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _hashtagController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _otpController.dispose();
+    super.dispose();
+  }
+
   Future<UserCredential?> _signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
@@ -501,10 +507,17 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
-  saveAndNavigate() async {
-    //TODO - validate it
-    if (_hashtagController.text.isNotEmpty &&
-        _hashtagController.text.startsWith('#')) {
+  Future<bool> checkForHashtag() async {
+    final firestore = FirebaseFirestore.instance;
+    QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+        .collection('entries')
+        .where('hashtag', isEqualTo: _hashtagController.text)
+        .get();
+    return snapshot.size != 0;
+  }
+
+  void saveAndNavigate() async {
+    if (await checkForHashtag()) {
       await LocalData.saveName(_hashtagController.text)
           .whenComplete(() => Navigator.push(
                 context,
@@ -512,6 +525,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   builder: (context) => const MainScreen(isBrideGroom: false),
                 ),
               ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('No matching hashtag found'),
+        duration: Duration(seconds: 2),
+      ));
     }
   }
 }

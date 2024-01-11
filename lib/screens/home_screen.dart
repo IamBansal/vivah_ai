@@ -1,71 +1,25 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:vivah_ai/providers/api_calls.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
-
+import 'package:vivah_ai/widgets/custom_text_field.dart';
+import '../models/ceremony.dart';
 import '../widgets/custom_button.dart';
 import 'auth/login_screen.dart';
+import 'ceremony_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  // final Function(int) onButtonPressed;
-
-  const HomeScreen({super.key
-      // , required this.onButtonPressed
-      });
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final firestore = FirebaseFirestore.instance;
-  String userId = '';
-  String bride = 'Bride';
-  String groom = 'Groom';
-
-  @override
-  void initState() {
-    super.initState();
-    _getHashTagAndId();
-  }
-
-  Future<void> _getHashTagAndId() async {
-    // await LocalData.saveName('#AniKaTanmay');
-    String? hashtag = await LocalData.getName();
-    // List<String>? list = await LocalData.getNameAndId();
-    //
-    // setState(() {
-    //   bride = list![0];
-    //   groom = list[1];
-    //   userId = list[2];
-    // });
-    print(hashtag);
-
-    try {
-      QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
-          .collection('entries')
-          .where('hashtag', isEqualTo: hashtag)
-          .limit(1)
-          .get();
-      if (snapshot.docs.isNotEmpty) {
-        DocumentSnapshot<Map<String, dynamic>> firstEntry = snapshot.docs.first;
-        Map<String, dynamic>? data = firstEntry.data();
-        setState(() {
-          bride = data!['bride'].toString();
-          groom = data['groom'].toString();
-          userId = data['id'].toString();
-        });
-        await LocalData.saveNameAndId(bride, groom, userId);
-        debugPrint('Found');
-      } else {
-        debugPrint('No matching documents found.');
-      }
-    } catch (error) {
-      debugPrint('Error querying entries: $error');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -228,71 +182,49 @@ class _HomeScreenState extends State<HomeScreen> {
                   endIndent: 20,
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Ceremonies',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17),
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        // width: MediaQuery.of(context).size.width * 1.5,
-                        width: 400,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 6,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 6.0),
-                              width: 150,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.all(2.0),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(
-                                        'assets/pic.png',
-                                        width: 150,
-                                        height: 150,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                  const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      'Roka',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  const Text(
-                                    'hsvcwubcowbcwicoiwbvwnvowvcbskejbqcboqbcoqibcq',
-                                    style: TextStyle(
-                                        overflow: TextOverflow.ellipsis,
-                                        color: Colors.grey),
-                                    maxLines: 2,
-                                  )
-                                ],
-                              ),
-                            );
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Ceremonies',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17),
+                    ),
+                  ),
+                  Visibility(
+                      visible: isBrideGroom,
+                      child: IconButton(
+                          onPressed: () {
+                            showAddCeremonyDialog();
                           },
+                          icon: const Icon(Icons.add_to_home_screen)))
+                ],
+              ),
+              Visibility(
+                visible: ceremonies.isNotEmpty,
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          // width: MediaQuery.of(context).size.width * 1.5,
+                          width: 400,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: ceremonies.length,
+                            itemBuilder: (context, index) {
+                              return CeremonyItem(ceremony: ceremonies[index]);
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -329,5 +261,360 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     ));
+  }
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final firestore = FirebaseFirestore.instance;
+  String userId = '';
+  String bride = 'Bride';
+  String groom = 'Groom';
+  String hashtag = '';
+  bool isBrideGroom = false;
+  List<Ceremony> ceremonies = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getHashTagAndId();
+  }
+
+  Future<void> _getHashTagAndId() async {
+    String? hash = await LocalData.getName();
+    setState(() {
+      hashtag = hash!;
+    });
+    _getCeremonyList();
+    debugPrint(hashtag);
+
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+          .collection('entries')
+          .where('hashtag', isEqualTo: hashtag)
+          .limit(1)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        DocumentSnapshot<Map<String, dynamic>> firstEntry = snapshot.docs.first;
+        Map<String, dynamic>? data = firstEntry.data();
+        setState(() {
+          bride = data!['bride'].toString();
+          groom = data['groom'].toString();
+          userId = data['userId'].toString();
+        });
+        await LocalData.saveNameAndId(bride, groom, userId);
+
+        QuerySnapshot<Map<String, dynamic>> snapshot2 = await firestore
+            .collection('couple')
+            .where('id', isEqualTo: userId)
+            .get();
+
+        setState(() {
+          isBrideGroom = snapshot2.size != 0;
+        });
+
+        debugPrint('Found for bride groom');
+      } else {
+        debugPrint('No matching documents found for bride groom.');
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+    }
+  }
+
+  Future<void> _getCeremonyList() async {
+    ceremonies.clear();
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('ceremonies')
+          .where('hashtag', isEqualTo: hashtag)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+          setState(() {
+            ceremonies.add(Ceremony.fromMap(data!));
+          });
+        }
+        debugPrint('Found the ceremony');
+      } else {
+        debugPrint('No matching documents found for ceremonies.');
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+    }
+  }
+
+  void showAddCeremonyDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: AddNewCeremony(userId: userId, hashtag: hashtag),
+        );
+      },
+    );
+  }
+}
+
+class AddNewCeremony extends StatefulWidget {
+  final String userId;
+  final String hashtag;
+
+  const AddNewCeremony(
+      {super.key, required this.userId, required this.hashtag});
+
+  @override
+  State<AddNewCeremony> createState() => _AddNewCeremonyState();
+}
+
+class _AddNewCeremonyState extends State<AddNewCeremony> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.6,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Container(
+                        color: Colors.transparent,
+                        child: Wrap(
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.camera,
+                                  color: Color(0xFF5271EF)),
+                              title: const Text('Take Photo'),
+                              onTap: () {
+                                Navigator.pop(
+                                    context); // Close the bottom sheet
+                                getImage(ImageSource.camera);
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(
+                                Icons.photo_library,
+                                color: Color(0xFF5271EF),
+                              ),
+                              title: const Text('Choose from Gallery'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                getImage(ImageSource.gallery);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: const Color(0xFF5271EF), width: 1)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: _imageFile != File('')
+                          ? CircleAvatar(
+                              backgroundImage: FileImage(_imageFile),
+                              radius: 50.0,
+                            )
+                          : const Icon(
+                              Icons.add_a_photo,
+                              color: Color(0xFF5271EF),
+                            ),
+                    )),
+              ),
+            ),
+            const SizedBox(height: 20,),
+            CustomTextField(
+                controller: _titleController,
+                label: 'Title',
+                hint: 'Ceremony Title'),
+            const SizedBox(height: 20),
+            CustomTextField(
+                controller: _descController,
+                label: 'Description',
+                hint: 'Ceremony Description'),
+            const SizedBox(height: 20),
+            CustomTextField(
+                controller: _locationController,
+                label: 'Location',
+                hint: 'Ceremony Location'),
+            const SizedBox(height: 20),
+            CustomTextFieldWithIcon(
+              controller: _dateController,
+              label: 'Date',
+              hint: 'Ceremony Date',
+              icon: const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
+              onIconTap: (context) async => {
+                _dateController.text = (await ApiCalls.selectDate(context))!
+              },
+              keyboardType: TextInputType.text,
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: SizedBox(
+                width: 320.0,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFD7B2E5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                  onPressed: () async {
+                    if (_titleController.text.isNotEmpty &&
+                        _descController.text.isNotEmpty &&
+                        imagePath.isNotEmpty &&
+                        _dateController.text.isNotEmpty &&
+                        _locationController.text.isNotEmpty) {
+                      saveToDB();
+                      setState(() {
+                        buttonText = 'Adding the ceremony.....';
+                      });
+                    }
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Add the ceremony",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String buttonText = 'Add the ceremony';
+  final _titleController = TextEditingController();
+  final _descController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _dateController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _titleController.dispose();
+    _descController.dispose();
+    _locationController.dispose();
+    _dateController.dispose();
+  }
+
+  File _imageFile = File('');
+  String imagePath = '';
+  final picker = ImagePicker();
+
+  Future getImage(ImageSource source) async {
+    final pickedFile = await picker.pickImage(source: source);
+
+    if (pickedFile != null) {
+      setState(() {
+        imagePath = pickedFile.path;
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> saveToDB() async {
+    String url = (await ApiCalls.uploadImageToCloudinary(imagePath))!;
+    try {
+      await FirebaseFirestore.instance
+          .collection('ceremonies')
+          .add(
+          Ceremony(
+              title: _titleController.text,
+              description: _descController.text,
+              url: url,
+              location: _locationController.text,
+              date: _dateController.text,
+              userId: widget.userId,
+              hashtag: widget.hashtag)
+              .toMap()
+      ).whenComplete(() => Navigator.of(context).pop());
+      setState(() {
+        buttonText = 'Add the ceremony';
+      });
+      debugPrint('Ceremony added');
+    } catch (e) {
+      debugPrint('Error adding guest to Firestore: $e');
+    }
+  }
+}
+
+class CeremonyItem extends StatefulWidget {
+  final Ceremony ceremony;
+
+  const CeremonyItem({super.key, required this.ceremony});
+
+  @override
+  State<CeremonyItem> createState() => _CeremonyItemState();
+}
+
+class _CeremonyItemState extends State<CeremonyItem> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CeremonyScreen(ceremony: widget.ceremony)),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 6.0),
+        width: 150,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.all(2.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  widget.ceremony.url,
+                  width: 150,
+                  height: 150,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                widget.ceremony.title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Text(
+              widget.ceremony.description,
+              style: const TextStyle(
+                  overflow: TextOverflow.ellipsis, color: Colors.grey),
+              maxLines: 2,
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
