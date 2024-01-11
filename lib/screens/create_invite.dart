@@ -70,10 +70,10 @@ class _CreateInviteState extends State<CreateInvite> {
                   icon: const Icon(Icons.transform),),
               IconButton(
                   onPressed: () {
-                    //TODO - add invite to database
-                    // addTheInviteToDB();
+                    //TODO - download invite
+                    // downloadInvite();
                   },
-                  icon: const Icon(Icons.file_upload_outlined),)
+                  icon: const Icon(Icons.file_download_outlined),)
             ],
           ),
       body: SingleChildScrollView(
@@ -274,7 +274,11 @@ class _CreateInviteState extends State<CreateInvite> {
       persistentFooterButtons: [
         CustomButton(
           label: 'Create and share this personalised invite',
-          onButtonPressed: (context) => ApiCalls.shareInvite(_screenshotController),
+          onButtonPressed: (context) => {
+            ApiCalls.shareInvite(_screenshotController)
+            //TODO - download invite
+            // addTheInviteToDB()
+          },
         ),
       ],
     ));

@@ -20,7 +20,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -304,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         QuerySnapshot<Map<String, dynamic>> snapshot2 = await firestore
             .collection('couple')
-            .where('id', isEqualTo: userId)
+            .where('id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
             .get();
 
         setState(() {
@@ -396,10 +395,14 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                               leading: const Icon(Icons.camera,
                                   color: Color(0xFF5271EF)),
                               title: const Text('Take Photo'),
-                              onTap: () {
+                              onTap: () async {
                                 Navigator.pop(
                                     context); // Close the bottom sheet
-                                getImage(ImageSource.camera);
+                                String path = (await ApiCalls.getImage(
+                                    ImageSource.camera))!;
+                                setState(() {
+                                  imagePath = path;
+                                });
                               },
                             ),
                             ListTile(
@@ -408,9 +411,13 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                                 color: Color(0xFF5271EF),
                               ),
                               title: const Text('Choose from Gallery'),
-                              onTap: () {
+                              onTap: () async {
                                 Navigator.pop(context);
-                                getImage(ImageSource.gallery);
+                                String path = (await ApiCalls.getImage(
+                                    ImageSource.gallery))!;
+                                setState(() {
+                                  imagePath = path;
+                                });
                               },
                             ),
                           ],
@@ -428,9 +435,9 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                             color: const Color(0xFF5271EF), width: 1)),
                     child: Padding(
                       padding: const EdgeInsets.all(2.0),
-                      child: _imageFile != File('')
+                      child: imagePath.isNotEmpty
                           ? CircleAvatar(
-                              backgroundImage: FileImage(_imageFile),
+                              backgroundImage: FileImage(File(imagePath)),
                               radius: 50.0,
                             )
                           : const Icon(
@@ -440,7 +447,9 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                     )),
               ),
             ),
-            const SizedBox(height: 20,),
+            const SizedBox(
+              height: 20,
+            ),
             CustomTextField(
                 controller: _titleController,
                 label: 'Title',
@@ -489,11 +498,11 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                       });
                     }
                   },
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Add the ceremony",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
+                      buttonText,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
                 ),
@@ -520,37 +529,23 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
     _dateController.dispose();
   }
 
-  File _imageFile = File('');
   String imagePath = '';
-  final picker = ImagePicker();
-
-  Future getImage(ImageSource source) async {
-    final pickedFile = await picker.pickImage(source: source);
-
-    if (pickedFile != null) {
-      setState(() {
-        imagePath = pickedFile.path;
-        _imageFile = File(pickedFile.path);
-      });
-    }
-  }
 
   Future<void> saveToDB() async {
     String url = (await ApiCalls.uploadImageToCloudinary(imagePath))!;
     try {
       await FirebaseFirestore.instance
           .collection('ceremonies')
-          .add(
-          Ceremony(
-              title: _titleController.text,
-              description: _descController.text,
-              url: url,
-              location: _locationController.text,
-              date: _dateController.text,
-              userId: widget.userId,
-              hashtag: widget.hashtag)
-              .toMap()
-      ).whenComplete(() => Navigator.of(context).pop());
+          .add(Ceremony(
+                  title: _titleController.text,
+                  description: _descController.text,
+                  url: url,
+                  location: _locationController.text,
+                  date: _dateController.text,
+                  userId: widget.userId,
+                  hashtag: widget.hashtag)
+              .toMap())
+          .whenComplete(() => Navigator.of(context).pop());
       setState(() {
         buttonText = 'Add the ceremony';
       });
@@ -577,7 +572,8 @@ class _CeremonyItemState extends State<CeremonyItem> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => CeremonyScreen(ceremony: widget.ceremony)),
+          MaterialPageRoute(
+              builder: (context) => CeremonyScreen(ceremony: widget.ceremony)),
         );
       },
       child: Container(

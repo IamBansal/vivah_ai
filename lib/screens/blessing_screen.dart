@@ -69,7 +69,7 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
           IconButton(
               onPressed: () {},
               icon: const Icon(
-                Icons.file_upload_outlined,
+                Icons.file_download_outlined,
                 color: Colors.white,
               )),
         ],
@@ -78,7 +78,7 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
         child: Column(
           children: [
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.6,
+              height: MediaQuery.of(context).size.height * 0.70,
               child: VideoPlayer(_videoPlayerController),
             ),
             const SizedBox(
@@ -118,12 +118,12 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
                 const Column(
                   children: [
                     Text(
-                      'Badi dadi\'s blessings',
+                      'Your blessings',
                       style: TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      'A message for Anika and Tanmay',
+                      'A message for the couple',
                       style: TextStyle(color: Colors.black),
                     ),
                   ],
@@ -149,7 +149,7 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
       persistentFooterAlignment: const AlignmentDirectional(0, 0),
       persistentFooterButtons: [
         CustomButton(
-          label: 'Upload your blessing',
+          label: 'Upload and share your blessing',
           onButtonPressed: (context) => null,
         )
       ],

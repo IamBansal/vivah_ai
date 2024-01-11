@@ -20,6 +20,12 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 
   @override
+  void initState() {
+    super.initState();
+    _hashtagController.text = '#';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -262,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: Colors.grey,
                           ),
                           hintMaxLines: 1,
-                          labelText: 'Wedding Tag',
+                          labelText: 'Wedding Hashtag',
                           labelStyle: const TextStyle(
                             color: Colors.grey,
                             fontSize: 16.0,
@@ -368,7 +374,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _otpController = TextEditingController();
   bool _obscureText = true;
   bool _isBrideGroom = true;
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<bool> authenticate(String email, String password) async {

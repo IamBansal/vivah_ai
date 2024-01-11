@@ -44,6 +44,7 @@ class _CeremonyScreenState extends State<CeremonyScreen> {
       ),
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
                 borderRadius: const BorderRadius.only(

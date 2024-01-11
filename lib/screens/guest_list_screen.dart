@@ -41,18 +41,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
   bool ladkiVisible = false;
   bool ladkeVisible = false;
   String buttonText = 'Add the guest!';
-  File _imageFile = File('');
-  final picker = ImagePicker();
-
-  Future getImage(ImageSource source) async {
-    final pickedFile = await picker.pickImage(source: source);
-
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    }
-  }
+  String imagePath = '';
 
   Future<void> _importContact() async {
     final PhoneContact contact = await FlutterContactPicker.pickPhoneContact();
@@ -152,7 +141,8 @@ class _GuestListScreenState extends State<GuestListScreen> {
                 icon: const Icon(Icons.add_ic_call_outlined,
                     color: Color(0xFFD7B2E5)),
                 onIconTap: (context) => _importContact(),
-                keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: false),
               ),
               const SizedBox(
                 height: 15,
@@ -243,10 +233,15 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                         leading: const Icon(Icons.camera,
                                             color: Color(0xFF5271EF)),
                                         title: const Text('Take Photo'),
-                                        onTap: () {
+                                        onTap: () async {
                                           Navigator.pop(
                                               context); // Close the bottom sheet
-                                          getImage(ImageSource.camera);
+                                          String path =
+                                              (await ApiCalls.getImage(
+                                                  ImageSource.camera))!;
+                                          setState(() {
+                                            imagePath = path;
+                                          });
                                         },
                                       ),
                                       ListTile(
@@ -256,9 +251,14 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                         ),
                                         title:
                                             const Text('Choose from Gallery'),
-                                        onTap: () {
+                                        onTap: () async {
                                           Navigator.pop(context);
-                                          getImage(ImageSource.gallery);
+                                          String path =
+                                              (await ApiCalls.getImage(
+                                                  ImageSource.gallery))!;
+                                          setState(() {
+                                            imagePath = path;
+                                          });
                                         },
                                       ),
                                     ],
@@ -277,9 +277,10 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                       width: 1)),
                               child: Padding(
                                 padding: const EdgeInsets.all(2.0),
-                                child: _imageFile != File('')
+                                child: imagePath.isNotEmpty
                                     ? CircleAvatar(
-                                        backgroundImage: FileImage(_imageFile),
+                                        backgroundImage:
+                                            FileImage(File(imagePath)),
                                         radius: 50.0,
                                       )
                                     : const Icon(
@@ -351,17 +352,19 @@ class _GuestListScreenState extends State<GuestListScreen> {
                             child: ListTile(
                               leading: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
-                                child: isValidURL(ladkiVale[index].url) ? Image.network(
-                                ladkiVale[index].url,
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                              ) : Image.asset(
-                                'assets/pic.png',
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                              ),
+                                child: isValidURL(ladkiVale[index].url)
+                                    ? Image.network(
+                                        ladkiVale[index].url,
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        'assets/pic.png',
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                      ),
                               ),
                               title: Text(ladkiVale[index].name),
                               subtitle: Text(ladkiVale[index].relation),
@@ -370,7 +373,8 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => CreateInvite(guest: ladkiVale[index]),
+                                    builder: (context) =>
+                                        CreateInvite(guest: ladkiVale[index]),
                                   ),
                                 );
                               },
@@ -423,17 +427,19 @@ class _GuestListScreenState extends State<GuestListScreen> {
                             child: ListTile(
                               leading: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
-                                child: isValidURL(ladkeVale[index].url) ? Image.network(
-                                  ladkeVale[index].url,
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                ) : Image.asset(
-                                  'assets/pic.png',
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                ),
+                                child: isValidURL(ladkeVale[index].url)
+                                    ? Image.network(
+                                        ladkeVale[index].url,
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        'assets/pic.png',
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                      ),
                               ),
                               title: Text(ladkeVale[index].name),
                               subtitle: Text(ladkeVale[index].relation),
@@ -442,7 +448,8 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => CreateInvite(guest: ladkeVale[index]),
+                                    builder: (context) =>
+                                        CreateInvite(guest: ladkeVale[index]),
                                   ),
                                 );
                               },
@@ -464,21 +471,21 @@ class _GuestListScreenState extends State<GuestListScreen> {
         _relationController.text.isNotEmpty &&
         _contactController.text.isNotEmpty &&
         _contactController.text.length >= 10) {
-
       setState(() {
         buttonText = 'Adding the guest.....';
       });
 
       String downloadUrl = '';
-      if (_imageFile != File('')) {
-        String? url = await ApiCalls.uploadImageToCloudinary(_imageFile.path);
+      if (imagePath.isNotEmpty) {
+        String? url = await ApiCalls.uploadImageToCloudinary(imagePath);
 
         setState(() {
           downloadUrl = url!;
         });
       } else {
         setState(() {
-          downloadUrl = 'https://res.cloudinary.com/dz1lt2wwz/image/upload/v1704534097/WhatsApp_Image_2023-12-21_at_6.55.22_PM_acw9tv.jpg';
+          downloadUrl =
+              'https://res.cloudinary.com/dz1lt2wwz/image/upload/v1704534097/WhatsApp_Image_2023-12-21_at_6.55.22_PM_acw9tv.jpg';
         });
       }
 
@@ -490,14 +497,17 @@ class _GuestListScreenState extends State<GuestListScreen> {
           'relation': _relationController.text,
           'category': relationCategory,
           'team': team,
-          'userId' : userId,
-          'hashtag' : hashtag
+          'userId': userId,
+          'hashtag': hashtag
         }).whenComplete(() => _getGuestList());
 
         _nameController.clear();
         _relationController.clear();
         _contactController.clear();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Guest added successfully'), duration: Duration(seconds: 2),));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Guest added successfully'),
+          duration: Duration(seconds: 2),
+        ));
 
         setState(() {
           buttonText = 'Add the guest!';
@@ -514,44 +524,29 @@ class _GuestListScreenState extends State<GuestListScreen> {
     ladkeVale.clear();
     ladkiVale.clear();
     try {
-      QuerySnapshot<Map<String, dynamic>> snapshot1 = await FirebaseFirestore.instance
+      await FirebaseFirestore
+          .instance
           .collection('guestList')
           .where('hashtag', isEqualTo: hashtag)
           .get();
 
-      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
           .collection('guestList')
           .where('hashtag', isEqualTo: hashtag)
           .get();
       if (snapshot.docs.isNotEmpty) {
-        for(DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
           Map<String, dynamic>? data = entry.data();
           setState(() {
-
             Guest guest = Guest.fromMap(data!);
-
-            // Guest guest = Guest(
-            //     category: data!['category'].toString(),
-            //     contact: data['contact'].toString(),
-            //     hashtag: data['hashtag'].toString(),
-            //     name: data['name'].toString(),
-            //     relation: data['relation'].toString(),
-            //     team: data['team'].toString(),
-            //     url: data['url'].toString(),
-            //     userId: data['userId'].toString()
-            // );
-            if(guest.team == 'Ladki wale') {
-              ladkiVale.add(guest);
-            } else {
-              ladkeVale.add(guest);
-            }
+            guest.team == 'Ladki wale' ? ladkiVale.add(guest) : ladkeVale.add(guest);
           });
         }
         debugPrint('Found the guest');
       } else {
         debugPrint('No matching documents found.');
       }
-
     } catch (error) {
       debugPrint('Error querying entries: $error');
     }
@@ -564,5 +559,4 @@ class _GuestListScreenState extends State<GuestListScreen> {
     }
     return false;
   }
-
 }

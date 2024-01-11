@@ -82,7 +82,6 @@ flutter:
   assets:
     - assets/splash.png
     - assets/apple.png
-    - assets/facebook.png
     - assets/google.png
     - assets/pic.png
     - assets/invite.jpg
