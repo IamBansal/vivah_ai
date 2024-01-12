@@ -339,7 +339,6 @@ class _GuestListScreenState extends State<GuestListScreen> {
                   visible: ladkiVisible,
                   child: SingleChildScrollView(
                     child: SizedBox(
-                      // height: MediaQuery.of(context).size.height * 0.6,
                       height: ladkiVale.length * 90,
                       child: ListView.builder(
                         itemCount: ladkiVale.length,
