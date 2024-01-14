@@ -10,10 +10,10 @@ import 'package:share/share.dart';
 
 class ApiCalls {
 
-  static Future<String?> uploadToCloudinary(String imagePath, String type) async {
+  static Future<String?> uploadImageToCloudinary(String imagePath) async {
     String cloudName = dotenv.env['CLOUD_NAME'] ?? '';
     String uploadPreset = dotenv.env['UPLOAD_PRESET'] ?? '';
-    Uri url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/$type/upload');
+    Uri url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
 
     var request = http.MultipartRequest('POST', url)
       ..fields['upload_preset'] = uploadPreset
@@ -24,6 +24,30 @@ class ApiCalls {
       if (response.statusCode == 200) {
         var responseData = await response.stream.bytesToString();
         return json.decode(responseData)['secure_url'];
+      } else {
+        debugPrint('Failed to upload image. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error uploading image: $e');
+      return null;
+    }
+  }
+
+  static Future<List<dynamic>?> uploadVideoToCloudinary(String videoPath) async {
+    String cloudName = dotenv.env['CLOUD_NAME'] ?? '';
+    String uploadPreset = dotenv.env['UPLOAD_PRESET'] ?? '';
+    Uri url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/video/upload');
+
+    var request = http.MultipartRequest('POST', url)
+      ..fields['upload_preset'] = uploadPreset
+      ..files.add(await http.MultipartFile.fromPath('file', videoPath));
+
+    try {
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+        return [json.decode(responseData)['secure_url'], json.decode(responseData)['duration']];
       } else {
         debugPrint('Failed to upload image. Status code: ${response.statusCode}');
         return null;

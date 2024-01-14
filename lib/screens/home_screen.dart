@@ -8,9 +8,9 @@ import 'package:vivah_ai/providers/api_calls.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import '../models/ceremony.dart';
-import '../widgets/custom_button.dart';
 import 'auth/login_screen.dart';
 import 'ceremony_screen.dart';
+import 'highlights_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -67,13 +67,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ))
         ],
       ),
-      persistentFooterAlignment: const AlignmentDirectional(0, 0),
-      persistentFooterButtons: [
-        CustomButton(
-          label: 'Record my blessings',
-          onButtonPressed: (context) => null,
-        )
-      ],
+      // persistentFooterAlignment: const AlignmentDirectional(0, 0),
+      // persistentFooterButtons: [
+      //   CustomButton(
+      //     label: 'Record my blessings',
+      //     onButtonPressed: (context) => null,
+      //   )
+      // ],
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -83,93 +83,31 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Column(
-                    children: [
-                      Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: const Color(0xFFD7B2E5), width: 1)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Stack(
-                              children: [
-                                ClipOval(
-                                    child: Image.asset(
-                                  'assets/pic.png',
-                                  width: 120,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                ))
-                              ],
-                            ),
-                          )),
-                      const Text(
-                        'Our story',
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    ],
+                  HighlightItem(
+                    title: 'Our story',
+                    onItemPressed: (context) => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const StoryScreen())),
                   ),
-                  Column(
-                    children: [
-                      Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: const Color(0xFFD7B2E5), width: 1)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Stack(
-                              children: [
-                                ClipOval(
-                                    child: Image.asset(
-                                  'assets/pic.png',
-                                  width: 120,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                ))
-                              ],
-                            ),
-                          )),
-                      const Text(
-                        'Memories',
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: const Color(0xFFD7B2E5), width: 1)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Stack(
-                              children: [
-                                ClipOval(
-                                    child: Image.asset(
-                                  'assets/pic.png',
-                                  width: 120,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                ))
-                              ],
-                            ),
-                          )),
-                      const Text(
-                        'Blessings',
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    ],
-                  ),
+                  HighlightItem(
+                      title: 'Memories',
+                      onItemPressed: (context) => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const StoryScreen()))),
+                  HighlightItem(
+                      title: 'Blessings',
+                      onItemPressed: (context) => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const StoryScreen()))),
+                  HighlightItem(
+                      title: 'Others',
+                      onItemPressed: (context) => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const StoryScreen()))),
                 ],
               ),
               const Padding(
@@ -358,6 +296,54 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+class HighlightItem extends StatefulWidget {
+  final String title;
+  final Function(BuildContext)? onItemPressed;
+
+  const HighlightItem(
+      {super.key, required this.title, required this.onItemPressed});
+
+  @override
+  State<HighlightItem> createState() => _HighlightItemState();
+}
+
+class _HighlightItemState extends State<HighlightItem> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () {
+            if (widget.onItemPressed != null) {
+              widget.onItemPressed!(context);
+            }
+          },
+          child: Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFD7B2E5), width: 1)),
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: ClipOval(
+                    child: Image.asset(
+                  'assets/pic.png',
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                )),
+              )),
+        ),
+        Text(
+          widget.title,
+          style: const TextStyle(color: Colors.grey),
+        )
+      ],
+    );
+  }
+}
+
 class AddNewCeremony extends StatefulWidget {
   final String userId;
   final String hashtag;
@@ -532,7 +518,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
   String imagePath = '';
 
   Future<void> saveToDB() async {
-    String url = (await ApiCalls.uploadToCloudinary(imagePath, 'image'))!;
+    String url = (await ApiCalls.uploadImageToCloudinary(imagePath))!;
     try {
       await FirebaseFirestore.instance
           .collection('ceremonies')

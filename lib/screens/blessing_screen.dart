@@ -169,12 +169,13 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
     String id = (FirebaseAuth.instance.currentUser?.uid)!;
     String hashtag = (await LocalData.getName())!;
 
-    String url = (await ApiCalls.uploadToCloudinary(widget.filePath, 'video'))!;
+    List<dynamic> cloudinaryResponse = (await ApiCalls.uploadVideoToCloudinary(widget.filePath))!;
     try {
       await FirebaseFirestore.instance.collection('blessings').add({
         'hashtag': hashtag,
         'addedBy': id,
-        'video': url
+        'video': cloudinaryResponse[0],
+        'duration': cloudinaryResponse[1]
       }).whenComplete(() => Navigator.of(context).pop());
 
       setState(() {
@@ -182,6 +183,9 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
       });
       debugPrint('Blessing uploaded');
     } catch (e) {
+      setState(() {
+        buttonText = 'Upload and share your blessing';
+      });
       debugPrint('Error uploading photo to Firestore: $e');
     }
   }

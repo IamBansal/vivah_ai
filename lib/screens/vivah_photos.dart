@@ -430,7 +430,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
     String id = (FirebaseAuth.instance.currentUser?.uid)!;
     String hashtag = (await LocalData.getName())!;
 
-    String url = (await ApiCalls.uploadToCloudinary(imagePathForDialog, 'image'))!;
+    String url = (await ApiCalls.uploadImageToCloudinary(imagePathForDialog))!;
     try {
       await FirebaseFirestore.instance.collection('photos').add({
         'hashtag': hashtag,

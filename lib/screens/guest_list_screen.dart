@@ -476,7 +476,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
 
       String downloadUrl = '';
       if (imagePath.isNotEmpty) {
-        String? url = await ApiCalls.uploadToCloudinary(imagePath, 'image');
+        String? url = await ApiCalls.uploadImageToCloudinary(imagePath);
 
         setState(() {
           downloadUrl = url!;
