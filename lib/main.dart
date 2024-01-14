@@ -71,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
         });
       }
 
-      debugPrint("User is logged in: ${user.email}");
+      debugPrint("User is logged in: ${user.email} ${user.phoneNumber}");
     } else {
       Timer(const Duration(seconds: 3), () {
         Navigator.pushReplacement(

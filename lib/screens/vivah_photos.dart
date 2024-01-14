@@ -1,8 +1,12 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
+
+import '../providers/shared_pref.dart';
 
 class VivahPhotosScreen extends StatefulWidget {
   const VivahPhotosScreen({super.key});
@@ -12,7 +16,6 @@ class VivahPhotosScreen extends StatefulWidget {
 }
 
 class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -90,6 +93,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                             Navigator.pop(context); // Close the bottom sheet
                             String path =
                                 (await ApiCalls.getImage(ImageSource.camera))!;
+                            await LocalData.saveImage(path);
                             setState(() {
                               imagePath = path;
                             });
@@ -105,6 +109,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                             Navigator.pop(context);
                             String path =
                                 (await ApiCalls.getImage(ImageSource.gallery))!;
+                            await LocalData.saveImage(path);
                             setState(() {
                               imagePath = path;
                             });
@@ -136,7 +141,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
             height: 5,
           ),
           Text(
-            'Anika',
+            guestName,
             style: GoogleFonts.carattere(
                 textStyle: const TextStyle(
                     color: Color(0xFF5D2673),
@@ -205,31 +210,39 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
           Expanded(
             child: SingleChildScrollView(
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: GridView.count(
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  // Disable GridView's scrolling
-                  children: List.generate(
-                    12,
-                    (index) {
-                      return Container(
-                        margin: const EdgeInsets.all(2.0),
-                        color: Colors.blue,
-                        child: Center(
-                          child: Image.asset(
-                            'assets/pic.png',
-                            width: 150,
-                            height: 150,
-                            fit: BoxFit.cover,
+                  height: photos.length % 3 == 0
+                      ? ((photos.length / 3)) * 150
+                      : ((photos.length / 3) + 1) * 120,
+                  child: GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: photos.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return GridTile(
+                        child: GestureDetector(
+                          onTap: () {
+                            showImageSheet(photos[index]);
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.all(2.0),
+                            color: Colors.white30,
+                            child: Center(
+                              child: Image.network(
+                                photos[index],
+                                width: 150,
+                                height: 150,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         ),
                       );
                     },
-                  ),
-                ),
-              ),
+                  )),
             ),
           )
         ],
@@ -240,13 +253,13 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
   void showUploadPhotoDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext context1) {
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
           child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.5,
+            height: MediaQuery.of(context1).size.height * 0.5,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -258,8 +271,8 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                     child: GestureDetector(
                       onTap: () {
                         showModalBottomSheet(
-                          context: context,
-                          builder: (BuildContext context) {
+                          context: context1,
+                          builder: (BuildContext context2) {
                             return Container(
                               color: Colors.transparent,
                               child: Wrap(
@@ -270,12 +283,14 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                                     title: const Text('Take Photo'),
                                     onTap: () async {
                                       Navigator.pop(
-                                          context); // Close the bottom sheet
+                                          context2); // Close the bottom sheet
                                       String path = (await ApiCalls.getImage(
                                           ImageSource.camera))!;
                                       setState(() {
                                         imagePathForDialog = path;
                                       });
+                                      Navigator.of(context1).pop();
+                                      showUploadPhotoDialog();
                                     },
                                   ),
                                   ListTile(
@@ -285,12 +300,14 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                                     ),
                                     title: const Text('Choose from Gallery'),
                                     onTap: () async {
-                                      Navigator.pop(context);
+                                      Navigator.pop(context2);
                                       String path = (await ApiCalls.getImage(
                                           ImageSource.gallery))!;
                                       setState(() {
                                         imagePathForDialog = path;
                                       });
+                                      Navigator.of(context1).pop();
+                                      showUploadPhotoDialog();
                                     },
                                   ),
                                 ],
@@ -300,10 +317,10 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                         );
                       },
                       child: Container(
-                          width: 60,
-                          height: 60,
+                          width: 180,
+                          height: 180,
                           decoration: BoxDecoration(
-                              shape: BoxShape.circle,
+                              // shape: BoxShape.circle,
                               border: Border.all(
                                   color: const Color(0xFF5271EF), width: 1)),
                           child: Padding(
@@ -312,7 +329,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                                 ? CircleAvatar(
                                     backgroundImage:
                                         FileImage(File(imagePathForDialog)),
-                                    radius: 50.0,
+                                    radius: 5.0,
                                   )
                                 : const Icon(
                                     Icons.add_a_photo,
@@ -334,22 +351,22 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                     inputDecorationTheme: InputDecorationTheme(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide:
-                        const BorderSide(color: Color(0xFF5271EF)),
+                        borderSide: const BorderSide(color: Color(0xFF5271EF)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide:
-                        const BorderSide(color: Color(0xFF5271EF)),
+                        borderSide: const BorderSide(color: Color(0xFF5271EF)),
                       ),
                     ),
-                    dropdownMenuEntries: list
-                        .map<DropdownMenuEntry<String>>((String value) {
+                    dropdownMenuEntries:
+                        list.map<DropdownMenuEntry<String>>((String value) {
                       return DropdownMenuEntry<String>(
                           value: value, label: value);
                     }).toList(),
                   ),
-                  const SizedBox(height: 20,),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   Center(
                     child: SizedBox(
                       width: 250.0,
@@ -407,23 +424,91 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
   ];
   String photoCategory = list.first;
   String buttonText = 'Upload the photo';
+  String guestName = '';
 
   Future<void> saveToDB() async {
+    String id = (FirebaseAuth.instance.currentUser?.uid)!;
+    String hashtag = (await LocalData.getName())!;
 
-    //TODO - IMPLEMENT THIS
+    String url = (await ApiCalls.uploadImageToCloudinary(imagePathForDialog))!;
+    try {
+      await FirebaseFirestore.instance.collection('photos').add({
+        'hashtag': hashtag,
+        'addedBy': id,
+        'category': photoCategory,
+        'image': url
+      }).whenComplete(() =>
+          _getPhotosList().whenComplete(() => Navigator.of(context).pop()));
 
-    // String url = (await ApiCalls.uploadImageToCloudinary(imagePath))!;
-    // try {
-    //   await FirebaseFirestore.instance
-    //       .collection('ceremonies')
-    //       .add()
-    //       .whenComplete(() => Navigator.of(context).pop());
       setState(() {
-        buttonText = 'Add the ceremony';
+        buttonText = 'Upload the photo';
       });
-    //   debugPrint('Ceremony added');
-    // } catch (e) {
-    //   debugPrint('Error adding guest to Firestore: $e');
-    // }
+      debugPrint('Photo uploaded');
+    } catch (e) {
+      debugPrint('Error uploading photo to Firestore: $e');
+    }
+  }
+
+  List<String> photos = [];
+
+  Future<void> _getPhotosList() async {
+    // Future<void> _getPhotosList(String event) async {
+    String hashtag = (await LocalData.getName())!;
+    photos.clear();
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance
+              .collection('photos')
+              .where('hashtag', isEqualTo: hashtag)
+              // .where('category', isEqualTo: event)
+              .get();
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+          setState(() {
+            photos.add(data!['image']);
+          });
+        }
+        debugPrint('Found the images');
+      } else {
+        debugPrint('No matching documents found.');
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getPhotosList();
+    _getImageAndName();
+  }
+
+  void _getImageAndName() async {
+    String path = (await LocalData.getImage())!;
+    String name = (await LocalData.getGuestName())!;
+
+    setState(() {
+      imagePath = path;
+      guestName = name;
+    });
+  }
+
+  void showImageSheet(String photo) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context1) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ClipRRect(borderRadius: BorderRadius.circular(10),child: Image.network(photo)),
+          ),
+        );
+      },
+    );
   }
 }

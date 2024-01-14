@@ -397,7 +397,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _hashtagController.text.startsWith('#')) {
       try {
         await _auth.verifyPhoneNumber(
-          phoneNumber: _phoneController.text,
+          phoneNumber: '+91${_phoneController.text}',
           verificationCompleted: (PhoneAuthCredential credential) async {
             await _auth.signInWithCredential(credential);
           },
@@ -523,6 +523,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void saveAndNavigate() async {
     if (await checkForHashtag()) {
+      await LocalData.saveGuestName(_nameController.text);
       await LocalData.saveName(_hashtagController.text)
           .whenComplete(() => Navigator.push(
                 context,

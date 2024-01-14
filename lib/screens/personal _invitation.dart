@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vivah_ai/providers/shared_pref.dart';
 
 class PersonalInvitation extends StatefulWidget {
   const PersonalInvitation({super.key});
@@ -45,9 +48,21 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-              child: Container(
-                height: 500,
-                color: Colors.grey,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: imageUrl.isNotEmpty
+                    ? Image.network(
+                  imageUrl,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  fit: BoxFit.cover,
+                )
+                    : Image.asset(
+                  'assets/pic.png',
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const Padding(
@@ -79,4 +94,44 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
       ),
     ));
   }
+
+  @override
+  void initState() {
+    super.initState();
+    _getInvitation();
+  }
+
+  String imageUrl = '';
+
+  Future<void> _getInvitation() async {
+
+    String contact = (FirebaseAuth.instance.currentUser?.phoneNumber)!;
+    String hashtag = (await LocalData.getName())!;
+
+    print(contact);
+
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('guestList')
+          .where('hashtag', isEqualTo: hashtag)
+          .where('contact', isEqualTo: contact.substring(3))
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+          setState(() {
+            imageUrl = data!['url'];
+          });
+        }
+        debugPrint('Found the invitation');
+      } else {
+        debugPrint('No matching documents found.');
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+    }
+  }
+
 }

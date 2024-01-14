@@ -488,11 +488,14 @@ class _GuestListScreenState extends State<GuestListScreen> {
         });
       }
 
+      String contact = _contactController.text.replaceAll(' ', '');
+      contact = contact.length > 10 ? contact.substring(contact.length - 10) : contact;
+
       try {
         await FirebaseFirestore.instance.collection('guestList').add({
           'url': downloadUrl,
           'name': _nameController.text,
-          'contact': _contactController.text,
+          'contact': contact,
           'relation': _relationController.text,
           'category': relationCategory,
           'team': team,
