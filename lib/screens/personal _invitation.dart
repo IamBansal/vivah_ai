@@ -2,7 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
+
+import '../providers/api_calls.dart';
 
 class PersonalInvitation extends StatefulWidget {
   const PersonalInvitation({super.key});
@@ -14,71 +17,100 @@ class PersonalInvitation extends StatefulWidget {
 class _PersonalInvitationState extends State<PersonalInvitation> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: Scaffold(
+    return SafeArea(
+        child: Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 28.0, bottom: 10, left: 13, right: 13),
+              padding: const EdgeInsets.only(
+                  top: 28.0, bottom: 10, left: 13, right: 13),
               child: Text(
                 'Bindu Chachu',
                 style: GoogleFonts.carattere(
-                    textStyle: const TextStyle(color: Colors.black, fontSize: 42, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold)
-                ),
+                    textStyle: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 42,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold)),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 15),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Personalised Card Invitation', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                  const Text(
+                    'Personalised Card Invitation',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                   Row(
                     children: [
-                      Icon(Icons.file_upload_outlined),
-                      SizedBox(width: 10,),
-                      Icon(Icons.file_download_outlined)
+                      IconButton(
+                          onPressed: () {
+                            ApiCalls.shareInvite(_screenshotController);
+                          },
+                          icon: const Icon(Icons.file_upload_outlined)),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      const Icon(Icons.file_download_outlined)
                     ],
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: imageUrl.isNotEmpty
-                    ? Image.network(
-                  imageUrl,
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  fit: BoxFit.cover,
-                )
-                    : Image.asset(
-                  'assets/pic.png',
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  fit: BoxFit.cover,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
+              child: Screenshot(
+                controller: _screenshotController,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          'assets/pic.png',
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
             ),
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Divider(thickness: 1, color: Colors.grey, indent: 10, endIndent: 10,),
+              child: Divider(
+                thickness: 1,
+                color: Colors.grey,
+                indent: 10,
+                endIndent: 10,
+              ),
             ),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Voice Invitation', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                  Text(
+                    'Voice Invitation',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                   Row(
                     children: [
                       Icon(Icons.file_upload_outlined),
-                      SizedBox(width: 10,),
+                      SizedBox(
+                        width: 10,
+                      ),
                       Icon(Icons.file_download_outlined)
                     ],
                   ),
@@ -87,7 +119,13 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
             ),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 17.0),
-              child: Align(alignment: Alignment.centerLeft,child: Icon(Icons.mic, size: 30,),),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Icon(
+                  Icons.mic,
+                  size: 30,
+                ),
+              ),
             )
           ],
         ),
@@ -102,9 +140,9 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
   }
 
   String imageUrl = '';
+  final _screenshotController = ScreenshotController();
 
   Future<void> _getInvitation() async {
-
     String contact = (FirebaseAuth.instance.currentUser?.phoneNumber)!;
     String hashtag = (await LocalData.getName())!;
 
@@ -133,5 +171,4 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
       debugPrint('Error querying entries: $error');
     }
   }
-
 }

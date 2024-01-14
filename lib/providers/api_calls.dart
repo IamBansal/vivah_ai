@@ -107,7 +107,7 @@ class ApiCalls {
     }
   }
 
-  static Future<void> shareInvite(ScreenshotController screenshotController) async {
+  static Future<void> shareInvite(ScreenshotController screenshotController, [String? clipText]) async {
     try {
       final uint8List = await screenshotController.capture();
       final tempDir = await getTemporaryDirectory();
@@ -118,8 +118,7 @@ class ApiCalls {
 
       await Share.shareFiles(
         [imagePath],
-        text:
-        'Inviting you!!\nDownload the app to know more about what\'s for you',
+        text: clipText ?? '',
       );
     } catch (e) {
       debugPrint('Error: $e');
