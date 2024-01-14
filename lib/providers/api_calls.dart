@@ -10,10 +10,10 @@ import 'package:share/share.dart';
 
 class ApiCalls {
 
-  static Future<String?> uploadImageToCloudinary(String imagePath) async {
+  static Future<String?> uploadToCloudinary(String imagePath, String type) async {
     String cloudName = dotenv.env['CLOUD_NAME'] ?? '';
     String uploadPreset = dotenv.env['UPLOAD_PRESET'] ?? '';
-    Uri url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+    Uri url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/$type/upload');
 
     var request = http.MultipartRequest('POST', url)
       ..fields['upload_preset'] = uploadPreset

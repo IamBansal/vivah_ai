@@ -1,8 +1,12 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:video_player/video_player.dart';
+import '../providers/api_calls.dart';
+import '../providers/shared_pref.dart';
 import '../widgets/custom_button.dart';
 
 class BlessingsScreen extends StatefulWidget {
@@ -149,12 +153,39 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
       persistentFooterAlignment: const AlignmentDirectional(0, 0),
       persistentFooterButtons: [
         CustomButton(
-          label: 'Upload and share your blessing',
-          onButtonPressed: (context) => null,
+          label: buttonText,
+          onButtonPressed: (context) => saveToDB(),
         )
       ],
     ));
   }
+
+  String buttonText = 'Upload and share your blessing';
+
+  Future<void> saveToDB() async {
+    setState(() {
+      buttonText = 'Uploading your blessing....';
+    });
+    String id = (FirebaseAuth.instance.currentUser?.uid)!;
+    String hashtag = (await LocalData.getName())!;
+
+    String url = (await ApiCalls.uploadToCloudinary(widget.filePath, 'video'))!;
+    try {
+      await FirebaseFirestore.instance.collection('blessings').add({
+        'hashtag': hashtag,
+        'addedBy': id,
+        'video': url
+      }).whenComplete(() => Navigator.of(context).pop());
+
+      setState(() {
+        buttonText = 'Upload and share your blessing';
+      });
+      debugPrint('Blessing uploaded');
+    } catch (e) {
+      debugPrint('Error uploading photo to Firestore: $e');
+    }
+  }
+
 }
 
 class RecordBlessingScreen extends StatefulWidget {
