@@ -275,7 +275,7 @@ class _CreateInviteState extends State<CreateInvite> {
         CustomButton(
           label: 'Create and share this personalised invite',
           onButtonPressed: (context) => {
-            ApiCalls.shareInvite(_screenshotController, 'Inviting you!!\nDownload the app to know more about what\'s for you')
+            ApiCalls.shareDownloadInvite(_screenshotController, false, context, 'Inviting you!!\nDownload the app to know more about what\'s for you')
             // TODO - download invite
             // addTheInviteToDB()
           },

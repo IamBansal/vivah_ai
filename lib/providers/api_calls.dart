@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share/share.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class ApiCalls {
 
@@ -107,7 +108,7 @@ class ApiCalls {
     }
   }
 
-  static Future<void> shareInvite(ScreenshotController screenshotController, [String? clipText]) async {
+  static Future<void> shareDownloadInvite(ScreenshotController screenshotController, bool download, BuildContext context, [String? clipText]) async {
     try {
       final uint8List = await screenshotController.capture();
       final tempDir = await getTemporaryDirectory();
@@ -116,10 +117,17 @@ class ApiCalls {
       File imageFile = File(imagePath);
       await imageFile.writeAsBytes(uint8List!);
 
-      await Share.shareFiles(
-        [imagePath],
-        text: clipText ?? '',
-      );
+      if(download) {
+        await ImageGallerySaver.saveImage(uint8List, quality: 80, name: 'personalised_invite');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invitation saved to gallery')),
+        );
+      } else {
+        await Share.shareFiles(
+          [imagePath],
+          text: clipText ?? '',
+        );
+      }
     } catch (e) {
       debugPrint('Error: $e');
     }
@@ -130,29 +138,5 @@ class ApiCalls {
     final pickedFile = await picker.pickImage(source: source);
     return pickedFile?.path;
   }
-
-  // Future<void> _takeScreenShot(bool download) async {
-  //   try {
-  //     final uint8List = await _screenshotController.capture();
-  //     final tempDir = await getTemporaryDirectory();
-  //     final imagePath = '${tempDir.path}/image.png';
-  //
-  //     File imageFile = File(imagePath);
-  //     await imageFile.writeAsBytes(uint8List!);
-  //
-  //     if(download) {
-  //       // Save to gallery
-  //       await GallerySaver.saveImage(imagePath, albumName: 'MoodCard');
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Mood Card saved to gallery')),
-  //       );
-  //     } else {
-  //       // Share image
-  //       await Share.shareFiles([imagePath]);
-  //     }
-  //   } catch (e) {
-  //     print('Error: $e');
-  //   }
-  // }
 
 }

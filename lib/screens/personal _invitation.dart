@@ -52,13 +52,18 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
                     children: [
                       IconButton(
                           onPressed: () {
-                            ApiCalls.shareInvite(_screenshotController);
+                            ApiCalls.shareDownloadInvite(_screenshotController, false, context);
                           },
                           icon: const Icon(Icons.file_upload_outlined)),
                       const SizedBox(
                         width: 10,
                       ),
-                      const Icon(Icons.file_download_outlined)
+                      IconButton(
+                          onPressed: () {
+                            ApiCalls.shareDownloadInvite(_screenshotController, true, context);
+                          },
+                          icon: const Icon(Icons.file_download_outlined)
+                      ),
                     ],
                   ),
                 ],
