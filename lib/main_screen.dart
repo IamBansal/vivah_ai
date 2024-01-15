@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:vivah_ai/screens/blessing_screen.dart';
-import 'package:vivah_ai/screens/guest_list_screen.dart';
-import 'package:vivah_ai/screens/home_screen.dart';
+import 'package:vivah_ai/screens/blessings_screens/show_blessings.dart';
+import 'package:vivah_ai/screens/guest_screens/guest_list_screen.dart';
+import 'package:vivah_ai/screens/home_screens/home_screen.dart';
 import 'package:vivah_ai/screens/info_screen.dart';
 import 'package:vivah_ai/screens/personal%20_invitation.dart';
 import 'package:vivah_ai/screens/vivah_photos.dart';
@@ -39,7 +39,7 @@ class _MainScreenState extends State<MainScreen> {
    final List<Widget> _screens = [
     // HomeScreen(onButtonPressed: _onItemTapped),
     const HomeScreen(),
-    const RecordBlessingScreen(),
+    const ShowBlessings(),
     const VivahPhotosScreen(),
     const InfoScreen(),
     const PersonalInvitation(),

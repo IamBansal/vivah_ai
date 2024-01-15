@@ -3,13 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:vivah_ai/screens/create_invite.dart';
+import 'package:vivah_ai/screens/guest_screens/create_invite.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import 'package:image_picker/image_picker.dart';
-import '../models/guest.dart';
-import '../providers/api_calls.dart';
-import '../providers/shared_pref.dart';
-import '../widgets/custom_button.dart';
+import '../../models/guest.dart';
+import '../../providers/api_calls.dart';
+import '../../providers/shared_pref.dart';
+import '../../widgets/custom_button.dart';
 
 class GuestListScreen extends StatefulWidget {
   const GuestListScreen({super.key});

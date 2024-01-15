@@ -5,9 +5,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
-import '../models/guest.dart';
-import '../providers/api_calls.dart';
-import '../widgets/custom_button.dart';
+import '../../models/guest.dart';
+import '../../providers/api_calls.dart';
+import '../../widgets/custom_button.dart';
 import 'package:screenshot/screenshot.dart';
 
 class CreateInvite extends StatefulWidget {

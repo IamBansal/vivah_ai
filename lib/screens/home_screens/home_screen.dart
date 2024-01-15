@@ -7,8 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
-import '../models/ceremony.dart';
-import 'auth/login_screen.dart';
+import '../../models/ceremony.dart';
+import '../auth/login_screen.dart';
 import 'ceremony_screen.dart';
 import 'highlights_screen.dart';
 
@@ -67,13 +67,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ))
         ],
       ),
-      // persistentFooterAlignment: const AlignmentDirectional(0, 0),
-      // persistentFooterButtons: [
-      //   CustomButton(
-      //     label: 'Record my blessings',
-      //     onButtonPressed: (context) => null,
-      //   )
-      // ],
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
