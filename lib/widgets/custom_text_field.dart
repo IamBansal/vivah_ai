@@ -4,7 +4,9 @@ class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final String hint;
-  const CustomTextField({super.key, required this.controller, required this.label, required this.hint});
+  final bool expand;
+
+  const CustomTextField({super.key, required this.controller, required this.label, required this.hint, required this.expand});
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -15,7 +17,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 340,
-      height: 50,
+      // height: 50,
       child: TextField(
         controller: widget.controller,
         decoration: InputDecoration(
@@ -44,6 +46,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         textAlignVertical: TextAlignVertical.center,
         style: const TextStyle(color: Colors.black),
+        maxLines: widget.expand ? null : 1,
+        minLines: 1,
       ),
     );
   }
@@ -70,7 +74,7 @@ class _CustomTextFieldWithIconState extends State<CustomTextFieldWithIcon> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 340,
-      height: 50,
+      // height: 50,
       child: TextField(
         controller: widget.controller,
         keyboardType: widget.keyboardType,

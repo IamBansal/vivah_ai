@@ -77,28 +77,28 @@ class _InitialDetailsState extends State<InitialDetails> {
                 child: CustomTextField(
                     controller: _brideNameController,
                     label: 'Bride\'s Name',
-                    hint: 'Enter Bride\'s name')),
+                    hint: 'Enter Bride\'s name', expand: false)),
             const SizedBox(
               height: 15,
             ),
             CustomTextField(
                 controller: _groomNameController,
                 label: 'Groom\'s Name',
-                hint: 'Enter Groom\'s name'),
+                hint: 'Enter Groom\'s name', expand: false),
             const SizedBox(
               height: 15,
             ),
             CustomTextField(
                 controller: _hashtagController,
                 label: 'Wedding Hashtag',
-                hint: 'Enter your wedding hashtag'),
+                hint: 'Enter your wedding hashtag', expand: false,),
             const SizedBox(
               height: 15,
             ),
             CustomTextField(
                 controller: _venueController,
                 label: 'Venue',
-                hint: 'Enter wedding\'s venue'),
+                hint: 'Enter wedding\'s venue', expand: true,),
             const SizedBox(
               height: 15,
             ),
@@ -118,7 +118,7 @@ class _InitialDetailsState extends State<InitialDetails> {
             CustomTextField(
                 controller: _moreController,
                 label: 'Add more',
-                hint: 'Anything you want to add to info'),
+                hint: 'Anything you want to add to info', expand: true,),
             const SizedBox(
               height: 25,
             ),
@@ -139,6 +139,12 @@ class _InitialDetailsState extends State<InitialDetails> {
   final _dateController = TextEditingController();
   final _moreController = TextEditingController();
   String docId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _hashtagController.text = '#';
+  }
 
   Future<void> addData(String bride, String groom, String hashtag, String venue,
       String date, String more) async {

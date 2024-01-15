@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onPressed: () {
                             showAddCeremonyDialog();
                           },
-                          icon: const Icon(Icons.add_to_home_screen)))
+                          icon: const Icon(Icons.add)))
                 ],
               ),
               Visibility(
@@ -353,141 +353,143 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.6,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Container(
-                        color: Colors.transparent,
-                        child: Wrap(
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.camera,
-                                  color: Color(0xFF5271EF)),
-                              title: const Text('Take Photo'),
-                              onTap: () async {
-                                Navigator.pop(
-                                    context); // Close the bottom sheet
-                                String path = (await ApiCalls.getImage(
-                                    ImageSource.camera))!;
-                                setState(() {
-                                  imagePath = path;
-                                });
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(
-                                Icons.photo_library,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Container(
+                          color: Colors.transparent,
+                          child: Wrap(
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.camera,
+                                    color: Color(0xFF5271EF)),
+                                title: const Text('Take Photo'),
+                                onTap: () async {
+                                  Navigator.pop(
+                                      context); // Close the bottom sheet
+                                  String path = (await ApiCalls.getImage(
+                                      ImageSource.camera))!;
+                                  setState(() {
+                                    imagePath = path;
+                                  });
+                                },
+                              ),
+                              ListTile(
+                                leading: const Icon(
+                                  Icons.photo_library,
+                                  color: Color(0xFF5271EF),
+                                ),
+                                title: const Text('Choose from Gallery'),
+                                onTap: () async {
+                                  Navigator.pop(context);
+                                  String path = (await ApiCalls.getImage(
+                                      ImageSource.gallery))!;
+                                  setState(() {
+                                    imagePath = path;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                              color: const Color(0xFF5271EF), width: 1)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: imagePath.isNotEmpty
+                            ? CircleAvatar(
+                                backgroundImage: FileImage(File(imagePath)),
+                                radius: 50.0,
+                              )
+                            : const Icon(
+                                Icons.add_a_photo,
                                 color: Color(0xFF5271EF),
                               ),
-                              title: const Text('Choose from Gallery'),
-                              onTap: () async {
-                                Navigator.pop(context);
-                                String path = (await ApiCalls.getImage(
-                                    ImageSource.gallery))!;
-                                setState(() {
-                                  imagePath = path;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            color: const Color(0xFF5271EF), width: 1)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: imagePath.isNotEmpty
-                          ? CircleAvatar(
-                              backgroundImage: FileImage(File(imagePath)),
-                              radius: 50.0,
-                            )
-                          : const Icon(
-                              Icons.add_a_photo,
-                              color: Color(0xFF5271EF),
-                            ),
-                    )),
+                      )),
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            CustomTextField(
-                controller: _titleController,
-                label: 'Title',
-                hint: 'Ceremony Title'),
-            const SizedBox(height: 20),
-            CustomTextField(
-                controller: _descController,
-                label: 'Description',
-                hint: 'Ceremony Description'),
-            const SizedBox(height: 20),
-            CustomTextField(
-                controller: _locationController,
-                label: 'Location',
-                hint: 'Ceremony Location'),
-            const SizedBox(height: 20),
-            CustomTextFieldWithIcon(
-              controller: _dateController,
-              label: 'Date',
-              hint: 'Ceremony Date',
-              icon: const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
-              onIconTap: (context) async => {
-                _dateController.text = (await ApiCalls.selectDate(context))!
-              },
-              keyboardType: TextInputType.text,
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: SizedBox(
-                width: 320.0,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD7B2E5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
+              const SizedBox(
+                height: 20,
+              ),
+              CustomTextField(
+                  controller: _titleController,
+                  label: 'Title',
+                  hint: 'Ceremony Title', expand: false),
+              const SizedBox(height: 20),
+              CustomTextField(
+                  controller: _descController,
+                  label: 'Description',
+                  hint: 'Ceremony Description', expand: true),
+              const SizedBox(height: 20),
+              CustomTextField(
+                  controller: _locationController,
+                  label: 'Location',
+                  hint: 'Ceremony Location', expand: true),
+              const SizedBox(height: 20),
+              CustomTextFieldWithIcon(
+                controller: _dateController,
+                label: 'Date',
+                hint: 'Ceremony Date',
+                icon: const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
+                onIconTap: (context) async => {
+                  _dateController.text = (await ApiCalls.selectDate(context))!
+                },
+                keyboardType: TextInputType.text,
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: SizedBox(
+                  width: 320.0,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD7B2E5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
                     ),
-                  ),
-                  onPressed: () async {
-                    if (_titleController.text.isNotEmpty &&
-                        _descController.text.isNotEmpty &&
-                        imagePath.isNotEmpty &&
-                        _dateController.text.isNotEmpty &&
-                        _locationController.text.isNotEmpty) {
-                      saveToDB();
-                      setState(() {
-                        buttonText = 'Adding the ceremony.....';
-                      });
-                    }
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      buttonText,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    onPressed: () async {
+                      if (_titleController.text.isNotEmpty &&
+                          _descController.text.isNotEmpty &&
+                          imagePath.isNotEmpty &&
+                          _dateController.text.isNotEmpty &&
+                          _locationController.text.isNotEmpty) {
+                        saveToDB();
+                        setState(() {
+                          buttonText = 'Adding the ceremony.....';
+                        });
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        buttonText,
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

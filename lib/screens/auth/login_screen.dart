@@ -304,7 +304,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           CustomTextField(
                               controller: _otpController,
                               label: 'OTP',
-                              hint: 'Enter OTP'),
+                              hint: 'Enter OTP', expand: false,),
                           InkWell(
                               onTap: verifyPhoneNumber,
                               child: const Padding(
