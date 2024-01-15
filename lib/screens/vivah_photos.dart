@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:vivah_ai/models/photo.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
-
 import '../providers/shared_pref.dart';
 
 class VivahPhotosScreen extends StatefulWidget {
@@ -66,6 +66,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                       setState(() {
                         _selectedChipIndex = selected ? index : -1;
                         _options[_selectedChipIndex];
+                        _selectedChipIndex == 0 ? filteredPhotoList = photos : filteredPhotoList = photos.where((item) => item.category == _options[_selectedChipIndex]).toList();
                       });
                     },
                     selectedColor: const Color(0xFFD7B2E5),
@@ -208,11 +209,11 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
             color: Colors.grey,
           ),
           Expanded(
-            child: SingleChildScrollView(
+            child: filteredPhotoList.isNotEmpty ? SingleChildScrollView(
               child: SizedBox(
-                  height: photos.length % 3 == 0
-                      ? ((photos.length / 3)) * 150
-                      : ((photos.length / 3) + 1) * 120,
+                  height: filteredPhotoList.length % 3 == 0
+                      ? ((filteredPhotoList.length / 3)) * 150
+                      : ((filteredPhotoList.length / 3) + 1) * 120,
                   child: GridView.builder(
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
@@ -220,19 +221,19 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                     ),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: photos.length,
+                    itemCount: filteredPhotoList.length,
                     itemBuilder: (BuildContext context, int index) {
                       return GridTile(
                         child: GestureDetector(
                           onTap: () {
-                            showImageSheet(photos[index]);
+                            showImageSheet(filteredPhotoList[index].image);
                           },
                           child: Container(
                             margin: const EdgeInsets.all(2.0),
                             color: Colors.white30,
                             child: Center(
                               child: Image.network(
-                                photos[index],
+                                filteredPhotoList[index].image,
                                 width: 150,
                                 height: 150,
                                 fit: BoxFit.cover,
@@ -243,6 +244,9 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                       );
                     },
                   )),
+            ) : const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('No photos for now'),
             ),
           )
         ],
@@ -408,7 +412,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
   int _selectedChipIndex = 0;
   final List<String> _options = [
     'All events',
-    'Haldi Ceremony',
+    'Haldi',
     'Ladies Sangeet',
     'Mehndi',
     'Wedding'
@@ -449,10 +453,10 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
     }
   }
 
-  List<String> photos = [];
+  List<PhotoItem> photos = [];
+  List<PhotoItem> filteredPhotoList = [];
 
   Future<void> _getPhotosList() async {
-    // Future<void> _getPhotosList(String event) async {
     String hashtag = (await LocalData.getName())!;
     photos.clear();
     try {
@@ -460,15 +464,18 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
           await FirebaseFirestore.instance
               .collection('photos')
               .where('hashtag', isEqualTo: hashtag)
-              // .where('category', isEqualTo: event)
               .get();
       if (snapshot.docs.isNotEmpty) {
         for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
           Map<String, dynamic>? data = entry.data();
           setState(() {
-            photos.add(data!['image']);
+            photos.add(PhotoItem.fromMap(data!));
           });
         }
+        setState(() {
+          filteredPhotoList = photos;
+          _selectedChipIndex = 0;
+        });
         debugPrint('Found the images');
       } else {
         debugPrint('No matching documents found.');
