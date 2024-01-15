@@ -123,7 +123,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                   child: CustomTextField(
                       controller: _nameController,
                       label: 'Name',
-                      hint: 'Enter Preferred Name - e.g., Bindu Chachu', expand: false)),
+                      hint: 'Enter Preferred Name - e.g., Bride\'s Chachu', expand: false)),
               const SizedBox(
                 height: 15,
               ),

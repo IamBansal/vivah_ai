@@ -273,17 +273,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: Colors.grey,
                             fontSize: 16.0,
                           ),
-                          // suffixIcon: IconButton(
-                          //   icon: Icon(
-                          //     _obscureText ? Icons.visibility : Icons.visibility_off,
-                          //     color: Colors.black,
-                          //   ),
-                          //   onPressed: () {
-                          //     setState(() {
-                          //       _obscureText = !_obscureText;
-                          //     });
-                          //   },
-                          // ),
                         ),
                         textAlignVertical: TextAlignVertical.center,
                         style: const TextStyle(color: Colors.black),
@@ -428,7 +417,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Check for the inputs and hashtags (Hashtag must start with #)'),
+        content: Text('All fields are required to be filled'),
         duration: Duration(seconds: 2),
       ));
     }

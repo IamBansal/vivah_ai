@@ -125,7 +125,10 @@ class _InitialDetailsState extends State<InitialDetails> {
             CustomButton(
               label: 'Save and Continue',
               onButtonPressed: (context) => validateAndAddData(),
-            )
+            ),
+            const SizedBox(
+              height: 15,
+            ),
           ],
         ),
       ),
@@ -179,14 +182,15 @@ class _InitialDetailsState extends State<InitialDetails> {
         ),
       ));
     } catch (error) {
+      showSnackBar(context, 'Error adding data: $error');
       debugPrint('Error adding data: $error');
     }
   }
 
-  void showSnackBar(BuildContext context) {
+  void showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Failed to add data or missing values'),
+        content: Text(message),
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
           label: 'Close',
@@ -213,7 +217,7 @@ class _InitialDetailsState extends State<InitialDetails> {
           _dateController.text,
           _moreController.text);
     } else {
-      showSnackBar(context);
+      showSnackBar(context, 'All fields are required to be filled.');
     }
   }
 }
