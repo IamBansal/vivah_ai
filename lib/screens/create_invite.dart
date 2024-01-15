@@ -70,8 +70,7 @@ class _CreateInviteState extends State<CreateInvite> {
                   icon: const Icon(Icons.transform),),
               IconButton(
                   onPressed: () {
-                    //TODO - download invite
-                    // downloadInvite();
+                    ApiCalls.shareDownloadInvite(_screenshotController, true, context);
                   },
                   icon: const Icon(Icons.file_download_outlined),)
             ],
