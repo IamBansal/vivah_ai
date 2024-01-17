@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,8 +41,7 @@ class ApiCalls {
     }
   }
 
-  static Future<List<dynamic>?> uploadVideoToCloudinary(
-      String videoPath) async {
+  static Future<List<dynamic>?> uploadVideoToCloudinary(String path) async {
     String cloudName = dotenv.env['CLOUD_NAME'] ?? '';
     String uploadPreset = dotenv.env['UPLOAD_PRESET'] ?? '';
     Uri url =
@@ -48,7 +49,7 @@ class ApiCalls {
 
     var request = http.MultipartRequest('POST', url)
       ..fields['upload_preset'] = uploadPreset
-      ..files.add(await http.MultipartFile.fromPath('file', videoPath));
+      ..files.add(await http.MultipartFile.fromPath('file', path));
 
     try {
       var response = await request.send();

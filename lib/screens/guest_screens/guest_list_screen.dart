@@ -336,54 +336,52 @@ class _GuestListScreenState extends State<GuestListScreen> {
                   ),
                 ),
               ),
-              Visibility(
-                  visible: ladkiVisible,
-                  child: SingleChildScrollView(
-                    child: SizedBox(
-                      height: ladkiVale.length * 90,
-                      child: ListView.builder(
-                        itemCount: ladkiVale.length,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return Card(
-                            elevation: 0.5,
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 5.0, horizontal: 10.0),
-                            child: ListTile(
-                              leading: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: isValidURL(ladkiVale[index].url)
-                                    ? Image.network(
-                                        ladkiVale[index].url,
-                                        width: 60,
-                                        height: 60,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Image.asset(
-                                        'assets/pic.png',
-                                        width: 60,
-                                        height: 60,
-                                        fit: BoxFit.cover,
-                                      ),
-                              ),
-                              title: Text(ladkiVale[index].name),
-                              subtitle: Text(ladkiVale[index].relation),
-                              trailing: const Icon(Icons.arrow_forward),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        CreateInvite(guest: ladkiVale[index]),
+              SingleChildScrollView(
+                child: SizedBox(
+                  height: ladkiVale.length * 90,
+                  child: ListView.builder(
+                    itemCount: ladkiVale.length,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return Card(
+                        elevation: 0.5,
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 5.0, horizontal: 10.0),
+                        child: ListTile(
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: isValidURL(ladkiVale[index].url)
+                                ? Image.network(
+                                    ladkiVale[index].url,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    'assets/pic.png',
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
                                   ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  )),
+                          ),
+                          title: Text(ladkiVale[index].name),
+                          subtitle: Text(ladkiVale[index].relation),
+                          trailing: const Icon(Icons.arrow_forward),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    CreateInvite(guest: ladkiVale[index]),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
               const Divider(
                 height: 5,
                 color: Colors.grey,
@@ -410,55 +408,53 @@ class _GuestListScreenState extends State<GuestListScreen> {
                   ),
                 ),
               ),
-              Visibility(
-                  visible: ladkeVisible,
-                  child: SingleChildScrollView(
-                    child: SizedBox(
-                      // height: MediaQuery.of(context).size.height * 0.6,
-                      height: ladkeVale.length * 90,
-                      child: ListView.builder(
-                        itemCount: ladkeVale.length,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return Card(
-                            elevation: 0.5,
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 5.0, horizontal: 10.0),
-                            child: ListTile(
-                              leading: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: isValidURL(ladkeVale[index].url)
-                                    ? Image.network(
-                                        ladkeVale[index].url,
-                                        width: 60,
-                                        height: 60,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Image.asset(
-                                        'assets/pic.png',
-                                        width: 60,
-                                        height: 60,
-                                        fit: BoxFit.cover,
-                                      ),
-                              ),
-                              title: Text(ladkeVale[index].name),
-                              subtitle: Text(ladkeVale[index].relation),
-                              trailing: const Icon(Icons.arrow_forward),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        CreateInvite(guest: ladkeVale[index]),
+              SingleChildScrollView(
+                child: SizedBox(
+                  // height: MediaQuery.of(context).size.height * 0.6,
+                  height: ladkeVale.length * 90,
+                  child: ListView.builder(
+                    itemCount: ladkeVale.length,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return Card(
+                        elevation: 0.5,
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 5.0, horizontal: 10.0),
+                        child: ListTile(
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: isValidURL(ladkeVale[index].url)
+                                ? Image.network(
+                                    ladkeVale[index].url,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    'assets/pic.png',
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
                                   ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  )),
+                          ),
+                          title: Text(ladkeVale[index].name),
+                          subtitle: Text(ladkeVale[index].relation),
+                          trailing: const Icon(Icons.arrow_forward),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    CreateInvite(guest: ladkeVale[index]),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
             ],
           ),
         ),
