@@ -18,7 +18,6 @@ class InitialDetails extends StatefulWidget {
 
 class _InitialDetailsState extends State<InitialDetails> {
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -49,13 +48,21 @@ class _InitialDetailsState extends State<InitialDetails> {
           ],
         ),
         actions: [
-          IconButton(onPressed: () async {
-            await _auth.signOut().whenComplete(() => Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false,
-            ));
-          }, icon: const Icon(Icons.logout, color: Colors.black,))
+          IconButton(
+              onPressed: () async {
+                await _auth
+                    .signOut()
+                    .whenComplete(() => Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()),
+                          (route) => false,
+                        ));
+              },
+              icon: const Icon(
+                Icons.logout,
+                color: Colors.black,
+              ))
         ],
       ),
       body: SingleChildScrollView(
@@ -77,28 +84,38 @@ class _InitialDetailsState extends State<InitialDetails> {
                 child: CustomTextField(
                     controller: _brideNameController,
                     label: 'Bride\'s Name',
-                    hint: 'Enter Bride\'s name', expand: false)),
+                    hint: 'Enter Bride\'s name',
+                    expand: false)),
             const SizedBox(
               height: 15,
             ),
             CustomTextField(
                 controller: _groomNameController,
                 label: 'Groom\'s Name',
-                hint: 'Enter Groom\'s name', expand: false),
+                hint: 'Enter Groom\'s name',
+                expand: false),
             const SizedBox(
               height: 15,
             ),
             CustomTextField(
-                controller: _hashtagController,
-                label: 'Wedding Hashtag',
-                hint: 'Enter your wedding hashtag', expand: false,),
+              controller: _hashtagController,
+              label: 'Wedding Hashtag',
+              hint: 'Enter your wedding hashtag',
+              expand: false,
+            ),
             const SizedBox(
               height: 15,
             ),
-            CustomTextField(
-                controller: _venueController,
-                label: 'Venue',
-                hint: 'Enter wedding\'s venue', expand: true,),
+            CustomTextFieldWithIcon(
+              controller: _venueController,
+              label: 'Venue',
+              hint: 'Enter wedding\'s venue',
+              icon: const Icon(Icons.location_on_outlined,
+                  color: Color(0xFFD7B2E5)),
+              expand: true,
+              onIconTap: (context) => null,
+              keyboardType: TextInputType.text,
+            ),
             const SizedBox(
               height: 15,
             ),
@@ -117,9 +134,11 @@ class _InitialDetailsState extends State<InitialDetails> {
               height: 15,
             ),
             CustomTextField(
-                controller: _moreController,
-                label: 'Add more',
-                hint: 'Anything you want to add to info', expand: true,),
+              controller: _moreController,
+              label: 'Add more',
+              hint: 'Anything you want to add to info',
+              expand: true,
+            ),
             const SizedBox(
               height: 25,
             ),
@@ -143,6 +162,7 @@ class _InitialDetailsState extends State<InitialDetails> {
   final _dateController = TextEditingController();
   final _moreController = TextEditingController();
   String docId = '';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -175,13 +195,13 @@ class _InitialDetailsState extends State<InitialDetails> {
         docId = newDocumentRef.id;
       });
       debugPrint('Data added successfully with ID: ${newDocumentRef.id}');
-      await newDocumentRef.update({'id': docId}).whenComplete(() => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-          const MainScreen(isBrideGroom: true),
-        ),
-      ));
+      await newDocumentRef
+          .update({'id': docId}).whenComplete(() => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MainScreen(isBrideGroom: true),
+                ),
+              ));
     } catch (error) {
       showSnackBar(context, 'Error adding data: $error');
       debugPrint('Error adding data: $error');

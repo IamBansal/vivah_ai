@@ -438,11 +438,14 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                   hint: 'Ceremony Description',
                   expand: true),
               const SizedBox(height: 20),
-              CustomTextField(
+              CustomTextFieldWithIcon(
                   controller: _locationController,
                   label: 'Location',
                   hint: 'Ceremony Location',
-                  expand: true),
+                  icon: const Icon(Icons.location_on_outlined, color: Color(0xFFD7B2E5)),
+                  expand: true,
+              onIconTap: (context) => null,
+              keyboardType: TextInputType.text,),
               const SizedBox(height: 20),
               CustomTextFieldWithIcon(
                 controller: _dateController,
