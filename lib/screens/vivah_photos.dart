@@ -1,9 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:vivah_ai/models/photo.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
 import '../providers/shared_pref.dart';
@@ -66,7 +69,13 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                       setState(() {
                         _selectedChipIndex = selected ? index : -1;
                         _options[_selectedChipIndex];
-                        _selectedChipIndex == 0 ? filteredPhotoList = photos : filteredPhotoList = photos.where((item) => item.category == _options[_selectedChipIndex]).toList();
+                        _selectedChipIndex == 0
+                            ? filteredPhotoList = photos
+                            : filteredPhotoList = photos
+                                .where((item) =>
+                                    item.category ==
+                                    _options[_selectedChipIndex])
+                                .toList();
                       });
                     },
                     selectedColor: const Color(0xFFD7B2E5),
@@ -209,45 +218,49 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
             color: Colors.grey,
           ),
           Expanded(
-            child: filteredPhotoList.isNotEmpty ? SingleChildScrollView(
-              child: SizedBox(
-                  height: filteredPhotoList.length % 3 == 0
-                      ? ((filteredPhotoList.length / 3)) * 150
-                      : ((filteredPhotoList.length / 3) + 1) * 120,
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                    ),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filteredPhotoList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return GridTile(
-                        child: GestureDetector(
-                          onTap: () {
-                            showImageSheet(filteredPhotoList[index].image);
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.all(2.0),
-                            color: Colors.white30,
-                            child: Center(
-                              child: Image.network(
-                                filteredPhotoList[index].image,
-                                width: 150,
-                                height: 150,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+            child: filteredPhotoList.isNotEmpty
+                ? SingleChildScrollView(
+                    child: SizedBox(
+                        height: filteredPhotoList.length % 3 == 0
+                            ? ((filteredPhotoList.length / 3)) * 150
+                            : ((filteredPhotoList.length / 3) + 1) * 120,
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
                           ),
-                        ),
-                      );
-                    },
-                  )),
-            ) : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text('No ${_options[_selectedChipIndex]} photos for now'),
-            ),
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: filteredPhotoList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return GridTile(
+                              child: GestureDetector(
+                                onTap: () {
+                                  showImageSheet(
+                                      filteredPhotoList[index].image);
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.all(2.0),
+                                  color: Colors.white30,
+                                  child: Center(
+                                    child: Image.network(
+                                      filteredPhotoList[index].image,
+                                      width: 150,
+                                      height: 150,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        )),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                        'No ${_options[_selectedChipIndex]} photos for now'),
+                  ),
           )
         ],
       ),
@@ -460,11 +473,11 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
     String hashtag = (await LocalData.getName())!;
     photos.clear();
     try {
-      QuerySnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseFirestore.instance
-              .collection('photos')
-              .where('hashtag', isEqualTo: hashtag)
-              .get();
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('photos')
+          .where('hashtag', isEqualTo: hashtag)
+          .get();
       if (snapshot.docs.isNotEmpty) {
         for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
           Map<String, dynamic>? data = entry.data();
@@ -510,9 +523,16 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ClipRRect(borderRadius: BorderRadius.circular(10),child: Image.network(photo)),
+          child: PhotoView(
+            tightMode: true,
+            enableRotation: true,
+            disableGestures: false,
+            imageProvider: NetworkImage(photo),
+            minScale: PhotoViewComputedScale.contained,
+            maxScale: PhotoViewComputedScale.covered * 2,
+            backgroundDecoration: const BoxDecoration(
+              color: Colors.black,
+            ),
           ),
         );
       },

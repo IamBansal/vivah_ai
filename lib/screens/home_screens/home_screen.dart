@@ -232,13 +232,9 @@ class _HomeScreenState extends State<HomeScreen> {
         });
         await LocalData.saveNameAndId(bride, groom, userId);
 
-        QuerySnapshot<Map<String, dynamic>> snapshot2 = await firestore
-            .collection('couple')
-            .where('id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-            .get();
-
+        bool isCouple = await ApiCalls.isCouple();
         setState(() {
-          isBrideGroom = snapshot2.size != 0;
+          isBrideGroom = isCouple;
         });
 
         debugPrint('Found for bride groom');
@@ -433,23 +429,27 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
               CustomTextField(
                   controller: _titleController,
                   label: 'Title',
-                  hint: 'Ceremony Title', expand: false),
+                  hint: 'Ceremony Title',
+                  expand: false),
               const SizedBox(height: 20),
               CustomTextField(
                   controller: _descController,
                   label: 'Description',
-                  hint: 'Ceremony Description', expand: true),
+                  hint: 'Ceremony Description',
+                  expand: true),
               const SizedBox(height: 20),
               CustomTextField(
                   controller: _locationController,
                   label: 'Location',
-                  hint: 'Ceremony Location', expand: true),
+                  hint: 'Ceremony Location',
+                  expand: true),
               const SizedBox(height: 20),
               CustomTextFieldWithIcon(
                 controller: _dateController,
                 label: 'Date',
                 hint: 'Ceremony Date',
-                icon: const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
+                icon:
+                    const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
                 expand: false,
                 onIconTap: (context) async => {
                   _dateController.text = (await ApiCalls.selectDate(context))!
@@ -483,7 +483,8 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         buttonText,
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
                   ),

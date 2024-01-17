@@ -33,48 +33,52 @@ class _CreateInviteState extends State<CreateInvite> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Colors.black26,
-            automaticallyImplyLeading: false,
-            toolbarHeight: 90,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Create Invite',
-                  style: GoogleFonts.carattere(
-                      textStyle: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 35,
-                          fontStyle: FontStyle.italic)),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    'Upload pictures and audio for them',
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                )
-              ],
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.black26,
+        automaticallyImplyLeading: false,
+        toolbarHeight: 90,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Create Invite',
+              style: GoogleFonts.carattere(
+                  textStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 35,
+                      fontStyle: FontStyle.italic)),
             ),
-            actions: [
-              IconButton(
-                  onPressed: () async {
-                    String url = (await ApiCalls.makePhotoLabAPICall(widget.guest.url))!;
-                    setState(() {
-                      imageUrlEmbed = url;
-                    });
-                  },
-                  icon: const Icon(Icons.transform),),
-              IconButton(
-                  onPressed: () {
-                    ApiCalls.shareDownloadInvite(_screenshotController, true, context);
-                  },
-                  icon: const Icon(Icons.file_download_outlined),)
-            ],
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                'Upload pictures and audio for them',
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            )
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              String url =
+                  (await ApiCalls.makePhotoLabAPICall(widget.guest.url))!;
+              setState(() {
+                imageUrlEmbed = url;
+              });
+            },
+            icon: const Icon(Icons.transform),
           ),
+          IconButton(
+            onPressed: () {
+              ApiCalls.shareDownloadInvite(
+                  _screenshotController, true, context);
+            },
+            icon: const Icon(Icons.file_download_outlined),
+          )
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -154,25 +158,26 @@ class _CreateInviteState extends State<CreateInvite> {
                         borderRadius: const BorderRadius.only(
                             bottomLeft: Radius.circular(14),
                             bottomRight: Radius.circular(14)),
-                      child: Image.asset(
-                      'assets/invite.jpg',
-                      height: 500,
-                      width: MediaQuery.of(context).size.width,
+                        child: Image.asset(
+                          'assets/invite.jpg',
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          width: MediaQuery.of(context).size.width,
+                          fit: BoxFit.cover,
+                        )),
+                  ),
+                  Positioned(
+                    left: MediaQuery.of(context).size.width * 0.27,
+                    top: MediaQuery.of(context).size.height * 0.08,
+                    child: ClipRRect(
+                        child: Image.network(
+                      imageUrlEmbed,
+                      height: MediaQuery.of(context).size.height * 0.27,
+                      width: MediaQuery.of(context).size.width * 0.47,
                       fit: BoxFit.cover,
                     )),
                   ),
                   Positioned(
-                    left: MediaQuery.of(context).size.width * 0.26,
-                    top: MediaQuery.of(context).size.height * 0.07,
-                    child: ClipRRect(
-                      child: Image.network(
-                        imageUrlEmbed,
-                        height: 240,
-                        width: 185,
-                        fit: BoxFit.cover,
-                      )),),
-                  Positioned(
-                    bottom: 50,
+                    bottom: MediaQuery.of(context).size.height * 0.06,
                     left: MediaQuery.of(context).size.width * 0.2,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -186,21 +191,24 @@ class _CreateInviteState extends State<CreateInvite> {
                                   fontStyle: FontStyle.italic)),
                         ),
                         SizedBox(
-                        height: 100,
-                        width: 230,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 10.0, top: 8),
-                          child: Text(
-                            _text,
-                            textAlign: TextAlign.center,
-                            maxLines: 4,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.white, fontSize: 13),
+                          height: 100,
+                          width: 230,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: 10.0, top: 8),
+                            child: Text(
+                              _text,
+                              textAlign: TextAlign.center,
+                              maxLines: 4,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 13),
+                            ),
                           ),
                         ),
-                  ),
                       ],
-                    ),)
+                    ),
+                  )
                 ],
               ),
             ),
@@ -274,7 +282,8 @@ class _CreateInviteState extends State<CreateInvite> {
         CustomButton(
           label: 'Create and share this personalised invite',
           onButtonPressed: (context) => {
-            ApiCalls.shareDownloadInvite(_screenshotController, false, context, 'Inviting you!!\nDownload the app to know more about what\'s for you')
+            ApiCalls.shareDownloadInvite(_screenshotController, false, context,
+                'Inviting you!!\nDownload the app to know more about what\'s for you')
             // TODO - download invite
             // addTheInviteToDB()
           },
@@ -345,21 +354,17 @@ class _CreateInviteState extends State<CreateInvite> {
   }
 
   Future<void> addTheInviteToDB() async {
-
     try {
       final firestore = FirebaseFirestore.instance;
       // FirebaseAuth auth = FirebaseAuth.instance;
       // User? user = auth.currentUser;
 
       DocumentReference newDocumentRef =
-          await firestore.collection('entries').add({
-
-      });
+          await firestore.collection('entries').add({});
 
       debugPrint('Data added successfully with ID: ${newDocumentRef.id}');
     } catch (error) {
       debugPrint('Error adding data: $error');
     }
-
   }
 }

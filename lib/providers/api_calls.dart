@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -10,11 +12,11 @@ import 'package:share/share.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class ApiCalls {
-
   static Future<String?> uploadImageToCloudinary(String imagePath) async {
     String cloudName = dotenv.env['CLOUD_NAME'] ?? '';
     String uploadPreset = dotenv.env['UPLOAD_PRESET'] ?? '';
-    Uri url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+    Uri url =
+        Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
 
     var request = http.MultipartRequest('POST', url)
       ..fields['upload_preset'] = uploadPreset
@@ -26,7 +28,8 @@ class ApiCalls {
         var responseData = await response.stream.bytesToString();
         return json.decode(responseData)['secure_url'];
       } else {
-        debugPrint('Failed to upload image. Status code: ${response.statusCode}');
+        debugPrint(
+            'Failed to upload image. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -35,10 +38,12 @@ class ApiCalls {
     }
   }
 
-  static Future<List<dynamic>?> uploadVideoToCloudinary(String videoPath) async {
+  static Future<List<dynamic>?> uploadVideoToCloudinary(
+      String videoPath) async {
     String cloudName = dotenv.env['CLOUD_NAME'] ?? '';
     String uploadPreset = dotenv.env['UPLOAD_PRESET'] ?? '';
-    Uri url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/video/upload');
+    Uri url =
+        Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/video/upload');
 
     var request = http.MultipartRequest('POST', url)
       ..fields['upload_preset'] = uploadPreset
@@ -48,9 +53,13 @@ class ApiCalls {
       var response = await request.send();
       if (response.statusCode == 200) {
         var responseData = await response.stream.bytesToString();
-        return [json.decode(responseData)['secure_url'], json.decode(responseData)['duration']];
+        return [
+          json.decode(responseData)['secure_url'],
+          json.decode(responseData)['duration']
+        ];
       } else {
-        debugPrint('Failed to upload image. Status code: ${response.statusCode}');
+        debugPrint(
+            'Failed to upload image. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -85,8 +94,7 @@ class ApiCalls {
     };
 
     String comboId = '33975893';
-    String encodedParams =
-        'image_url=$imageUrl&combo_id=$comboId';
+    String encodedParams = 'image_url=$imageUrl&combo_id=$comboId';
 
     try {
       var response = await http.post(
@@ -108,7 +116,11 @@ class ApiCalls {
     }
   }
 
-  static Future<void> shareDownloadInvite(ScreenshotController screenshotController, bool download, BuildContext context, [String? clipText]) async {
+  static Future<void> shareDownloadInvite(
+      ScreenshotController screenshotController,
+      bool download,
+      BuildContext context,
+      [String? clipText]) async {
     try {
       final uint8List = await screenshotController.capture();
       final tempDir = await getTemporaryDirectory();
@@ -117,8 +129,9 @@ class ApiCalls {
       File imageFile = File(imagePath);
       await imageFile.writeAsBytes(uint8List!);
 
-      if(download) {
-        await ImageGallerySaver.saveImage(uint8List, quality: 80, name: 'personalised_invite');
+      if (download) {
+        await ImageGallerySaver.saveImage(uint8List,
+            quality: 80, name: 'personalised_invite');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Invitation saved to gallery')),
         );
@@ -139,4 +152,12 @@ class ApiCalls {
     return pickedFile?.path;
   }
 
+  static Future<bool> isCouple() async {
+    QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+        .instance
+        .collection('couple')
+        .where('id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get();
+    return snapshot.size != 0;
+  }
 }
