@@ -1,10 +1,10 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
-
 import '../providers/api_calls.dart';
 
 class PersonalInvitation extends StatefulWidget {
@@ -26,7 +26,7 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
               padding: const EdgeInsets.only(
                   top: 28.0, bottom: 10, left: 13, right: 13),
               child: Text(
-                'Bindu Chachu',
+                name,
                 style: GoogleFonts.carattere(
                     textStyle: const TextStyle(
                         color: Colors.black,
@@ -52,7 +52,8 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
                     children: [
                       IconButton(
                           onPressed: () {
-                            ApiCalls.shareDownloadInvite(_screenshotController, false, context);
+                            ApiCalls.shareDownloadInvite(
+                                _screenshotController, false, context);
                           },
                           icon: const Icon(Icons.file_upload_outlined)),
                       const SizedBox(
@@ -60,10 +61,10 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
                       ),
                       IconButton(
                           onPressed: () {
-                            ApiCalls.shareDownloadInvite(_screenshotController, true, context);
+                            ApiCalls.shareDownloadInvite(
+                                _screenshotController, true, context);
                           },
-                          icon: const Icon(Icons.file_download_outlined)
-                      ),
+                          icon: const Icon(Icons.file_download_outlined)),
                     ],
                   ),
                 ],
@@ -101,37 +102,58 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
                 endIndent: 10,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+              child: Text(memory),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'Voice Invitation',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Row(
                     children: [
-                      Icon(Icons.file_upload_outlined),
-                      SizedBox(
+                      IconButton(icon: const Icon(Icons.file_upload_outlined), onPressed: () {
+                        ApiCalls.shareDownloadVoiceInvite(false);
+                      },),
+                      const SizedBox(
                         width: 10,
                       ),
-                      Icon(Icons.file_download_outlined)
+                      IconButton(icon: const Icon(Icons.file_download_outlined), onPressed: () {
+                        ApiCalls.shareDownloadVoiceInvite(true, audioUrl);
+                      },),
                     ],
                   ),
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 17.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 17.0),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Icon(
-                  Icons.mic,
-                  size: 30,
+                child: IconButton(
+                  onPressed: () {
+                    if (audioUrl.isNotEmpty) {
+                      playing
+                          ? myAudioPlayer.pause()
+                          : myAudioPlayer.play(UrlSource(audioUrl));
+                      setState(() {
+                        playing = !playing;
+                      });
+                    }
+                  },
+                  icon: Icon(
+                    playing ? Icons.pause : Icons.play_arrow,
+                    size: 30,
+                  ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -145,18 +167,21 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
   }
 
   String imageUrl = '';
+  String memory = '';
+  String name = '';
+  bool playing = false;
   final _screenshotController = ScreenshotController();
 
   Future<void> _getInvitation() async {
     String contact = (FirebaseAuth.instance.currentUser?.phoneNumber)!;
     String hashtag = (await LocalData.getName())!;
 
-    print(contact);
+    debugPrint(contact);
 
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
           .instance
-          .collection('guestList')
+          .collection('invites')
           .where('hashtag', isEqualTo: hashtag)
           .where('contact', isEqualTo: contact.substring(3))
           .get();
@@ -165,7 +190,10 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
         for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
           Map<String, dynamic>? data = entry.data();
           setState(() {
-            imageUrl = data!['url'];
+            imageUrl = data!['image'];
+            memory = data['memory'];
+            name = data['name'];
+            audioUrl = data['audio'];
           });
         }
         debugPrint('Found the invitation');
@@ -176,4 +204,7 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
       debugPrint('Error querying entries: $error');
     }
   }
+
+  AudioPlayer myAudioPlayer = AudioPlayer();
+  String audioUrl = '';
 }

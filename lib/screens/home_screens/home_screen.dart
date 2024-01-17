@@ -518,7 +518,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
   String imagePath = '';
 
   Future<void> saveToDB() async {
-    String url = (await ApiCalls.uploadImageToCloudinary(imagePath))!;
+    String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
     try {
       await FirebaseFirestore.instance
           .collection('ceremonies')

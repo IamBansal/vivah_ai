@@ -1,10 +1,10 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:speech_to_text/speech_recognition_error.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:jumping_dot/jumping_dot.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 import '../../models/guest.dart';
 import '../../providers/api_calls.dart';
 import '../../widgets/custom_button.dart';
@@ -20,15 +20,6 @@ class CreateInvite extends StatefulWidget {
 }
 
 class _CreateInviteState extends State<CreateInvite> {
-  String imageUrlEmbed = '';
-  final _screenshotController = ScreenshotController();
-
-  @override
-  void initState() {
-    super.initState();
-    imageUrlEmbed = widget.guest.url;
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -174,6 +165,21 @@ class _CreateInviteState extends State<CreateInvite> {
                       height: MediaQuery.of(context).size.height * 0.27,
                       width: MediaQuery.of(context).size.width * 0.47,
                       fit: BoxFit.cover,
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        } else {
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      (loadingProgress.expectedTotalBytes ?? 1)
+                                  : null,
+                            ),
+                          );
+                        }
+                      },
                     )),
                   ),
                   Positioned(
@@ -220,14 +226,13 @@ class _CreateInviteState extends State<CreateInvite> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    _listen();
+                    isRecording ? stopRecording() : startRecording();
                   },
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12.0),
-                      color: !_isListening
-                          ? const Color(0xFFD7B2E5)
-                          : Colors.green,
+                      color:
+                          !isRecording ? const Color(0xFFD7B2E5) : Colors.green,
                     ),
                     child: Card(
                       elevation: 0,
@@ -261,106 +266,139 @@ class _CreateInviteState extends State<CreateInvite> {
                 )
               ],
             ),
-            Container(
-              color: Colors.white10,
-              height: 150,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    _text,
-                    textAlign: TextAlign.center,
+            showLoader
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: JumpingDots(
+                      color: Colors.black,
+                      radius: 8,
+                      numberOfDots: 3,
+                    ),
+                  )
+                : Container(
+                    color: Colors.white10,
+                    height: 150,
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          _text,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            )
           ],
         ),
       ),
       persistentFooterAlignment: const AlignmentDirectional(0, 0),
       persistentFooterButtons: [
         CustomButton(
-          label: 'Create and share this personalised invite',
+          label: buttonText,
           onButtonPressed: (context) => {
-            ApiCalls.shareDownloadInvite(_screenshotController, false, context,
-                'Inviting you!!\nDownload the app to know more about what\'s for you')
-            // TODO - download invite
-            // addTheInviteToDB()
+            addTheInviteToDB().whenComplete(() => ApiCalls.shareDownloadInvite(
+                _screenshotController,
+                false,
+                context,
+                'Inviting you!!\nDownload the app to know more about what\'s for you'))
           },
         ),
       ],
     ));
   }
 
-  final stt.SpeechToText _speech = stt.SpeechToText();
-  bool _isListening = false;
   String _text = '';
+  String imageUrlEmbed = '';
+  final _screenshotController = ScreenshotController();
 
-  Future<bool> requestPermissions() async {
-    PermissionStatus status = await Permission.microphone.request();
-    return status.isGranted;
+  @override
+  void initState() {
+    super.initState();
+    imageUrlEmbed = widget.guest.url;
+    audioPlayer = AudioPlayer();
+    audioRecord = AudioRecorder();
   }
 
-  void _listen() async {
-    _text = "";
-    if (!_isListening) {
-      var microphoneStatus = await Permission.microphone.request();
-      if (microphoneStatus.isGranted) {
-        bool available = await _speech.initialize(
-          onStatus: _onSpeechStatus,
-          onError: _onSpeechError,
-        );
+  late AudioRecorder audioRecord;
+  late AudioPlayer audioPlayer;
+  bool isRecording = false;
+  String audioPath = "";
+  bool recodingNow = true;
 
-        if (available) {
-          debugPrint("it is available $available");
-          setState(() => _isListening = true);
-          _speech.listen(
-            onResult: _onSpeechResult,
-          );
-        } else {
-          debugPrint("Speech recognition is not available");
-        }
-      } else {
-        debugPrint("Permission denied for speech");
+  @override
+  void dispose() {
+    super.dispose();
+    audioRecord.dispose();
+    audioPlayer.dispose();
+  }
+
+  bool playing = false;
+  bool showLoader = false;
+
+  Future<void> startRecording() async {
+    try {
+      debugPrint("Start Recording");
+      if (await audioRecord.hasPermission()) {
+        final tempDir = await getTemporaryDirectory();
+        final imagePath = '${tempDir.path}/audio.mp3';
+        await audioRecord.start(const RecordConfig(), path: imagePath);
+        setState(() {
+          isRecording = true;
+        });
       }
-    } else {
-      setState(() => _isListening = false);
-      _speech.stop();
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 
-  Future<void> _onSpeechResult(SpeechRecognitionResult result) async {
-    setState(() => _text = result.recognizedWords);
-    debugPrint(_text);
-    if (result.finalResult) {
-      _isListening = !_isListening;
+  Future<void> stopRecording() async {
+    try {
+      debugPrint('Recording stopped');
+      String? path = await audioRecord.stop();
+      setState(() {
+        recodingNow = false;
+        isRecording = false;
+        audioPath = path!;
+      });
+      setState(() {
+        showLoader = true;
+      });
+      String text = await ApiCalls.transcribeAudio(audioPath);
+      setState(() {
+        _text = text;
+        showLoader = false;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 
-  void _onSpeechError(SpeechRecognitionError error) {
-    debugPrint(error.errorMsg);
-  }
-
-  void _onSpeechStatus(String status) {
-    debugPrint("status is $status");
-  }
-
-  bool isValidURL(String url) {
-    Uri? uri = Uri.tryParse(url);
-    if (uri != null && uri.hasScheme && uri.hasAuthority) {
-      return true;
-    }
-    return false;
-  }
+  String buttonText = 'Create and share this personalised invite';
 
   Future<void> addTheInviteToDB() async {
     try {
-      final firestore = FirebaseFirestore.instance;
-      // FirebaseAuth auth = FirebaseAuth.instance;
-      // User? user = auth.currentUser;
+
+      setState(() {
+        buttonText = 'Creating your invite....';
+      });
+
+      String audioUrl =
+          (await ApiCalls.uploadImageOrAudioToCloudinary(audioPath))!;
 
       DocumentReference newDocumentRef =
-          await firestore.collection('entries').add({});
+          await FirebaseFirestore.instance.collection('invites').add({
+        'hashtag': widget.guest.hashtag,
+        'image': imageUrlEmbed,
+        'memory': _text,
+        'contact': widget.guest.contact,
+        'name': widget.guest.name,
+        'team': widget.guest.category,
+        'audio': audioUrl
+      });
+
+      setState(() {
+        buttonText = 'Create and share this personalised invite';
+      });
 
       debugPrint('Data added successfully with ID: ${newDocumentRef.id}');
     } catch (error) {

@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:jumping_dot/jumping_dot.dart';
 import 'package:read_pdf_text/read_pdf_text.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
 import 'dart:convert';
@@ -217,6 +218,7 @@ class _InfoScreenState extends State<InfoScreen> {
     setState(() {
       chatHistory.insert(0, {'message': message, 'isUser': true});
     });
+    _askController.text = '';
 
     final response = await http.post(
       Uri.parse('https://api.openai.com/v1/chat/completions'),
@@ -268,7 +270,6 @@ class _InfoScreenState extends State<InfoScreen> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
-    _askController.text = '';
   }
 
   void _isCouple() async {
@@ -322,28 +323,24 @@ class _PdfTextParsingDialogState extends State<PdfTextParsingDialog> {
       scrollable: true,
       icon: const Icon(Icons.picture_as_pdf),
       title: Text(
-          parsingResult.isEmpty ? 'Parsing your pdf.....' : 'Parsed result'),
+          parsingResult.isEmpty ? 'Parsing your file.....' : 'Parsed successfully'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Visibility(
-              visible: parsingResult.isEmpty,
-              child: const CupertinoActivityIndicator()),
-          Visibility(
-              visible: parsingResult.isNotEmpty,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  parsingResult,
-                  // style: const TextStyle(overflow: TextOverflow.ellipsis),
-                ),
-              )),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: parsingResult.isEmpty ? JumpingDots(
+              color: Colors.black,
+              radius: 8,
+              numberOfDots: 3,
+            ) : Text(parsingResult,),
+          ),
           Visibility(
               visible: pages != 0,
               child: Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text(
-                  'Number of pages: $pages',
+                  'Number of pages parsed: $pages',
                   style: const TextStyle(
                       overflow: TextOverflow.ellipsis, fontSize: 13),
                 ),

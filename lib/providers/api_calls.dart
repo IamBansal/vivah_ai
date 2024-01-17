@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
@@ -12,15 +13,15 @@ import 'package:share/share.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class ApiCalls {
-  static Future<String?> uploadImageToCloudinary(String imagePath) async {
+  static Future<String?> uploadImageOrAudioToCloudinary(String path) async {
     String cloudName = dotenv.env['CLOUD_NAME'] ?? '';
     String uploadPreset = dotenv.env['UPLOAD_PRESET'] ?? '';
     Uri url =
-        Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+        Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/auto/upload');
 
     var request = http.MultipartRequest('POST', url)
       ..fields['upload_preset'] = uploadPreset
-      ..files.add(await http.MultipartFile.fromPath('file', imagePath));
+      ..files.add(await http.MultipartFile.fromPath('file', path));
 
     try {
       var response = await request.send();
@@ -146,6 +147,30 @@ class ApiCalls {
     }
   }
 
+  static Future<void> shareDownloadVoiceInvite(bool download, [String? audioUrl]) async {
+    try {
+
+      final tempDir = await getTemporaryDirectory();
+      final audioPath = '${tempDir.path}/audio.mp3';
+
+      if (!download) {
+        await Share.shareFiles([audioPath]);
+      } else {
+        var response = await http.get(Uri.parse(audioUrl!));
+
+        if (response.statusCode == 200) {
+          File file = File(audioPath);
+          await file.writeAsBytes(response.bodyBytes);
+          debugPrint('Audio file downloaded at: $audioPath');
+        } else {
+          debugPrint('Failed to download audio. Status code: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
+  }
+
   static Future<String?> getImage(ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
@@ -159,5 +184,31 @@ class ApiCalls {
         .where('id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
         .get();
     return snapshot.size != 0;
+  }
+
+  static Future<dynamic> transcribeAudio(String filePath) async {
+    String apiKey = dotenv.env['API_KEY'] ?? '';
+    final url = Uri.parse('https://api.openai.com/v1/audio/transcriptions');
+    final request = MultipartRequest('POST', url)
+      ..headers.addAll({
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'multipart/form-data',
+      })
+      ..files.add(await http.MultipartFile.fromPath('file', filePath))
+      ..fields['model'] = 'whisper-1';
+
+    try {
+      final response = await http.Response.fromStream(await request.send());
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        return responseData['text'];
+      } else {
+        debugPrint('Error: ${response.statusCode}, ${response.body}');
+        return;
+      }
+    } catch (e) {
+      debugPrint('Error: $e');
+      return;
+    }
   }
 }
