@@ -100,7 +100,7 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12.0),
-                      color: const Color(0xFFD7B2E5),
+                      color: const Color(0xFF713C05),
                     ),
                     child: Card(
                       elevation: 0,
@@ -113,7 +113,7 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
                         child: Icon(
                           !_isPlaying ? Icons.play_arrow : Icons.pause,
                           size: 36,
-                          color: Colors.white,
+                          color: const Color(0xFFFFD384),
                         ),
                       ),
                     ),

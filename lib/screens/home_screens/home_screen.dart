@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
+import 'package:vivah_ai/widgets/custom_button.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import '../../models/ceremony.dart';
 import '../auth/login_screen.dart';
@@ -36,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
               '$groom weds $bride',
               style: GoogleFonts.carattere(
                   textStyle: const TextStyle(
-                      color: Colors.black,
+                      color: Color(0xFF33201C),
                       fontSize: 35,
                       fontStyle: FontStyle.italic)),
             ),
@@ -120,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Text(
                       'Ceremonies',
                       style: TextStyle(
-                          color: Colors.black,
+                          color: Color(0xFF33201C),
                           fontWeight: FontWeight.bold,
                           fontSize: 17),
                     ),
@@ -172,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text(
                   'Venue on Maps',
                   style: TextStyle(
-                      color: Colors.black,
+                      color: Color(0xFF33201C),
                       fontWeight: FontWeight.bold,
                       fontSize: 17),
                 ),
@@ -312,7 +313,7 @@ class _HighlightItemState extends State<HighlightItem> {
               height: 70,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFD7B2E5), width: 1)),
+                  border: Border.all(color: const Color(0xFF713C05), width: 1)),
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: ClipOval(
@@ -369,7 +370,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                             children: [
                               ListTile(
                                 leading: const Icon(Icons.camera,
-                                    color: Color(0xFF5271EF)),
+                                    color: Color(0xFF33201C)),
                                 title: const Text('Take Photo'),
                                 onTap: () async {
                                   Navigator.pop(
@@ -384,7 +385,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                               ListTile(
                                 leading: const Icon(
                                   Icons.photo_library,
-                                  color: Color(0xFF5271EF),
+                                  color: Color(0xFF33201C),
                                 ),
                                 title: const Text('Choose from Gallery'),
                                 onTap: () async {
@@ -408,7 +409,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: const Color(0xFF5271EF), width: 1)),
+                              color: const Color(0xFF4F2E22), width: 1)),
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: imagePath.isNotEmpty
@@ -418,7 +419,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                               )
                             : const Icon(
                                 Icons.add_a_photo,
-                                color: Color(0xFF5271EF),
+                                color: Color(0xFF33201C),
                               ),
                       )),
                 ),
@@ -439,20 +440,20 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                   expand: true),
               const SizedBox(height: 20),
               CustomTextFieldWithIcon(
-                  controller: _locationController,
-                  label: 'Location',
-                  hint: 'Ceremony Location',
-                  icon: const Icon(Icons.location_on_outlined, color: Color(0xFFD7B2E5)),
-                  expand: true,
-              onIconTap: (context) => null,
-              keyboardType: TextInputType.text,),
+                controller: _locationController,
+                label: 'Location',
+                hint: 'Ceremony Location',
+                icon: Icons.location_on_outlined,
+                expand: true,
+                onIconTap: (context) => null,
+                keyboardType: TextInputType.text,
+              ),
               const SizedBox(height: 20),
               CustomTextFieldWithIcon(
                 controller: _dateController,
                 label: 'Date',
                 hint: 'Ceremony Date',
-                icon:
-                    const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
+                icon: Icons.calendar_today,
                 expand: false,
                 onIconTap: (context) async => {
                   _dateController.text = (await ApiCalls.selectDate(context))!
@@ -461,38 +462,16 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
               ),
               const SizedBox(height: 20),
               Center(
-                child: SizedBox(
-                  width: 320.0,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD7B2E5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                    ),
-                    onPressed: () async {
-                      if (_titleController.text.isNotEmpty &&
-                          _descController.text.isNotEmpty &&
-                          imagePath.isNotEmpty &&
-                          _dateController.text.isNotEmpty &&
-                          _locationController.text.isNotEmpty) {
-                        saveToDB();
-                        setState(() {
-                          buttonText = 'Adding the ceremony.....';
-                        });
-                      }
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        buttonText,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+                  child: CustomButton(
+                      label: buttonText,
+                      onButtonPressed: (context) => {
+                            if (_titleController.text.isNotEmpty &&
+                                _descController.text.isNotEmpty &&
+                                imagePath.isNotEmpty &&
+                                _dateController.text.isNotEmpty &&
+                                _locationController.text.isNotEmpty)
+                              {saveToDB()}
+                          })),
             ],
           ),
         ),
@@ -500,7 +479,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
     );
   }
 
-  String buttonText = 'Add the ceremony';
+  String buttonText = 'Add ceremony';
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _locationController = TextEditingController();
@@ -518,6 +497,9 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
   String imagePath = '';
 
   Future<void> saveToDB() async {
+    setState(() {
+      buttonText = 'Adding ceremony....';
+    });
     String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
     try {
       await FirebaseFirestore.instance
@@ -533,7 +515,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
               .toMap())
           .whenComplete(() => Navigator.of(context).pop());
       setState(() {
-        buttonText = 'Add the ceremony';
+        buttonText = 'Add ceremony';
       });
       debugPrint('Ceremony added');
     } catch (e) {

@@ -96,7 +96,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
               'Guest List',
               style: GoogleFonts.carattere(
                   textStyle: const TextStyle(
-                      color: Colors.black,
+                      color: Color(0xFF33201C),
                       fontSize: 35,
                       fontStyle: FontStyle.italic)),
             ),
@@ -138,8 +138,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                 controller: _contactController,
                 label: 'Contact',
                 hint: 'Enter contact of relative',
-                icon: const Icon(Icons.add_ic_call_outlined,
-                    color: Color(0xFFD7B2E5)),
+                icon: Icons.add_ic_call_outlined,
                 expand: false,
                 onIconTap: (context) => _importContact(),
                 keyboardType:

@@ -110,8 +110,7 @@ class _InitialDetailsState extends State<InitialDetails> {
               controller: _venueController,
               label: 'Venue',
               hint: 'Enter wedding\'s venue',
-              icon: const Icon(Icons.location_on_outlined,
-                  color: Color(0xFFD7B2E5)),
+              icon: Icons.location_on_outlined,
               expand: true,
               onIconTap: (context) => null,
               keyboardType: TextInputType.text,
@@ -123,7 +122,7 @@ class _InitialDetailsState extends State<InitialDetails> {
               controller: _dateController,
               label: 'Date',
               hint: 'Enter Date',
-              icon: const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
+              icon: Icons.calendar_today,
               expand: false,
               onIconTap: (context) async => {
                 _dateController.text = (await ApiCalls.selectDate(context))!

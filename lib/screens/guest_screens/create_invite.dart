@@ -232,7 +232,7 @@ class _CreateInviteState extends State<CreateInvite> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12.0),
                       color:
-                          !isRecording ? const Color(0xFFD7B2E5) : Colors.green,
+                          !isRecording ? const Color(0xFF713C05) : Colors.green,
                     ),
                     child: Card(
                       elevation: 0,
@@ -245,7 +245,7 @@ class _CreateInviteState extends State<CreateInvite> {
                         child: Icon(
                           Icons.mic,
                           size: 36,
-                          color: Colors.white,
+                          color: Color(0xFFFFD384),
                         ),
                       ),
                     ),

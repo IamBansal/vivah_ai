@@ -34,7 +34,7 @@ class _ShowBlessingsState extends State<ShowBlessings> {
                   'Blessings',
                   style: GoogleFonts.carattere(
                       textStyle: const TextStyle(
-                          color: Colors.black,
+                          color: Color(0xFF33201C),
                           fontSize: 35,
                           fontStyle: FontStyle.italic)),
                 ),

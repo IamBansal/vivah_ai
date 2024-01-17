@@ -57,7 +57,7 @@ class CustomTextFieldWithIcon extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final String hint;
-  final Icon icon;
+  final IconData icon;
   final bool expand;
   final Function(BuildContext)? onIconTap;
   final TextInputType keyboardType;
@@ -106,7 +106,7 @@ class _CustomTextFieldWithIconState extends State<CustomTextFieldWithIcon> {
             if (widget.onIconTap != null) {
               widget.onIconTap!(context);
             }
-          }, icon: widget.icon),
+          }, icon: Icon(widget.icon, color: const Color(0xFF33201C),)),
         ),
         textAlignVertical: TextAlignVertical.center,
         style: const TextStyle(color: Colors.black),

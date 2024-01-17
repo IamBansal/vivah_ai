@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Vivah',
                     style: GoogleFonts.carattere(
                         textStyle: const TextStyle(
-                            color: Colors.black,
+                            color: Color(0xFF33201C),
                             fontSize: 75,
                             fontStyle: FontStyle.italic)),
                   ),
@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: EdgeInsets.only(bottom: 8.0),
                     child: Text(
                       'Your wedding, personalised',
-                      style: TextStyle(color: Colors.black, fontSize: 15),
+                      style: TextStyle(color: Color(0xFF33201C), fontSize: 15),
                     ),
                   )
                 ],
@@ -548,10 +548,10 @@ class _LoginAsButtonState extends State<LoginAsButton> {
       child: Column(
         children: [
           CircleAvatar(
-            backgroundColor: const Color(0xFFD7B2E5),
+            backgroundColor: const Color(0xFF713C05),
             child: Icon(
               Icons.person,
-              color: widget.isBrideGroom ? Colors.black : Colors.white,
+              color: widget.isBrideGroom ? Colors.white : Colors.grey,
             ),
           ),
           const SizedBox(

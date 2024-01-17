@@ -13,6 +13,8 @@ import 'package:vivah_ai/providers/api_calls.dart';
 import 'dart:convert';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 
+import '../providers/shared_pref.dart';
+
 class InfoScreen extends StatefulWidget {
   const InfoScreen({super.key});
 
@@ -38,7 +40,7 @@ class _InfoScreenState extends State<InfoScreen> {
               'Vivah Guide',
               style: GoogleFonts.carattere(
                   textStyle: const TextStyle(
-                      color: Colors.black,
+                      color: Color(0xFF33201C),
                       fontSize: 35,
                       fontStyle: FontStyle.italic)),
             ),
@@ -60,7 +62,7 @@ class _InfoScreenState extends State<InfoScreen> {
                 },
                 icon: const Icon(
                   Icons.edit_note_outlined,
-                  color: Colors.black,
+                  color: Color(0xFF33201C),
                 )),
           ),
         ],
@@ -94,17 +96,14 @@ class _InfoScreenState extends State<InfoScreen> {
                         child: Text(
                           'Ask a question about the wedding',
                           style: TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold),
+                              color: Color(0xFF33201C), fontWeight: FontWeight.bold),
                         ),
                       ),
                       CustomTextFieldWithIcon(
                         controller: _askController,
                         label: 'Ask me',
                         hint: 'Ask anything',
-                        icon: const Icon(
-                          Icons.send,
-                          color: Colors.black,
-                        ),
+                        icon: Icons.send,
                         expand: true,
                         onIconTap: (context) => _askController.text.isNotEmpty
                             ? sendMessageToChatGPT(_askController.text)
@@ -127,9 +126,9 @@ class _InfoScreenState extends State<InfoScreen> {
                                       _options[_selectedChipIndex];
                                 });
                               },
-                              selectedColor: const Color(0xFFD7B2E5),
-                              backgroundColor: Colors.grey[200],
-                              labelStyle: const TextStyle(color: Colors.black),
+                              selectedColor: const Color(0xFF713C05),
+                              backgroundColor: Colors.grey,
+                              labelStyle: const TextStyle(color: Colors.white),
                             );
                           },
                         ).toList(),
@@ -174,6 +173,7 @@ class _InfoScreenState extends State<InfoScreen> {
   final _askController = TextEditingController();
   String apiKey = dotenv.env['API_KEY'] ?? '';
   int _selectedChipIndex = 0;
+  String prompt = '';
 
   List<Map<String, dynamic>> chatHistory = [
     {
@@ -215,6 +215,8 @@ class _InfoScreenState extends State<InfoScreen> {
   }
 
   Future<void> sendMessageToChatGPT(String message) async {
+    String? prompt = await LocalData.getPrompt();
+
     setState(() {
       chatHistory.insert(0, {'message': message, 'isUser': true});
     });
@@ -236,8 +238,7 @@ class _InfoScreenState extends State<InfoScreen> {
           },
           {
             'role': 'user',
-            'content':
-                'You have a list of responses : \n- Wedding is in udaipur\n- Bride is Anika Beri, Groom is Tanmay Dhote, they met at a cafe three years ago.\n- Menu at wedding consists of pani puri, tikki, indian cuisine as well italian.\n- Dress code for haldi is yellow and for mehndi is green, while for wedding night, it\'s three piece suit.\nNow, you have to answer from these responses to the user\'s question.\nUser\'s question: $message'
+            'content': prompt
           }
         ]
       }),
@@ -352,8 +353,7 @@ class _PdfTextParsingDialogState extends State<PdfTextParsingDialog> {
           visible: parsingResult.isNotEmpty,
           child: ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop();
-              //TODO - upload the pdf text to gpt for prompt
+              LocalData.savePrompt(parsingResult).whenComplete(() => Navigator.of(context).pop());
             },
             child: const Text('Upload'),
           ),
@@ -387,7 +387,7 @@ class ChatBubble extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         decoration: BoxDecoration(
-          color: isSentByMe ? const Color(0xFFF5ECF9) : Colors.grey,
+          color: isSentByMe ? const Color(0xFF713C05) : Colors.grey,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(isSentByMe ? 12.0 : 0.0),
             topRight: Radius.circular(isSentByMe ? 0.0 : 12.0),
@@ -397,7 +397,7 @@ class ChatBubble extends StatelessWidget {
         ),
         child: Text(
           message,
-          style: TextStyle(color: isSentByMe ? Colors.black : Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
       ),
     );

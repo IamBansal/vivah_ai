@@ -74,7 +74,7 @@ class ApiCalls {
     final DateTime? selectedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().year - 1),
       lastDate: DateTime(DateTime.now().year + 2),
     );
 

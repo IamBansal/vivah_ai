@@ -19,10 +19,10 @@ class _CustomButtonState extends State<CustomButton> {
       width: 340,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFD7B2E5),
+          backgroundColor: const Color(0xFF4F2E22),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(29),
-            side: const BorderSide(color: Colors.black),
+            side: const BorderSide(color: Color(0xFFFFD384)),
           ),
         ),
         onPressed: () {
@@ -33,7 +33,9 @@ class _CustomButtonState extends State<CustomButton> {
         child: Text(
           widget.label,
           style: const TextStyle(
-              color: Colors.black54, fontWeight: FontWeight.bold),
+              color: Color(0xFFFFF5EB),
+              // fontWeight: FontWeight.bold
+          ),
         ),
       ),
     );
