@@ -140,6 +140,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                 hint: 'Enter contact of relative',
                 icon: const Icon(Icons.add_ic_call_outlined,
                     color: Color(0xFFD7B2E5)),
+                expand: false,
                 onIconTap: (context) => _importContact(),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: false),

@@ -107,6 +107,7 @@ class _InitialDetailsState extends State<InitialDetails> {
               label: 'Date',
               hint: 'Enter Date',
               icon: const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
+              expand: false,
               onIconTap: (context) async => {
                 _dateController.text = (await ApiCalls.selectDate(context))!
               },

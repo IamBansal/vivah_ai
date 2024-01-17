@@ -244,9 +244,9 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                       );
                     },
                   )),
-            ) : const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('No photos for now'),
+            ) : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('No ${_options[_selectedChipIndex]} photos for now'),
             ),
           )
         ],

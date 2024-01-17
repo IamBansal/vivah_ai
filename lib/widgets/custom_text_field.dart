@@ -58,11 +58,12 @@ class CustomTextFieldWithIcon extends StatefulWidget {
   final String label;
   final String hint;
   final Icon icon;
+  final bool expand;
   final Function(BuildContext)? onIconTap;
   final TextInputType keyboardType;
 
   const CustomTextFieldWithIcon(
-      {super.key, required this.controller, required this.label, required this.hint, required this.icon, required this.onIconTap, required this.keyboardType});
+      {super.key, required this.controller, required this.label, required this.hint, required this.icon, required this.expand, required this.onIconTap, required this.keyboardType});
 
   @override
   State<CustomTextFieldWithIcon> createState() =>
@@ -109,6 +110,8 @@ class _CustomTextFieldWithIconState extends State<CustomTextFieldWithIcon> {
         ),
         textAlignVertical: TextAlignVertical.center,
         style: const TextStyle(color: Colors.black),
+        maxLines: widget.expand ? null : 1,
+        minLines: 1,
       ),
     );
   }

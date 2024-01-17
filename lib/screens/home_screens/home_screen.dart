@@ -450,6 +450,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                 label: 'Date',
                 hint: 'Ceremony Date',
                 icon: const Icon(Icons.calendar_today, color: Color(0xFFD7B2E5)),
+                expand: false,
                 onIconTap: (context) async => {
                   _dateController.text = (await ApiCalls.selectDate(context))!
                 },
