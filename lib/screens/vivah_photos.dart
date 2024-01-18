@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:vivah_ai/models/photo.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
+import 'package:vivah_ai/widgets/custom_button.dart';
 import '../providers/shared_pref.dart';
 
 class VivahPhotosScreen extends StatefulWidget {
@@ -35,7 +37,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
               'Vivah Album',
               style: GoogleFonts.carattere(
                   textStyle: const TextStyle(
-                      color: Colors.black,
+                      color: Color(0xFF33201C),
                       fontSize: 35,
                       fontStyle: FontStyle.italic)),
             ),
@@ -80,9 +82,9 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                                   .toList();
                         });
                       },
-                      selectedColor: const Color(0xFFD7B2E5),
-                      backgroundColor: Colors.grey[200],
-                      labelStyle: const TextStyle(color: Colors.black),
+                      selectedColor: const Color(0xFF713C05),
+                      backgroundColor: Colors.grey,
+                      labelStyle: const TextStyle(color: Colors.white),
                     );
                   },
                 ).toList(),
@@ -99,12 +101,12 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                         children: [
                           ListTile(
                             leading: const Icon(Icons.camera,
-                                color: Color(0xFF5271EF)),
+                                color: Color(0xFF33201C)),
                             title: const Text('Take Photo'),
                             onTap: () async {
                               Navigator.pop(context); // Close the bottom sheet
-                              String path =
-                                  (await ApiCalls.getImage(ImageSource.camera))!;
+                              String path = (await ApiCalls.getImage(
+                                  ImageSource.camera))!;
                               await LocalData.saveImage(path);
                               setState(() {
                                 imagePath = path;
@@ -114,13 +116,13 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                           ListTile(
                             leading: const Icon(
                               Icons.photo_library,
-                              color: Color(0xFF5271EF),
+                              color: Color(0xFF33201C),
                             ),
                             title: const Text('Choose from Gallery'),
                             onTap: () async {
                               Navigator.pop(context);
-                              String path =
-                                  (await ApiCalls.getImage(ImageSource.gallery))!;
+                              String path = (await ApiCalls.getImage(
+                                  ImageSource.gallery))!;
                               await LocalData.saveImage(path);
                               setState(() {
                                 imagePath = path;
@@ -156,7 +158,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
               guestName,
               style: GoogleFonts.carattere(
                   textStyle: const TextStyle(
-                      color: Color(0xFF5D2673),
+                      color: Color(0xFF713C05),
                       fontSize: 40,
                       fontStyle: FontStyle.italic)),
             ),
@@ -164,7 +166,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
               padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
               child: Text(
                 'Save your favorite moments to your gallery or upload some future-worthy clicks for everyone!',
-                style: TextStyle(color: Color(0xFF9B40BF)),
+                style: TextStyle(color: Color(0xFF713C05)),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -230,14 +232,18 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                         crossAxisCount: 3,
                       ),
                       shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
                       controller: scrollController,
                       itemCount: filteredPhotoList.length,
                       itemBuilder: (BuildContext context, int index) {
                         return GridTile(
                           child: GestureDetector(
                             onTap: () {
-                              showImageSheet(
-                                  filteredPhotoList[index].image);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PhotoViewScreen(url: filteredPhotoList[index].image)),
+                              );
                             },
                             child: Container(
                               margin: const EdgeInsets.all(2.0),
@@ -297,7 +303,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                                 children: [
                                   ListTile(
                                     leading: const Icon(Icons.camera,
-                                        color: Color(0xFF5271EF)),
+                                        color: Color(0xFF33201C)),
                                     title: const Text('Take Photo'),
                                     onTap: () async {
                                       Navigator.pop(
@@ -314,7 +320,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                                   ListTile(
                                     leading: const Icon(
                                       Icons.photo_library,
-                                      color: Color(0xFF5271EF),
+                                      color: Color(0xFF33201C),
                                     ),
                                     title: const Text('Choose from Gallery'),
                                     onTap: () async {
@@ -340,7 +346,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                           decoration: BoxDecoration(
                               // shape: BoxShape.circle,
                               border: Border.all(
-                                  color: const Color(0xFF5271EF), width: 1)),
+                                  color: const Color(0xFF33201C), width: 1)),
                           child: Padding(
                             padding: const EdgeInsets.all(2.0),
                             child: imagePathForDialog.isNotEmpty
@@ -351,7 +357,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                                   )
                                 : const Icon(
                                     Icons.add_a_photo,
-                                    color: Color(0xFF5271EF),
+                                    color: Color(0xFF33201C),
                                   ),
                           )),
                     ),
@@ -369,11 +375,11 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                     inputDecorationTheme: InputDecorationTheme(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: const BorderSide(color: Color(0xFF5271EF)),
+                        borderSide: const BorderSide(color: Color(0xFF33201C)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: const BorderSide(color: Color(0xFF5271EF)),
+                        borderSide: const BorderSide(color: Color(0xFF33201C)),
                       ),
                     ),
                     dropdownMenuEntries:
@@ -386,34 +392,12 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                     height: 20,
                   ),
                   Center(
-                    child: SizedBox(
-                      width: 250.0,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD7B2E5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                        ),
-                        onPressed: () async {
-                          if (imagePathForDialog.isNotEmpty) {
-                            setState(() {
-                              buttonText = 'Uploading the photo.....';
-                            });
-                            saveToDB();
-                          }
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            buttonText,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 16),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                      child: CustomButton(
+                    label: buttonText,
+                    onButtonPressed: (context) => {
+                      if (imagePathForDialog.isNotEmpty) {saveToDB()}
+                    },
+                  )),
                 ],
               ),
             ),
@@ -445,10 +429,14 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
   String guestName = '';
 
   Future<void> saveToDB() async {
+    setState(() {
+      buttonText = 'Uploading the photo.....';
+    });
     String id = (FirebaseAuth.instance.currentUser?.uid)!;
     String hashtag = (await LocalData.getName())!;
 
-    String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePathForDialog))!;
+    String url =
+        (await ApiCalls.uploadImageOrAudioToCloudinary(imagePathForDialog))!;
     try {
       await FirebaseFirestore.instance.collection('photos').add({
         'hashtag': hashtag,
@@ -515,28 +503,65 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
       guestName = name;
     });
   }
-
-  void showImageSheet(String photo) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context1) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: PhotoView(
-            tightMode: true,
-            enableRotation: true,
-            disableGestures: false,
-            imageProvider: NetworkImage(photo),
-            minScale: PhotoViewComputedScale.contained,
-            maxScale: PhotoViewComputedScale.covered * 2,
-            backgroundDecoration: const BoxDecoration(
-              color: Colors.black,
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
+
+class PhotoViewScreen extends StatefulWidget {
+  final String url;
+  const PhotoViewScreen({super.key, required this.url});
+
+  @override
+  State<PhotoViewScreen> createState() => _PhotoViewScreenState();
+}
+
+class _PhotoViewScreenState extends State<PhotoViewScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(child: Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                    onPressed: () {
+                      ApiCalls.shareDownloadInvite(
+                          _screenshotController, false, context);
+                    },
+                    icon: const Icon(Icons.file_upload_outlined)),
+                const SizedBox(
+                  width: 10,
+                ),
+                IconButton(
+                    onPressed: () {
+                      ApiCalls.shareDownloadInvite(
+                          _screenshotController, true, context);
+                    },
+                    icon: const Icon(Icons.file_download_outlined)),
+              ],
+            ),
+            Screenshot(
+              controller: _screenshotController,
+              child: PhotoView(
+                tightMode: true,
+                enableRotation: true,
+                disableGestures: false,
+                imageProvider: NetworkImage(widget.url),
+                customSize: MediaQuery.of(context).size,
+                // customSize: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
+                minScale: PhotoViewComputedScale.contained,
+                maxScale: PhotoViewComputedScale.covered * 2,
+                backgroundDecoration: const BoxDecoration(
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  final ScreenshotController _screenshotController = ScreenshotController();
+}
+
