@@ -7,6 +7,7 @@ class Guest {
   String team;
   String url;
   String userId;
+  String guestId;
 
   // Constructor
   Guest({
@@ -18,6 +19,7 @@ class Guest {
     required this.team,
     required this.url,
     required this.userId,
+    required this.guestId,
   });
 
   // Factory method to create a Guest instance from a Map
@@ -31,6 +33,7 @@ class Guest {
       team: map['team'],
       url: map['url'],
       userId: map['userId'],
+      guestId: map['guestId'],
     );
   }
 
@@ -45,6 +48,7 @@ class Guest {
       'team': team,
       'url': url,
       'userId': userId,
+      'guestId': guestId,
     };
   }
 }

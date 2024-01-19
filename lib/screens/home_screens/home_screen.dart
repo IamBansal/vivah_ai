@@ -502,8 +502,9 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
     });
     String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
     try {
-      await FirebaseFirestore.instance
-          .collection('ceremonies')
+
+      final firestore = FirebaseFirestore.instance.collection('ceremonies');
+      DocumentReference newDocumentRef = await firestore
           .add(Ceremony(
                   title: _titleController.text,
                   description: _descController.text,
@@ -511,9 +512,11 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                   location: _locationController.text,
                   date: _dateController.text,
                   userId: widget.userId,
-                  hashtag: widget.hashtag)
-              .toMap())
-          .whenComplete(() => Navigator.of(context).pop());
+                  hashtag: widget.hashtag,
+        ceremonyId: ''
+      ).toMap());
+
+      await firestore.doc(newDocumentRef.id).update({'ceremonyId': newDocumentRef.id}).whenComplete(() => Navigator.of(context).pop());
       setState(() {
         buttonText = 'Add ceremony';
       });

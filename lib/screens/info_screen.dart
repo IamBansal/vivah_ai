@@ -138,29 +138,46 @@ class _InfoScreenState extends State<InfoScreen> {
             );
           }),
       body: Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.2),
-          child: ListView.separated(
-            shrinkWrap: true,
-            reverse: true,
-            padding: const EdgeInsets.only(top: 12, bottom: 20) +
-                const EdgeInsets.symmetric(horizontal: 12),
-            separatorBuilder: (_, __) => const SizedBox(
-              height: 12,
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.2),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.separated(
+                shrinkWrap: true,
+                reverse: true,
+                padding: const EdgeInsets.only(top: 12, bottom: 20) +
+                    const EdgeInsets.symmetric(horizontal: 12),
+                separatorBuilder: (_, __) => const SizedBox(
+                  height: 12,
+                ),
+                controller: scrollController,
+                itemCount: chatHistory.length,
+                itemBuilder: (context, index) {
+                  return ChatBubble(
+                    message: chatHistory[index]['message'],
+                    isSentByMe: chatHistory[index]['isUser'],
+                  );
+                },
+              ),
             ),
-            controller: scrollController,
-            itemCount: chatHistory.length,
-            itemBuilder: (context, index) {
-              return ChatBubble(
-                message: chatHistory[index]['message'],
-                isSentByMe: chatHistory[index]['isUser'],
-              );
-            },
-          )),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Visibility(
+                visible: isBotTyping,
+                  child: JumpingDots(
+                color: Colors.black,
+                radius: 8,
+                numberOfDots: 3,
+              )),
+            )
+          ],
+        ),
+      ),
     ));
   }
 
   bool isCouple = false;
+  bool isBotTyping = false;
 
   @override
   void initState() {
@@ -215,7 +232,11 @@ class _InfoScreenState extends State<InfoScreen> {
   }
 
   Future<void> sendMessageToChatGPT(String message) async {
+    setState(() {
+      isBotTyping = true;
+    });
     String? prompt = await LocalData.getPrompt();
+    debugPrint(prompt);
 
     setState(() {
       chatHistory.insert(0, {'message': message, 'isUser': true});
@@ -233,12 +254,11 @@ class _InfoScreenState extends State<InfoScreen> {
         'messages': [
           {
             'role': 'system',
-            'content':
-                'behave according to the list of responses provided in message'
+            'content': prompt
           },
           {
             'role': 'user',
-            'content': prompt
+            'content': message
           }
         ]
       }),
@@ -248,6 +268,7 @@ class _InfoScreenState extends State<InfoScreen> {
       final responseData = json.decode(response.body);
       final chatResponse = responseData['choices'][0]['message']['content'];
       setState(() {
+        isBotTyping = false;
         chatHistory.insert(0, {'message': chatResponse, 'isUser': false});
       });
       debugPrint(chatResponse.toString());

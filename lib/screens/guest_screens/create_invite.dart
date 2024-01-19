@@ -385,14 +385,9 @@ class _CreateInviteState extends State<CreateInvite> {
       String audioUrl =
           (await ApiCalls.uploadImageOrAudioToCloudinary(audioPath))!;
 
-      DocumentReference newDocumentRef =
-          await FirebaseFirestore.instance.collection('invites').add({
-        'hashtag': widget.guest.hashtag,
+          await FirebaseFirestore.instance.collection('guestList').doc(widget.guest.guestId).update({
         'image': imageUrlEmbed,
         'memory': _text,
-        'contact': widget.guest.contact,
-        'name': widget.guest.name,
-        'team': widget.guest.category,
         'audio': audioUrl
       });
 
@@ -400,7 +395,7 @@ class _CreateInviteState extends State<CreateInvite> {
         buttonText = 'Create and share this personalised invite';
       });
 
-      debugPrint('Data added successfully with ID: ${newDocumentRef.id}');
+      debugPrint('Data updated successfully');
     } catch (error) {
       debugPrint('Error adding data: $error');
     }

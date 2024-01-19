@@ -64,6 +64,7 @@ class _StoryScreenState extends State<StoryScreen> {
             storyItems.add(
                 StoryItem.pageVideo(
                   data!['video'],
+                  caption: 'Uploaded by: ${data['addedBy']}',
                   duration: Duration(seconds: data['duration'].toInt()),
                   controller: controller,
                 ));

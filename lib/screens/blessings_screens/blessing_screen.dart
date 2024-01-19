@@ -174,12 +174,19 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
     List<dynamic> cloudinaryResponse =
         (await ApiCalls.uploadVideoToCloudinary(widget.filePath))!;
     try {
-      await FirebaseFirestore.instance.collection('blessings').add({
+      DocumentReference newDocumentRef =
+          await FirebaseFirestore.instance.collection('blessings').add({
         'hashtag': hashtag,
         'addedBy': id,
         'video': cloudinaryResponse[0],
         'duration': cloudinaryResponse[1]
-      }).whenComplete(() => Navigator.of(context).pop());
+      });
+
+      await FirebaseFirestore.instance
+          .collection('blessings')
+          .doc(newDocumentRef.id)
+          .update({'blessingId': newDocumentRef.id}).whenComplete(
+              () => Navigator.of(context).pop());
 
       setState(() {
         buttonText = 'Upload and share your blessing';

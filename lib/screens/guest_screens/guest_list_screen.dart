@@ -35,6 +35,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
   final _nameController = TextEditingController();
   final _relationController = TextEditingController();
   final _contactController = TextEditingController();
+  final _roomController = TextEditingController();
   bool _isVisible = false;
   String relationCategory = list.first;
   String team = listTeam.first;
@@ -55,6 +56,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
     _nameController.dispose();
     _relationController.dispose();
     _contactController.dispose();
+    _roomController.dispose();
   }
 
   String userId = '';
@@ -123,14 +125,16 @@ class _GuestListScreenState extends State<GuestListScreen> {
                   child: CustomTextField(
                       controller: _nameController,
                       label: 'Name',
-                      hint: 'Enter Preferred Name - e.g., Bride\'s Chachu', expand: false)),
+                      hint: 'Enter Preferred Name - e.g., Bride\'s Chachu',
+                      expand: false)),
               const SizedBox(
                 height: 15,
               ),
               CustomTextField(
                   controller: _relationController,
                   label: 'Relation',
-                  hint: 'Enter Relation - e.g., Bride\'s Chachu', expand: false),
+                  hint: 'Enter Relation - e.g., Bride\'s Chachu',
+                  expand: false),
               const SizedBox(
                 height: 15,
               ),
@@ -165,6 +169,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           DropdownMenu<String>(
+                            width: MediaQuery.of(context).size.width * 0.25,
                             hintText: 'Gender',
                             initialSelection: list.first,
                             onSelected: (String? value) {
@@ -191,6 +196,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                             }).toList(),
                           ),
                           DropdownMenu<String>(
+                            width: MediaQuery.of(context).size.width * 0.35,
                             hintText: 'Team',
                             initialSelection: listTeam.first,
                             onSelected: (String? value) {
@@ -215,6 +221,44 @@ class _GuestListScreenState extends State<GuestListScreen> {
                               return DropdownMenuEntry<String>(
                                   value: value, label: value);
                             }).toList(),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.2,
+                            // height: 50,
+                            child: TextField(
+                              controller: _roomController,
+                              decoration: InputDecoration(
+                                fillColor: const Color(0xFFDFDFDF),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.black),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.black),
+                                ),
+                                hintText: '102',
+                                hintStyle: const TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.grey,
+                                ),
+                                hintMaxLines: 1,
+                                labelText: 'Room',
+                                labelStyle: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16.0,
+                                ),
+                                counterText: ''
+                              ),
+                              textAlignVertical: TextAlignVertical.center,
+                              style: const TextStyle(color: Colors.black),
+                              maxLines: 1,
+                              maxLength: 6,
+                              minLines: 1,
+                              keyboardType: TextInputType.number,
+                            ),
                           ),
                         ],
                       ),
@@ -342,39 +386,49 @@ class _GuestListScreenState extends State<GuestListScreen> {
                     itemCount: ladkiVale.length,
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
-                      return Card(
-                        elevation: 0.5,
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 5.0, horizontal: 10.0),
-                        child: ListTile(
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: isValidURL(ladkiVale[index].url)
-                                ? Image.network(
-                                    ladkiVale[index].url,
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    'assets/pic.png',
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                  ),
+                      return Dismissible(
+                        key: Key(ladkiVale[index].guestId),
+                        onDismissed: (direction) {
+                          if (ladkiVale[index].guestId.isNotEmpty) {
+                            deleteGuest(ladkiVale[index]);
+                            ladkiVale.removeAt(index);
+                            _getGuestList();
+                          }
+                        },
+                        child: Card(
+                          elevation: 0.5,
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 10.0),
+                          child: ListTile(
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: isValidURL(ladkiVale[index].url)
+                                  ? Image.network(
+                                      ladkiVale[index].url,
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      'assets/pic.png',
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                            title: Text(ladkiVale[index].name),
+                            subtitle: Text(ladkiVale[index].relation),
+                            trailing: const Icon(Icons.arrow_forward),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CreateInvite(guest: ladkiVale[index]),
+                                ),
+                              );
+                            },
                           ),
-                          title: Text(ladkiVale[index].name),
-                          subtitle: Text(ladkiVale[index].relation),
-                          trailing: const Icon(Icons.arrow_forward),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CreateInvite(guest: ladkiVale[index]),
-                              ),
-                            );
-                          },
                         ),
                       );
                     },
@@ -415,39 +469,49 @@ class _GuestListScreenState extends State<GuestListScreen> {
                     itemCount: ladkeVale.length,
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
-                      return Card(
-                        elevation: 0.5,
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 5.0, horizontal: 10.0),
-                        child: ListTile(
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: isValidURL(ladkeVale[index].url)
-                                ? Image.network(
-                                    ladkeVale[index].url,
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    'assets/pic.png',
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                  ),
+                      return Dismissible(
+                        key: Key(ladkeVale[index].guestId),
+                        onDismissed: (direction) {
+                          if (ladkeVale[index].guestId.isNotEmpty) {
+                            deleteGuest(ladkeVale[index]);
+                            ladkeVale.removeAt(index);
+                            _getGuestList();
+                          }
+                        },
+                        child: Card(
+                          elevation: 0.5,
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 10.0),
+                          child: ListTile(
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: isValidURL(ladkeVale[index].url)
+                                  ? Image.network(
+                                      ladkeVale[index].url,
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      'assets/pic.png',
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                            title: Text(ladkeVale[index].name),
+                            subtitle: Text(ladkeVale[index].relation),
+                            trailing: const Icon(Icons.arrow_forward),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CreateInvite(guest: ladkeVale[index]),
+                                ),
+                              );
+                            },
                           ),
-                          title: Text(ladkeVale[index].name),
-                          subtitle: Text(ladkeVale[index].relation),
-                          trailing: const Icon(Icons.arrow_forward),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CreateInvite(guest: ladkeVale[index]),
-                              ),
-                            );
-                          },
                         ),
                       );
                     },
@@ -485,10 +549,14 @@ class _GuestListScreenState extends State<GuestListScreen> {
       }
 
       String contact = _contactController.text.replaceAll(' ', '');
-      contact = contact.length > 10 ? contact.substring(contact.length - 10) : contact;
+      contact = contact.length > 10
+          ? contact.substring(contact.length - 10)
+          : contact;
+
+      final firestore = FirebaseFirestore.instance.collection('guestList');
 
       try {
-        await FirebaseFirestore.instance.collection('guestList').add({
+        DocumentReference newDocumentRef = await firestore.add({
           'url': downloadUrl,
           'name': _nameController.text,
           'contact': contact,
@@ -496,8 +564,11 @@ class _GuestListScreenState extends State<GuestListScreen> {
           'category': relationCategory,
           'team': team,
           'userId': userId,
-          'hashtag': hashtag
-        }).whenComplete(() => _getGuestList());
+          'hashtag': hashtag,
+          'room': _roomController.text.isNotEmpty ? _roomController.text : 'No room'
+        });
+        await firestore.doc(newDocumentRef.id).update(
+            {'guestId': newDocumentRef.id}).whenComplete(() => _getGuestList());
 
         _nameController.clear();
         _relationController.clear();
@@ -522,8 +593,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
     ladkeVale.clear();
     ladkiVale.clear();
     try {
-      await FirebaseFirestore
-          .instance
+      await FirebaseFirestore.instance
           .collection('guestList')
           .where('hashtag', isEqualTo: hashtag)
           .get();
@@ -538,7 +608,9 @@ class _GuestListScreenState extends State<GuestListScreen> {
           Map<String, dynamic>? data = entry.data();
           setState(() {
             Guest guest = Guest.fromMap(data!);
-            guest.team == 'Ladki wale' ? ladkiVale.add(guest) : ladkeVale.add(guest);
+            guest.team == 'Ladki wale'
+                ? ladkiVale.add(guest)
+                : ladkeVale.add(guest);
           });
         }
         debugPrint('Found the guest');
@@ -556,5 +628,16 @@ class _GuestListScreenState extends State<GuestListScreen> {
       return true;
     }
     return false;
+  }
+
+  void deleteGuest(Guest guest) async {
+    await FirebaseFirestore.instance
+        .collection('guestList')
+        .doc(guest.guestId)
+        .delete()
+        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('${guest.name} deleted successfully'),
+              duration: const Duration(seconds: 2),
+            )));
   }
 }

@@ -108,6 +108,11 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
               child: Text(memory),
             ),
             Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+              child: Text('Room number booked for you is $room'),
+            ),
+            Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -169,6 +174,7 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
   String imageUrl = '';
   String memory = '';
   String name = '';
+  String room = '';
   bool playing = false;
   final _screenshotController = ScreenshotController();
 
@@ -181,7 +187,7 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
           .instance
-          .collection('invites')
+          .collection('guestList')
           .where('hashtag', isEqualTo: hashtag)
           .where('contact', isEqualTo: contact.substring(3))
           .get();
@@ -190,10 +196,11 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
         for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
           Map<String, dynamic>? data = entry.data();
           setState(() {
-            imageUrl = data!['image'];
-            memory = data['memory'];
+            imageUrl = data!.containsKey('image') ? data['image'] : 'No image';
+            memory = data.containsKey('memory') ? data['memory'] : 'No memory';
             name = data['name'];
-            audioUrl = data['audio'];
+            room = data['room'];
+            audioUrl = data.containsKey('audio') ? data['audio'] : 'No audio';
           });
         }
         debugPrint('Found the invitation');

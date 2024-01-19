@@ -472,21 +472,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final firestore = FirebaseFirestore.instance;
 
-      await firestore.collection('couple').add({
-        'id': userCredential.user?.uid,
-        'email': userCredential.user!.email.toString(),
-      });
-
       QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
           .collection('entries')
           .where('userId', isEqualTo: userCredential.user?.uid.toString())
           .get();
 
       if (snapshot.size == 0) {
-        Navigator.push(
+        await firestore.collection('couple').add({
+          'id': userCredential.user?.uid,
+          'email': userCredential.user!.email.toString(),
+        }).whenComplete(() => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const InitialDetails()),
-        );
+        ));
       } else {
         Navigator.push(
           context,
