@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -22,75 +21,109 @@ class _ShowBlessingsState extends State<ShowBlessings> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        toolbarHeight: 90,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Blessings',
-              style: GoogleFonts.carattere(
-                  textStyle: const TextStyle(
-                      color: Color(0xFF33201C),
-                      fontSize: 35,
-                      fontStyle: FontStyle.italic)),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                'The blessings, the couple is blessed with',
-                style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
-              ),
-            )
-          ],
-        ),
-      ),
-      body: Center(
-          child: length != 0
-              ? PageView.builder(
-                  controller: PageController(),
-                  itemCount: length,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                    return Dismissible(
-                        key: Key(list[index][0]),
-                        onDismissed: (direction) {
-                          if(FirebaseAuth.instance.currentUser?.uid == list[index][1]) {
-                            deleteBlessing(list[index][2]);
-                            list.removeAt(index);
-                            setState(() {
-                              length = list.length;
-                            });
-                          }
-                        },
-                        child: VideoPlayerWidget(videoUrl: list[index][0]));
-                  },
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: Colors.white,
+            automaticallyImplyLeading: false,
+            toolbarHeight: 90,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Blessings',
+                  style: GoogleFonts.carattere(
+                      textStyle: const TextStyle(
+                          color: Color(0xFF33201C),
+                          fontSize: 35,
+                          fontStyle: FontStyle.italic)),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'The blessings, the couple is blessed with',
+                    style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
+                  ),
                 )
-              : const Center(
-                  child: SizedBox(
-                      height: 60,
-                      width: 60,
-                      // child: CircularProgressIndicator(
-                      //   color: Color(0xFF33201C),
-                      // )),
-              child: Text('No blessing')),
-                )),
-      persistentFooterAlignment: const AlignmentDirectional(0, 0),
-      persistentFooterButtons: [
-        CustomButton(
-          label: 'Record my blessings',
-          onButtonPressed: (context) => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const RecordBlessingScreen(),
+              ],
             ),
           ),
-        )
-      ],
-    ));
+          body: Center(
+              child: length != 0
+                  ? PageView.builder(
+                controller: PageController(),
+                itemCount: length,
+                scrollDirection: Axis.vertical,
+                itemBuilder: (context, index) {
+                  videoC = VideoPlayerController.network(list[index][0]);
+                  return FutureBuilder(
+                    future: videoC.initialize(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        videoC.play();
+                        return Dismissible(
+                            key: Key(list[index][0]),
+                            onDismissed: (direction) {
+                              if(FirebaseAuth.instance.currentUser?.uid == list[index][1]) {
+                                deleteBlessing(list[index][2]);
+                                list.removeAt(index);
+                                setState(() {
+                                  length = list.length;
+                                });
+                              }
+                            },
+                            child: SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.4,
+                                child: GestureDetector(
+                                    onTap: () {
+                                      if(videoC.value.isPlaying) {
+                                        videoC.pause();
+                                      } else {
+                                        videoC.play();
+                                      }
+                                    },
+                                    child: AspectRatio(
+                                      aspectRatio: videoC.value.aspectRatio,
+                                      child: Stack(
+                                        children: [
+                                          VideoPlayer(videoC),
+                                          Positioned(child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text('Uploaded by ${list[index][1]}'),
+                                          ))
+                                        ],
+                                      ),
+                                    ))));
+                      } else {
+                        return const Center(
+                          child: CircularProgressIndicator(color: Color(0xFF33201C),),
+                        );
+                      }
+                    },
+                  );
+                },
+              )
+                  : const Center(
+                child: SizedBox(
+                    height: 60,
+                    width: 60,
+                    child: Text('No blessing',)),
+              )),
+          persistentFooterAlignment: const AlignmentDirectional(0, 0),
+          persistentFooterButtons: [
+            CustomButton(
+              label: 'Record my blessings',
+              onButtonPressed: (context) => {
+                videoC.pause(),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RecordBlessingScreen(),
+                  ),
+                )
+              },
+            )
+          ],
+        ));
   }
 
   @override
@@ -99,6 +132,13 @@ class _ShowBlessingsState extends State<ShowBlessings> {
     _getHighlightsList();
   }
 
+  late VideoPlayerController videoC;
+
+  @override
+  void dispose() {
+    super.dispose();
+    videoC.dispose();
+  }
 
   void deleteBlessing(String id) async {
     await FirebaseFirestore.instance
@@ -126,7 +166,7 @@ class _ShowBlessingsState extends State<ShowBlessings> {
         for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
           Map<String, dynamic>? data = entry.data();
           setState(() {
-            list.add([data!['video'], data['addedBy'], data['blessingId']]);
+            list.add([data!['video'], data['name'], data['blessingId']]);
           });
         }
         setState(() {
@@ -145,56 +185,53 @@ class _ShowBlessingsState extends State<ShowBlessings> {
   }
 }
 
-class VideoPlayerWidget extends StatefulWidget {
-  final String videoUrl;
-
-  const VideoPlayerWidget({super.key, required this.videoUrl});
-
-  @override
-  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
-}
-
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  late VideoPlayerController _videoPlayerController;
-  late ChewieController _chewieController;
-
-  @override
-  void initState() {
-    super.initState();
-    _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
-    _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        autoPlay: true,
-        draggableProgressBar: false,
-        looping: true,
-        showControls: false,
-        aspectRatio: 9 / 16,
-        autoInitialize: true,
-        overlay: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
-          child: Text(
-            'Uploaded by: ${widget.videoUrl}',
-            textAlign: TextAlign.center,
-          ),
-        ),
-        showOptions: false);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: MediaQuery.of(context).size.height * 0.7,
-      child: Chewie(
-        controller: _chewieController,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    _chewieController.dispose();
-    super.dispose();
-  }
-}
+// class VideoPlayerWidget extends StatefulWidget {
+//   final String videoUrl;
+//
+//   const VideoPlayerWidget({super.key, required this.videoUrl});
+//
+//   @override
+//   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
+// }
+//
+// class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+//   late VideoPlayerController _videoPlayerController;
+//   late ChewieController _chewieController;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
+//     _chewieController = ChewieController(
+//         videoPlayerController: _videoPlayerController,
+//         autoPlay: true,
+//         draggableProgressBar: false,
+//         looping: true,
+//         showControls: false,
+//         useRootNavigator: false,
+//         aspectRatio: 9 / 16,
+//         autoInitialize: true,
+//         overlay: Padding(
+//           padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+//           child: Text(
+//             'Uploaded by: ${widget.videoUrl}',
+//             textAlign: TextAlign.center,
+//           ),
+//         ),
+//         showOptions: false);
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Chewie(
+//       controller: _chewieController,
+//     );
+//   }
+//
+//   @override
+//   void dispose() {
+//     _videoPlayerController.dispose();
+//     _chewieController.dispose();
+//     super.dispose();
+//   }
+// }

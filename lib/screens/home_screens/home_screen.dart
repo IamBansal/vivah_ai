@@ -50,22 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           ],
         ),
-        actions: [
-          IconButton(
-              onPressed: () async {
-                await _auth
-                    .signOut()
-                    .whenComplete(() => Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LoginScreen()),
-                          (route) => false,
-                        ));
-              },
-              icon: const Icon(
-                Icons.logout,
-                color: Color(0xFF33201C),
-              ))
+        actions: const [
+          MyPopupMenuButton(),
         ],
       ),
       body: SingleChildScrollView(
@@ -82,26 +68,26 @@ class _HomeScreenState extends State<HomeScreen> {
                     onItemPressed: (context) => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const StoryScreen())),
+                            builder: (context) => const StoryScreen(filter: ''))),
                   ),
                   HighlightItem(
                       title: 'Memories',
                       onItemPressed: (context) => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const StoryScreen()))),
+                              builder: (context) => const StoryScreen(filter: 'photos')))),
                   HighlightItem(
                       title: 'Blessings',
                       onItemPressed: (context) => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const StoryScreen()))),
+                              builder: (context) => const StoryScreen(filter: 'blessings')))),
                   HighlightItem(
                       title: 'Others',
                       onItemPressed: (context) => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const StoryScreen()))),
+                              builder: (context) => const StoryScreen(filter: 'others',)))),
                 ],
               ),
               const Padding(
@@ -132,29 +118,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           onPressed: () {
                             showAddCeremonyDialog();
                           },
-                          icon: const Icon(Icons.add, color: Color(0xFF33201C),)))
+                          icon: const Icon(
+                            Icons.add,
+                            color: Color(0xFF33201C),
+                          )))
                 ],
               ),
               Visibility(
                 visible: ceremonies.isNotEmpty,
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height * 0.3,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          // width: MediaQuery.of(context).size.width * 1.5,
-                          width: 400,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: ceremonies.length,
-                            itemBuilder: (context, index) {
-                              return CeremonyItem(ceremony: ceremonies[index]);
-                            },
-                          ),
-                        ),
-                      ],
+                  child: SizedBox(
+                    height: double.infinity,
+                    child: ListView.builder(
+                      controller: scrollController,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: ceremonies.length,
+                      itemBuilder: (context, index) {
+                        return CeremonyItem(ceremony: ceremonies[index]);
+                      },
                     ),
                   ),
                 ),
@@ -194,7 +176,6 @@ class _HomeScreenState extends State<HomeScreen> {
     ));
   }
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final firestore = FirebaseFirestore.instance;
   String userId = '';
   String bride = 'Bride';
@@ -202,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String hashtag = '';
   bool isBrideGroom = false;
   List<Ceremony> ceremonies = [];
+  ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
@@ -249,26 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _getCeremonyList() async {
     ceremonies.clear();
-    try {
-      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-          .instance
-          .collection('ceremonies')
-          .where('hashtag', isEqualTo: hashtag)
-          .get();
-      if (snapshot.docs.isNotEmpty) {
-        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
-          Map<String, dynamic>? data = entry.data();
-          setState(() {
-            ceremonies.add(Ceremony.fromMap(data!));
-          });
-        }
-        debugPrint('Found the ceremony');
-      } else {
-        debugPrint('No matching documents found for ceremonies.');
-      }
-    } catch (error) {
-      debugPrint('Error querying entries: $error');
-    }
+    ceremonies = await ApiCalls.getCeremonyList();
   }
 
   void showAddCeremonyDialog() {
@@ -502,21 +465,22 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
     });
     String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
     try {
-
       final firestore = FirebaseFirestore.instance.collection('ceremonies');
-      DocumentReference newDocumentRef = await firestore
-          .add(Ceremony(
-                  title: _titleController.text,
-                  description: _descController.text,
-                  url: url,
-                  location: _locationController.text,
-                  date: _dateController.text,
-                  userId: widget.userId,
-                  hashtag: widget.hashtag,
-        ceremonyId: ''
-      ).toMap());
+      DocumentReference newDocumentRef = await firestore.add(Ceremony(
+              title: _titleController.text,
+              description: _descController.text,
+              url: url,
+              location: _locationController.text,
+              date: _dateController.text,
+              userId: widget.userId,
+              hashtag: widget.hashtag,
+              ceremonyId: '')
+          .toMap());
 
-      await firestore.doc(newDocumentRef.id).update({'ceremonyId': newDocumentRef.id}).whenComplete(() => Navigator.of(context).pop());
+      await firestore
+          .doc(newDocumentRef.id)
+          .update({'ceremonyId': newDocumentRef.id}).whenComplete(
+              () => Navigator.of(context).pop());
       setState(() {
         buttonText = 'Add ceremony';
       });
@@ -569,7 +533,8 @@ class _CeremonyItemState extends State<CeremonyItem> {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 widget.ceremony.title,
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF33201C)),
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Color(0xFF33201C)),
               ),
             ),
             Text(
@@ -583,5 +548,57 @@ class _CeremonyItemState extends State<CeremonyItem> {
         ),
       ),
     );
+  }
+}
+
+class MyPopupMenuButton extends StatelessWidget {
+  const MyPopupMenuButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: const Icon(
+        Icons.more_vert,
+        color: Color(0xFF33201C),
+      ),
+      onSelected: (String result) {
+        handleMenuItemSelected(result, context);
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          value: 'logout',
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.logout,
+                color: Color(0xFF33201C),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text('Sign out'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void handleMenuItemSelected(String value, BuildContext context) {
+    switch (value) {
+      case 'logout':
+        () async {
+          await FirebaseAuth.instance
+              .signOut()
+              .whenComplete(() => Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()),
+                    (route) => false,
+                  ));
+        };
+        break;
+    }
   }
 }

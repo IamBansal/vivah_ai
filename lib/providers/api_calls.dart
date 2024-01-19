@@ -13,6 +13,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share/share.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:vivah_ai/providers/shared_pref.dart';
+import 'package:vivah_ai/screens/home_screens/home_screen.dart';
+
+import '../models/ceremony.dart';
+import '../models/photo.dart';
 
 class ApiCalls {
   static Future<String?> uploadImageOrAudioToCloudinary(String path) async {
@@ -212,4 +217,58 @@ class ApiCalls {
       return;
     }
   }
+
+  static  Future<List<PhotoItem>> getPhotosList() async {
+    String hashtag = (await LocalData.getName())!;
+    List<PhotoItem> photo = [];
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('photos')
+          .where('hashtag', isEqualTo: hashtag)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+          photo.add(PhotoItem.fromMap(data!));
+        }
+        debugPrint('Found the images');
+        return photo;
+      } else {
+        debugPrint('No matching documents found.');
+        return [];
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+      return [];
+    }
+  }
+
+  static Future<List<Ceremony>> getCeremonyList() async {
+    String hashtag = (await LocalData.getName())!;
+    List<Ceremony> ceremonies = [];
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('ceremonies')
+          .where('hashtag', isEqualTo: hashtag)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+            ceremonies.add(Ceremony.fromMap(data!));
+        }
+        debugPrint('Found the ceremony');
+        return ceremonies;
+      } else {
+        debugPrint('No matching documents found for ceremonies.');
+        return [];
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+      return [];
+    }
+  }
+
+
 }

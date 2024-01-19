@@ -1,8 +1,7 @@
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'blessing_screen.dart';
 
 class RecordBlessingScreen extends StatefulWidget {
@@ -32,9 +31,10 @@ class _RecordBlessingScreenState extends State<RecordBlessingScreen> {
   _initCamera() async {
     final cameras = await availableCameras();
     final front = cameras.firstWhere(
-            (camera) => camera.lensDirection == CameraLensDirection.front);
+        (camera) => camera.lensDirection == CameraLensDirection.front);
     _cameraController = CameraController(front, ResolutionPreset.max);
     await _cameraController.initialize();
+    await _cameraController.lockCaptureOrientation(DeviceOrientation.portraitUp);
     setState(() => _isLoading = false);
   }
 
@@ -62,65 +62,64 @@ class _RecordBlessingScreenState extends State<RecordBlessingScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.black26,
-          automaticallyImplyLeading: false,
-          toolbarHeight: 90,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Blessings',
-                style: GoogleFonts.carattere(
-                    textStyle: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 35,
-                        fontStyle: FontStyle.italic)),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 8.0),
-                child: Text(
-                  'Record good wishes or a memory!',
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: Colors.black26,
+            automaticallyImplyLeading: false,
+            toolbarHeight: 90,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Blessings',
+                  style: GoogleFonts.carattere(
+                      textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 35,
+                          fontStyle: FontStyle.italic)),
                 ),
-              )
-            ],
-          ),
-        ),
-        body: _isLoading
-            ? Container(
-          color: Colors.white,
-          child: const Center(
-            child: CircularProgressIndicator(
-              color: Color(0xFFD7B2E5),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Record good wishes or a memory!',
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                )
+              ],
             ),
           ),
-        )
-            : Stack(
-          alignment: Alignment.bottomCenter,
-          fit: StackFit.expand,
-          children: [
-            CameraPreview(
-              _cameraController,
-              child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.all(25),
-                    child: FloatingActionButton(
-                      backgroundColor:
-                      _isRecording ? Colors.green : Colors.red,
-                      child: Icon(
-                        _isRecording ? Icons.stop : Icons.circle,
-                      ),
-                      onPressed: () => _recordVideo(),
+          body: _isLoading
+              ? Container(
+                  color: Colors.white,
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFFD7B2E5),
                     ),
-                  )),
-            ),
-          ],
-        ),
-      ),
+                  ),
+                )
+              : Stack(
+                  alignment: Alignment.bottomCenter,
+                  fit: StackFit.expand,
+                  children: [
+                    CameraPreview(
+                      _cameraController,
+                      child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.all(25),
+                            child: FloatingActionButton(
+                              backgroundColor:
+                                  _isRecording ? Colors.green : Colors.red,
+                              child: Icon(
+                                _isRecording ? Icons.stop : Icons.circle,
+                              ),
+                              onPressed: () => _recordVideo(),
+                            ),
+                          )),
+                    ),
+                  ],
+                )),
     );
   }
 }

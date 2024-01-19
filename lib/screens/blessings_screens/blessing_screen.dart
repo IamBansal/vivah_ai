@@ -37,8 +37,6 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
     await _videoPlayerController.initialize();
   }
 
-  bool _isPlaying = false;
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -93,7 +91,7 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
               children: [
                 GestureDetector(
                   onTap: () async {
-                    !_isPlaying
+                    !_videoPlayerController.value.isPlaying
                         ? await _videoPlayerController.play()
                         : await _videoPlayerController.pause();
                   },
@@ -111,7 +109,7 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Icon(
-                          !_isPlaying ? Icons.play_arrow : Icons.pause,
+                          !_videoPlayerController.value.isPlaying ? Icons.play_arrow : Icons.pause,
                           size: 36,
                           color: const Color(0xFFFFD384),
                         ),
@@ -170,6 +168,7 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
     });
     String id = (FirebaseAuth.instance.currentUser?.uid)!;
     String hashtag = (await LocalData.getName())!;
+    List<String> nameList = (await LocalData.getNameAndId())!;
 
     List<dynamic> cloudinaryResponse =
         (await ApiCalls.uploadVideoToCloudinary(widget.filePath))!;
@@ -179,7 +178,8 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
         'hashtag': hashtag,
         'addedBy': id,
         'video': cloudinaryResponse[0],
-        'duration': cloudinaryResponse[1]
+        'duration': cloudinaryResponse[1],
+            'name': nameList[0].isNotEmpty ? nameList[0] : 'No name'
       });
 
       await FirebaseFirestore.instance

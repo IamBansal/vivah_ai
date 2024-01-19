@@ -459,32 +459,12 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
   List<PhotoItem> filteredPhotoList = [];
 
   Future<void> _getPhotosList() async {
-    String hashtag = (await LocalData.getName())!;
     photos.clear();
-    try {
-      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-          .instance
-          .collection('photos')
-          .where('hashtag', isEqualTo: hashtag)
-          .get();
-      if (snapshot.docs.isNotEmpty) {
-        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
-          Map<String, dynamic>? data = entry.data();
-          setState(() {
-            photos.add(PhotoItem.fromMap(data!));
-          });
-        }
-        setState(() {
-          filteredPhotoList = photos;
-          _selectedChipIndex = 0;
-        });
-        debugPrint('Found the images');
-      } else {
-        debugPrint('No matching documents found.');
-      }
-    } catch (error) {
-      debugPrint('Error querying entries: $error');
-    }
+    photos = await ApiCalls.getPhotosList();
+    setState(() {
+      filteredPhotoList = photos;
+      _selectedChipIndex = 0;
+    });
   }
 
   @override

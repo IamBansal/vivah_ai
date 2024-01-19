@@ -142,7 +142,6 @@ class _CeremonyScreenState extends State<CeremonyScreen> {
   }
 }
 
-
 class UpdateCeremony extends StatefulWidget {
   final Ceremony ceremony;
 
