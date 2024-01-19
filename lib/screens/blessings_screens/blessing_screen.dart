@@ -124,11 +124,11 @@ class _BlessingsScreenState extends State<BlessingsScreen> {
                     Text(
                       'Your blessings',
                       style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
+                          color: Color(0xFF33201C), fontWeight: FontWeight.bold),
                     ),
                     Text(
                       'A message for the couple',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Color(0xFF33201C)),
                     ),
                   ],
                 )

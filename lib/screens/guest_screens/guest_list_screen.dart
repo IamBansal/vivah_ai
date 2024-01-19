@@ -106,7 +106,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
               padding: EdgeInsets.only(bottom: 8.0),
               child: Text(
                 'Welcoming you all',
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
               ),
             )
           ],
@@ -232,12 +232,12 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(25.0),
                                   borderSide:
-                                      const BorderSide(color: Colors.black),
+                                      const BorderSide(color: Color(0xFF33201C)),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(25.0),
                                   borderSide:
-                                      const BorderSide(color: Colors.black),
+                                      const BorderSide(color: Color(0xFF33201C)),
                                 ),
                                 hintText: '102',
                                 hintStyle: const TextStyle(
@@ -253,7 +253,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                 counterText: ''
                               ),
                               textAlignVertical: TextAlignVertical.center,
-                              style: const TextStyle(color: Colors.black),
+                              style: const TextStyle(color: Color(0xFF33201C)),
                               maxLines: 1,
                               maxLength: 6,
                               minLines: 1,
@@ -372,7 +372,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                       const Text(
                         'LADKI WALE',
                         style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold),
+                            color: Color(0xFF33201C), fontWeight: FontWeight.bold),
                       ),
                       Chip(label: Text(ladkiVale.length.toString())),
                     ],
@@ -454,7 +454,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                       const Text(
                         'LADKE WALE',
                         style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold),
+                            color: Color(0xFF33201C), fontWeight: FontWeight.bold),
                       ),
                       Chip(label: Text(ladkeVale.length.toString())),
                     ],

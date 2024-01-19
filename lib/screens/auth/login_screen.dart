@@ -94,11 +94,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillColor: const Color(0xFFDFDFDF),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(color: Colors.black),
+                            borderSide: const BorderSide(color: Color(0xFF33201C)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(color: Colors.black),
+                            borderSide: const BorderSide(color: Color(0xFF33201C)),
                           ),
                           hintText: 'Enter your email',
                           hintStyle: const TextStyle(
@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         textAlignVertical: TextAlignVertical.center,
-                        style: const TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Color(0xFF33201C)),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -127,11 +127,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillColor: const Color(0xFFDFDFDF),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(color: Colors.black),
+                            borderSide: const BorderSide(color: Color(0xFF33201C)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(color: Colors.black),
+                            borderSide: const BorderSide(color: Color(0xFF33201C)),
                           ),
                           hintText: 'Enter your password',
                           hintStyle: const TextStyle(
@@ -149,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               _obscureText
                                   ? Icons.visibility
                                   : Icons.visibility_off,
-                              color: Colors.black,
+                              color: Color(0xFF33201C),
                             ),
                             onPressed: () {
                               setState(() {
@@ -159,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         textAlignVertical: TextAlignVertical.center,
-                        style: const TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Color(0xFF33201C)),
                       ),
                     ),
                     const SizedBox(height: 50),
@@ -190,11 +190,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillColor: const Color(0xFFDFDFDF),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(color: Colors.black),
+                            borderSide: const BorderSide(color: Color(0xFF33201C)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(color: Colors.black),
+                            borderSide: const BorderSide(color: Color(0xFF33201C)),
                           ),
                           hintText: 'Enter your name',
                           hintStyle: const TextStyle(
@@ -209,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         textAlignVertical: TextAlignVertical.center,
-                        style: const TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Color(0xFF33201C)),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -223,11 +223,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillColor: const Color(0xFFDFDFDF),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(color: Colors.black),
+                            borderSide: const BorderSide(color: Color(0xFF33201C)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(color: Colors.black),
+                            borderSide: const BorderSide(color: Color(0xFF33201C)),
                           ),
                           hintText: 'Enter your phone number',
                           hintStyle: const TextStyle(
@@ -242,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         textAlignVertical: TextAlignVertical.center,
-                        style: const TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Color(0xFF33201C)),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -256,11 +256,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillColor: const Color(0xFFDFDFDF),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(color: Colors.black),
+                            borderSide: const BorderSide(color: Color(0xFF33201C)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(color: Colors.black),
+                            borderSide: const BorderSide(color: Color(0xFF33201C)),
                           ),
                           hintText: 'Enter wedding hashtag',
                           hintStyle: const TextStyle(
@@ -275,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         textAlignVertical: TextAlignVertical.center,
-                        style: const TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Color(0xFF33201C)),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -319,7 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       const Text(
                         "or log in with",
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: Color(0xFF33201C)),
                       ),
                       const SizedBox(height: 30),
                       Center(
@@ -581,7 +581,7 @@ class ImageButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25.0),
           border: Border.all(
-            color: Colors.black, // Border color
+            color: Color(0xFF33201C), // Border color
             width: 1.0, // Border width
           ),
         ),

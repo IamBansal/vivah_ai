@@ -92,7 +92,7 @@ class _CeremonyScreenState extends State<CeremonyScreen> {
                     '${widget.ceremony.title} ceremony',
                     style: GoogleFonts.carattere(
                         textStyle: const TextStyle(
-                            color: Colors.black,
+                            color: Color(0xFF33201C),
                             fontSize: 40,
                             fontStyle: FontStyle.italic)),
                   ),
@@ -100,14 +100,14 @@ class _CeremonyScreenState extends State<CeremonyScreen> {
                     padding: const EdgeInsets.only(bottom: 8.0, top: 12),
                     child: Text(
                       widget.ceremony.description,
-                      style: const TextStyle(color: Colors.black, fontSize: 14),
+                      style: const TextStyle(color: Color(0xFF33201C), fontSize: 14),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0, top: 8),
                     child: Text(
                       'Mark your presence on ${widget.ceremony.date} at ${widget.ceremony.location}',
-                      style: const TextStyle(color: Colors.black, fontSize: 14),
+                      style: const TextStyle(color: Color(0xFF33201C), fontSize: 14),
                     ),
                   )
                 ],

@@ -45,7 +45,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
               padding: EdgeInsets.only(bottom: 4.0),
               child: Text(
                 'All occasions in one gallery',
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
               ),
             )
           ],
@@ -185,7 +185,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                     ),
                     Text(
                       'Upload',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Color(0xFF33201C)),
                     )
                   ],
                 ),
@@ -202,7 +202,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                     },
                     child: const Text(
                       'All Photos',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Color(0xFF33201C)),
                     ),
                   ),
                   GestureDetector(
@@ -211,7 +211,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                     },
                     child: const Text(
                       'Your photos',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Color(0xFF33201C)),
                     ),
                   ),
                 ],
@@ -552,7 +552,7 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
                 minScale: PhotoViewComputedScale.contained,
                 maxScale: PhotoViewComputedScale.covered * 2,
                 backgroundDecoration: const BoxDecoration(
-                  color: Colors.black,
+                  color: Color(0xFF33201C),
                 ),
               ),
             ),

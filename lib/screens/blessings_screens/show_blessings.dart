@@ -42,7 +42,7 @@ class _ShowBlessingsState extends State<ShowBlessings> {
               padding: EdgeInsets.only(bottom: 8.0),
               child: Text(
                 'The blessings, the couple is blessed with',
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
               ),
             )
           ],
@@ -74,7 +74,7 @@ class _ShowBlessingsState extends State<ShowBlessings> {
                       height: 60,
                       width: 60,
                       // child: CircularProgressIndicator(
-                      //   color: Colors.black,
+                      //   color: Color(0xFF33201C),
                       // )),
               child: Text('No blessing')),
                 )),

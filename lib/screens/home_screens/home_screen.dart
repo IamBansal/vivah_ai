@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: EdgeInsets.only(bottom: 8.0),
               child: Text(
                 'A match made in heaven',
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
               ),
             )
           ],
@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               icon: const Icon(
                 Icons.logout,
-                color: Colors.black,
+                color: Color(0xFF33201C),
               ))
         ],
       ),
@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onPressed: () {
                             showAddCeremonyDialog();
                           },
-                          icon: const Icon(Icons.add)))
+                          icon: const Icon(Icons.add, color: Color(0xFF33201C),)))
                 ],
               ),
               Visibility(
@@ -569,7 +569,7 @@ class _CeremonyItemState extends State<CeremonyItem> {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 widget.ceremony.title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF33201C)),
               ),
             ),
             Text(

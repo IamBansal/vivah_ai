@@ -29,7 +29,7 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
                 name,
                 style: GoogleFonts.carattere(
                     textStyle: const TextStyle(
-                        color: Colors.black,
+                        color: Color(0xFF33201C),
                         fontSize: 42,
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.bold)),
