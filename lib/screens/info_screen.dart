@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,8 +11,6 @@ import 'package:read_pdf_text/read_pdf_text.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
 import 'dart:convert';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
-
-import '../providers/shared_pref.dart';
 
 class InfoScreen extends StatefulWidget {
   const InfoScreen({super.key});
@@ -96,7 +93,8 @@ class _InfoScreenState extends State<InfoScreen> {
                         child: Text(
                           'Ask a question about the wedding',
                           style: TextStyle(
-                              color: Color(0xFF33201C), fontWeight: FontWeight.bold),
+                              color: Color(0xFF33201C),
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                       CustomTextFieldWithIcon(
@@ -138,7 +136,8 @@ class _InfoScreenState extends State<InfoScreen> {
             );
           }),
       body: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.2),
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.2),
         child: Column(
           children: [
             Expanded(
@@ -163,12 +162,12 @@ class _InfoScreenState extends State<InfoScreen> {
             Align(
               alignment: Alignment.centerLeft,
               child: Visibility(
-                visible: isBotTyping,
+                  visible: isBotTyping,
                   child: JumpingDots(
-                color: Colors.black,
-                radius: 8,
-                numberOfDots: 3,
-              )),
+                    color: Colors.black,
+                    radius: 8,
+                    numberOfDots: 3,
+                  )),
             )
           ],
         ),
@@ -235,7 +234,9 @@ class _InfoScreenState extends State<InfoScreen> {
     setState(() {
       isBotTyping = true;
     });
-    String? prompt = await LocalData.getPrompt();
+    List<String> promptAndId = await ApiCalls.getPromptAndId();
+    String prompt = promptAndId.isNotEmpty ? promptAndId[0] : 'No prompt';
+
     debugPrint(prompt);
 
     setState(() {
@@ -252,14 +253,8 @@ class _InfoScreenState extends State<InfoScreen> {
       body: jsonEncode({
         'model': 'gpt-3.5-turbo',
         'messages': [
-          {
-            'role': 'system',
-            'content': prompt
-          },
-          {
-            'role': 'user',
-            'content': message
-          }
+          {'role': 'system', 'content': prompt},
+          {'role': 'user', 'content': message}
         ]
       }),
     );
@@ -344,18 +339,23 @@ class _PdfTextParsingDialogState extends State<PdfTextParsingDialog> {
     return AlertDialog(
       scrollable: true,
       icon: const Icon(Icons.picture_as_pdf),
-      title: Text(
-          parsingResult.isEmpty ? 'Parsing your file.....' : 'Parsed successfully'),
+      title: Text(parsingResult.isEmpty
+          ? 'Parsing your file.....'
+          : 'Parsed successfully'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: parsingResult.isEmpty ? JumpingDots(
-              color: Colors.black,
-              radius: 8,
-              numberOfDots: 3,
-            ) : Text(parsingResult,),
+            child: parsingResult.isEmpty
+                ? JumpingDots(
+                    color: Colors.black,
+                    radius: 8,
+                    numberOfDots: 3,
+                  )
+                : Text(
+                    parsingResult,
+                  ),
           ),
           Visibility(
               visible: pages != 0,
@@ -374,7 +374,7 @@ class _PdfTextParsingDialogState extends State<PdfTextParsingDialog> {
           visible: parsingResult.isNotEmpty,
           child: ElevatedButton(
             onPressed: () {
-              LocalData.savePrompt(parsingResult).whenComplete(() => Navigator.of(context).pop());
+              ApiCalls.saveUpdatePrompt(parsingResult).whenComplete(() => Navigator.of(context).pop());
             },
             child: const Text('Upload'),
           ),

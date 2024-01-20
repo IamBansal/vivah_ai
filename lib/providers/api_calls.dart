@@ -14,8 +14,6 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share/share.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
-import 'package:vivah_ai/screens/home_screens/home_screen.dart';
-
 import '../models/ceremony.dart';
 import '../models/photo.dart';
 
@@ -270,5 +268,62 @@ class ApiCalls {
     }
   }
 
+  static Future<List<String>> getPromptAndId() async {
+    String hashtag = (await LocalData.getName())!;
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('prompts')
+          .where('hashtag', isEqualTo: hashtag)
+          .limit(1)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+          debugPrint('Found the prompt');
+          return [data!['prompt'], data['promptId']];
+        }
+      } else {
+        debugPrint('No matching documents found for prompt.');
+      }
+    } catch (error) {
+      debugPrint('Error querying prompt: $error');
+    }
+    return [];
+  }
 
+  static Future<void> saveUpdatePrompt(String prompt) async {
+    List<String> oldPrompt = await ApiCalls.getPromptAndId();
+    final firestore = FirebaseFirestore.instance.collection('prompts');
+    try {
+      if (oldPrompt.isNotEmpty) {
+
+        debugPrint('prompt already available');
+
+        await firestore.doc(oldPrompt[1]).update(
+            {'prompt': oldPrompt[0] + prompt});
+
+        debugPrint('Prompt updated');
+
+      } else {
+        debugPrint('new prompt');
+        String id = (FirebaseAuth.instance.currentUser?.uid)!;
+        String hashtag = (await LocalData.getName())!;
+
+        DocumentReference newDoc = await firestore.add({
+          'hashtag': hashtag,
+          'addedBy': id,
+          'prompt': prompt,
+        });
+
+        await firestore
+            .doc(newDoc.id)
+            .update({'promptId': newDoc.id});
+
+        debugPrint('Prompt uploaded');
+      }
+    } catch (e) {
+      debugPrint('Error uploading prompt to Firestore: $e');
+    }
+  }
 }

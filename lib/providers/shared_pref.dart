@@ -50,18 +50,18 @@ class LocalData {
     return prefs.getString(imageKey);
   }
 
-  static const String promptKey = 'prompt_key';
-
-  static Future<void> savePrompt(String prompt) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? list = (await getNameAndId())!;
-
-    await prefs.setString(promptKey,
-        "You are Vivah AI, the personal wedding assistant for ${list[0]} and ${list[1]} special day. Your role is to provide guests with detailed information about the venue, menu, transportation, event schedule, and any other wedding-related inquiries. You should offer creative and charming responses while ensuring accuracy and clarity. Use the information provided to answer all questions. Be helpful and engaging in your interactions, making every guest feel welcomed and informed. Information is: $prompt");
-  }
-
-  static Future<String?> getPrompt() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(promptKey);
-  }
+  // static const String promptKey = 'prompt_key';
+  //
+  // static Future<void> savePrompt(String prompt) async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String>? list = (await getNameAndId())!;
+  //
+  //   await prefs.setString(promptKey,
+  //       "You are Vivah AI, the personal wedding assistant for ${list[0]} and ${list[1]} special day. Your role is to provide guests with detailed information about the venue, menu, transportation, event schedule, and any other wedding-related inquiries. You should offer creative and charming responses while ensuring accuracy and clarity. Use the information provided to answer all questions. Be helpful and engaging in your interactions, making every guest feel welcomed and informed. Information is: $prompt");
+  // }
+  //
+  // static Future<String?> getPrompt() async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   return prefs.getString(promptKey);
+  // }
 }
