@@ -481,7 +481,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await firestore.collection('couple').add({
           'id': userCredential.user?.uid,
           'email': userCredential.user!.email.toString(),
-        }).whenComplete(() => Navigator.push(
+        }).whenComplete(() => Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const InitialDetails()),
         ));
@@ -489,7 +489,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => const MainScreen(isBrideGroom: true)),
+              builder: (context) => const MainScreen(isBrideGroom: true, index: 0)),
         );
       }
     } catch (e) {
@@ -512,10 +512,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (await checkForHashtag()) {
       await LocalData.saveGuestName(_nameController.text);
       await LocalData.saveName(_hashtagController.text)
-          .whenComplete(() => Navigator.push(
+          .whenComplete(() => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MainScreen(isBrideGroom: false),
+                  builder: (context) => const MainScreen(isBrideGroom: false, index: 0),
                 ),
               ));
     } else {
@@ -581,7 +581,7 @@ class ImageButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25.0),
           border: Border.all(
-            color: Color(0xFF33201C), // Border color
+            color: const Color(0xFF33201C), // Border color
             width: 1.0, // Border width
           ),
         ),

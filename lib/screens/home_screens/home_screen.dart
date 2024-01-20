@@ -8,6 +8,7 @@ import 'package:vivah_ai/providers/api_calls.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
 import 'package:vivah_ai/widgets/custom_button.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
+import '../../main_screen.dart';
 import '../../models/ceremony.dart';
 import '../auth/login_screen.dart';
 import 'ceremony_screen.dart';
@@ -68,26 +69,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     onItemPressed: (context) => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const StoryScreen(filter: ''))),
+                            builder: (context) =>
+                                StoryScreen(filter: '', isCouple: isBrideGroom))),
                   ),
                   HighlightItem(
                       title: 'Memories',
                       onItemPressed: (context) => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const StoryScreen(filter: 'photos')))),
+                              builder: (context) =>
+                                  StoryScreen(filter: 'photos', isCouple: isBrideGroom)))),
                   HighlightItem(
                       title: 'Blessings',
                       onItemPressed: (context) => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const StoryScreen(filter: 'blessings')))),
+                              builder: (context) =>
+                                  StoryScreen(filter: 'blessings', isCouple: isBrideGroom)))),
                   HighlightItem(
                       title: 'Others',
                       onItemPressed: (context) => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const StoryScreen(filter: 'others',)))),
+                              builder: (context) => StoryScreen(
+                                    filter: 'others', isCouple: isBrideGroom
+                                  )))),
                 ],
               ),
               const Padding(
@@ -168,11 +174,81 @@ class _HomeScreenState extends State<HomeScreen> {
                   child:
                       const Center(child: Text('Placeholder for google maps')),
                 ),
-              )
+              ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Vivah Album',
+                  style: TextStyle(
+                      color: Color(0xFF33201C),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MainScreen(isBrideGroom: isBrideGroom, index: 2),
+                    ),
+                  );
+                },
+                child: Center(
+                  child: Container(
+                    height: 200,
+                    width: 355,
+                    color: Colors.grey,
+                    child:
+                        const Center(child: Text('Placeholder for vivah album')),
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Vivah bot',
+                  style: TextStyle(
+                      color: Color(0xFF33201C),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MainScreen(isBrideGroom: isBrideGroom, index: 3),
+                    ),
+                  );
+                },
+                child: Center(
+                  child: Container(
+                    height: 200,
+                    width: 355,
+                    color: Colors.grey,
+                    child:
+                        const Center(child: Text('Placeholder for chat bot')),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
+          persistentFooterAlignment: const AlignmentDirectional(0, 0),
+          persistentFooterButtons: [
+            CustomButton(
+              label: 'Record Blessing',
+              onButtonPressed: (context) => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MainScreen(isBrideGroom: isBrideGroom, index: 1),
+                ),
+              ),
+            )
+          ],
     ));
   }
 
@@ -271,6 +347,34 @@ class _HighlightItemState extends State<HighlightItem> {
               widget.onItemPressed!(context);
             }
           },
+          onLongPress: () {
+            showMenu(
+              context: context,
+              position: calculatePosition(),
+              items: [
+                PopupMenuItem(
+                  value: 'edit',
+                  onTap: () async {
+                    String path = (await ApiCalls.getImage(ImageSource.gallery))!;
+                    ApiCalls.uploadThumbnail(path, widget.title).whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Thumbnail updated successfully')
+                    )));
+                  },
+                  child: const Text('Edit thumbnail'),
+                ),
+                PopupMenuItem(
+                  value: 'upload',
+                  onTap: () async {
+                    String path = (await ApiCalls.getImage(ImageSource.gallery))!;
+                    ApiCalls.uploadPhoto(path, 'Memory').whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Memory uploaded successfully')
+                    )));
+                  },
+                  child: const Text('Upload memory'),
+                ),
+              ],
+            );
+          },
           child: Container(
               width: 70,
               height: 70,
@@ -280,7 +384,12 @@ class _HighlightItemState extends State<HighlightItem> {
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: ClipOval(
-                    child: Image.asset(
+                    child: thumbnailPath.isNotEmpty ? Image.network(
+                      thumbnailPath,
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.cover,
+                    ) : Image.asset(
                   'assets/pic.png',
                   width: 120,
                   height: 120,
@@ -294,6 +403,36 @@ class _HighlightItemState extends State<HighlightItem> {
         )
       ],
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getThumbnail();
+  }
+
+  RelativeRect calculatePosition() {
+    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    var offset = renderBox.localToGlobal(Offset.zero);
+    var screenSize = MediaQuery.of(context).size;
+    var position = RelativeRect.fromLTRB(
+      offset.dx,
+      offset.dy + renderBox.size.height,
+      screenSize.width - offset.dx - renderBox.size.width,
+      screenSize.height - offset.dy,
+    );
+    return position;
+  }
+
+  String thumbnailPath = '';
+
+  void _getThumbnail() async {
+    print('called');
+    String path = await ApiCalls.getThumbnail(widget.title);
+    print(path);
+    setState(() {
+      thumbnailPath = path;
+    });
   }
 }
 
@@ -576,7 +715,7 @@ class MyPopupMenuButton extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text('Sign out'),
+                child: Text('Sign out', style: TextStyle(fontSize: 12),),
               ),
             ],
           ),
@@ -585,19 +724,18 @@ class MyPopupMenuButton extends StatelessWidget {
     );
   }
 
-  void handleMenuItemSelected(String value, BuildContext context) {
+  Future<void> handleMenuItemSelected(
+      String value, BuildContext context) async {
     switch (value) {
       case 'logout':
-        () async {
-          await FirebaseAuth.instance
-              .signOut()
-              .whenComplete(() => Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()),
-                    (route) => false,
-                  ));
-        };
+        await FirebaseAuth.instance
+            .signOut()
+            .whenComplete(() => Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
+                ))
+            .onError((error, stackTrace) => debugPrint(error.toString()));
         break;
     }
   }

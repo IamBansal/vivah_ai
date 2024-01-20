@@ -242,6 +242,35 @@ class ApiCalls {
     }
   }
 
+  static Future<void> uploadPhoto(String imagePath, String category) async {
+    await uploadPic('photos', imagePath, category);
+  }
+
+  static Future<void> uploadPic(String collection, String imagePath, String category) async {
+    String id = (FirebaseAuth.instance.currentUser?.uid)!;
+    String hashtag = (await LocalData.getName())!;
+    List<String> nameList = (await LocalData.getNameAndId())!;
+
+    String url =
+    (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
+    try {
+      final firestore = FirebaseFirestore.instance.collection(collection);
+      DocumentReference newDoc = await firestore.add({
+        'hashtag': hashtag,
+        'addedBy': id,
+        'image': url,
+        'name': nameList[0].isNotEmpty ? nameList[0] : 'No name',
+        'category': category
+      });
+
+      await firestore.doc(newDoc.id).update({'photoId': newDoc.id});
+
+      debugPrint('Photo uploaded');
+    } catch (e) {
+      debugPrint('Error uploading photo to Firestore: $e');
+    }
+  }
+
   static Future<List<Ceremony>> getCeremonyList() async {
     String hashtag = (await LocalData.getName())!;
     List<Ceremony> ceremonies = [];
@@ -326,4 +355,34 @@ class ApiCalls {
       debugPrint('Error uploading prompt to Firestore: $e');
     }
   }
+
+  static Future<void> uploadThumbnail(String imagePath, String category) async {
+    await uploadPic('thumbnail', imagePath, category);
+  }
+
+  static  Future<String> getThumbnail(String category) async {
+    String hashtag = (await LocalData.getName())!;
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('thumbnail')
+          .where('hashtag', isEqualTo: hashtag)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+          final photo = PhotoItem.fromMap(data!);
+          if (photo.category == category) return photo.image;
+        }
+        return '';
+      } else {
+        debugPrint('No matching documents found for $category');
+        return '';
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+      return '';
+    }
+  }
+
 }

@@ -21,35 +21,36 @@ class _ShowBlessingsState extends State<ShowBlessings> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Colors.white,
-            automaticallyImplyLeading: false,
-            toolbarHeight: 90,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Blessings',
-                  style: GoogleFonts.carattere(
-                      textStyle: const TextStyle(
-                          color: Color(0xFF33201C),
-                          fontSize: 35,
-                          fontStyle: FontStyle.italic)),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    'The blessings, the couple is blessed with',
-                    style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
-                  ),
-                )
-              ],
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.black26,
+        automaticallyImplyLeading: false,
+        toolbarHeight: 90,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Blessings',
+              style: GoogleFonts.carattere(
+                  textStyle: const TextStyle(
+                      color: Color(0xFF33201C),
+                      fontSize: 35,
+                      fontStyle: FontStyle.italic)),
             ),
-          ),
-          body: Center(
-              child: length != 0
-                  ? PageView.builder(
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                'The blessings, the couple is blessed with',
+                style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
+              ),
+            )
+          ],
+        ),
+      ),
+      body: Stack(children: [
+        length != 0
+            ? PageView.builder(
                 controller: PageController(),
                 itemCount: length,
                 scrollDirection: Axis.vertical,
@@ -58,12 +59,14 @@ class _ShowBlessingsState extends State<ShowBlessings> {
                   return FutureBuilder(
                     future: videoC.initialize(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.connectionState ==
+                          ConnectionState.done) {
                         videoC.play();
                         return Dismissible(
                             key: Key(list[index][0]),
                             onDismissed: (direction) {
-                              if(FirebaseAuth.instance.currentUser?.uid == list[index][1]) {
+                              if (FirebaseAuth.instance.currentUser?.uid ==
+                                  list[index][3]) {
                                 deleteBlessing(list[index][2]);
                                 list.removeAt(index);
                                 setState(() {
@@ -71,59 +74,68 @@ class _ShowBlessingsState extends State<ShowBlessings> {
                                 });
                               }
                             },
-                            child: SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.4,
-                                child: GestureDetector(
-                                    onTap: () {
-                                      if(videoC.value.isPlaying) {
-                                        videoC.pause();
-                                      } else {
-                                        videoC.play();
-                                      }
-                                    },
-                                    child: AspectRatio(
-                                      aspectRatio: videoC.value.aspectRatio,
-                                      child: Stack(
-                                        children: [
-                                          VideoPlayer(videoC),
-                                          Positioned(child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text('Uploaded by ${list[index][1]}'),
-                                          ))
-                                        ],
-                                      ),
-                                    ))));
+                            child: GestureDetector(
+                                onTap: () {
+                                  if (videoC.value.isPlaying) {
+                                    videoC.pause();
+                                  } else {
+                                    videoC.play();
+                                  }
+                                },
+                                child: AspectRatio(
+                                  aspectRatio: videoC.value.aspectRatio,
+                                  child: Stack(
+                                    children: [
+                                      VideoPlayer(videoC),
+                                      Positioned(
+                                        bottom: MediaQuery.of(context).size.height * 0.1,
+                                          child: Padding(
+                                        padding:
+                                            const EdgeInsets.all(8.0),
+                                        child: Text(
+                                            'Uploaded by ${list[index][1]}'),
+                                      ))
+                                    ],
+                                  ),
+                                )));
                       } else {
                         return const Center(
-                          child: CircularProgressIndicator(color: Color(0xFF33201C),),
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF33201C),
+                          ),
                         );
                       }
                     },
                   );
                 },
               )
-                  : const Center(
+            : const Center(
                 child: SizedBox(
                     height: 60,
                     width: 60,
-                    child: Text('No blessing',)),
-              )),
-          persistentFooterAlignment: const AlignmentDirectional(0, 0),
-          persistentFooterButtons: [
-            CustomButton(
-              label: 'Record my blessings',
-              onButtonPressed: (context) => {
-                videoC.pause(),
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RecordBlessingScreen(),
-                  ),
-                )
-              },
-            )
-          ],
-        ));
+                    child: Text(
+                      'No blessing',
+                    )),
+              ),
+        Positioned(
+          bottom: 5,
+          left: 5,
+          right: 5,
+          child: CustomButton(
+            label: 'Record my blessings',
+            onButtonPressed: (context) => {
+              videoC.pause(),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const RecordBlessingScreen(),
+                ),
+              )
+            },
+          ),
+        )
+      ]),
+    ));
   }
 
   @override
@@ -145,10 +157,11 @@ class _ShowBlessingsState extends State<ShowBlessings> {
         .collection('blessings')
         .doc(id)
         .delete()
-        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Blessing deleted successfully'),
-      duration: Duration(seconds: 2),
-    )));
+        .whenComplete(
+            () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Blessing deleted successfully'),
+                  duration: Duration(seconds: 2),
+                )));
   }
 
   List<List<String>> list = [];
@@ -166,7 +179,12 @@ class _ShowBlessingsState extends State<ShowBlessings> {
         for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
           Map<String, dynamic>? data = entry.data();
           setState(() {
-            list.add([data!['video'], data['name'], data['blessingId']]);
+            list.add([
+              data!['video'],
+              data['name'],
+              data['blessingId'],
+              data['addedBy']
+            ]);
           });
         }
         setState(() {

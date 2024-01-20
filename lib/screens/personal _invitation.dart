@@ -26,7 +26,7 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
               padding: const EdgeInsets.only(
                   top: 28.0, bottom: 10, left: 13, right: 13),
               child: Text(
-                name,
+                'Hi, $name',
                 style: GoogleFonts.carattere(
                     textStyle: const TextStyle(
                         color: Color(0xFF33201C),
@@ -45,7 +45,7 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Personalised Card Invitation',
+                    'Your invite',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Row(
@@ -110,7 +110,7 @@ class _PersonalInvitationState extends State<PersonalInvitation> {
             Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
-              child: Text('Room number booked for you is $room'),
+              child: Text('Room number: $room'),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),

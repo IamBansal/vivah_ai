@@ -8,6 +8,7 @@ class Guest {
   String url;
   String userId;
   String guestId;
+  bool isCreated;
 
   // Constructor
   Guest({
@@ -20,6 +21,7 @@ class Guest {
     required this.url,
     required this.userId,
     required this.guestId,
+    required this.isCreated,
   });
 
   // Factory method to create a Guest instance from a Map
@@ -34,6 +36,7 @@ class Guest {
       url: map['url'],
       userId: map['userId'],
       guestId: map['guestId'],
+      isCreated: map['isCreated'],
     );
   }
 
@@ -49,6 +52,7 @@ class Guest {
       'url': url,
       'userId': userId,
       'guestId': guestId,
+      'isCreated': isCreated,
     };
   }
 }

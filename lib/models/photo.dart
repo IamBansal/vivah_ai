@@ -3,12 +3,16 @@ class PhotoItem {
   String category;
   String image;
   String hashtag;
+  String name;
+  String photoId;
 
   PhotoItem({
     required this.addedBy,
     required this.category,
     required this.image,
-    required this.hashtag
+    required this.hashtag,
+    required this.name,
+    required this.photoId,
   });
 
   factory PhotoItem.fromMap(Map<String, dynamic> map) {
@@ -17,6 +21,8 @@ class PhotoItem {
       category: map['category'],
       image: map['image'],
       hashtag: map['hashtag'],
+      name: map['name'],
+      photoId: map['photoId'],
     );
   }
 
@@ -25,7 +31,9 @@ class PhotoItem {
       'addedBy': addedBy,
       'category': category,
       'image': image,
-      'hashtag': hashtag
+      'hashtag': hashtag,
+      'name': name,
+      'photoId': photoId,
     };
   }
 }

@@ -1,8 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -242,7 +240,8 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => PhotoViewScreen(url: filteredPhotoList[index].image)),
+                                    builder: (context) => PhotoViewScreen(
+                                        url: filteredPhotoList[index].image)),
                               );
                             },
                             child: Container(
@@ -432,27 +431,11 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
     setState(() {
       buttonText = 'Uploading the photo.....';
     });
-    String id = (FirebaseAuth.instance.currentUser?.uid)!;
-    String hashtag = (await LocalData.getName())!;
+    await ApiCalls.uploadPhoto(imagePathForDialog, photoCategory).whenComplete(() => _getPhotosList().whenComplete(() => Navigator.of(context).pop()));
 
-    String url =
-        (await ApiCalls.uploadImageOrAudioToCloudinary(imagePathForDialog))!;
-    try {
-      await FirebaseFirestore.instance.collection('photos').add({
-        'hashtag': hashtag,
-        'addedBy': id,
-        'category': photoCategory,
-        'image': url
-      }).whenComplete(() =>
-          _getPhotosList().whenComplete(() => Navigator.of(context).pop()));
-
-      setState(() {
-        buttonText = 'Upload the photo';
-      });
-      debugPrint('Photo uploaded');
-    } catch (e) {
-      debugPrint('Error uploading photo to Firestore: $e');
-    }
+    setState(() {
+      buttonText = 'Upload the photo';
+    });
   }
 
   List<PhotoItem> photos = [];
@@ -460,7 +443,9 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
 
   Future<void> _getPhotosList() async {
     photos.clear();
-    photos = await ApiCalls.getPhotosList();
+    photos = (await ApiCalls.getPhotosList())
+        .where((item) => item.category != 'Memory')
+        .toList();
     setState(() {
       filteredPhotoList = photos;
       _selectedChipIndex = 0;
@@ -487,6 +472,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
 
 class PhotoViewScreen extends StatefulWidget {
   final String url;
+
   const PhotoViewScreen({super.key, required this.url});
 
   @override
@@ -496,9 +482,12 @@ class PhotoViewScreen extends StatefulWidget {
 class _PhotoViewScreenState extends State<PhotoViewScreen> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: Scaffold(
+    return SafeArea(
+        child: Scaffold(
+      backgroundColor: Color(0xFF2F1F19),
       body: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -508,7 +497,8 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
                       ApiCalls.shareDownloadInvite(
                           _screenshotController, false, context);
                     },
-                    icon: const Icon(Icons.file_upload_outlined)),
+                    icon: const Icon(Icons.file_upload_outlined,
+                        color: Color(0xFFFFD384))),
                 const SizedBox(
                   width: 10,
                 ),
@@ -517,7 +507,8 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
                       ApiCalls.shareDownloadInvite(
                           _screenshotController, true, context);
                     },
-                    icon: const Icon(Icons.file_download_outlined)),
+                    icon: const Icon(Icons.file_download_outlined,
+                        color: Color(0xFFFFD384))),
               ],
             ),
             Screenshot(
@@ -544,4 +535,3 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
 
   final ScreenshotController _screenshotController = ScreenshotController();
 }
-

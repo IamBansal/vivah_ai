@@ -418,7 +418,14 @@ class _GuestListScreenState extends State<GuestListScreen> {
                             ),
                             title: Text(ladkiVale[index].name),
                             subtitle: Text(ladkiVale[index].relation),
-                            trailing: const Icon(Icons.arrow_forward),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Visibility(visible: ladkiVale[index].isCreated,child: const Icon(Icons.check, color: Colors.green,),),
+                                const SizedBox(width: 5,),
+                                const Icon(Icons.arrow_forward),
+                              ],
+                            ),
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -501,7 +508,14 @@ class _GuestListScreenState extends State<GuestListScreen> {
                             ),
                             title: Text(ladkeVale[index].name),
                             subtitle: Text(ladkeVale[index].relation),
-                            trailing: const Icon(Icons.arrow_forward),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Visibility(visible: ladkeVale[index].isCreated,child: const Icon(Icons.check, color: Colors.green,),),
+                                const SizedBox(width: 5,),
+                                const Icon(Icons.arrow_forward),
+                              ],
+                            ),
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -565,7 +579,8 @@ class _GuestListScreenState extends State<GuestListScreen> {
           'team': team,
           'userId': userId,
           'hashtag': hashtag,
-          'room': _roomController.text.isNotEmpty ? _roomController.text : 'No room'
+          'room': _roomController.text.isNotEmpty ? _roomController.text : 'No room',
+          'isCreated': false
         });
         await firestore.doc(newDocumentRef.id).update(
             {'guestId': newDocumentRef.id}).whenComplete(() => _getGuestList());

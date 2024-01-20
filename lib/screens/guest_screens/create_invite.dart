@@ -373,7 +373,7 @@ class _CreateInviteState extends State<CreateInvite> {
     }
   }
 
-  String buttonText = 'Create and share this personalised invite';
+  String buttonText = 'Create and share your invite';
 
   Future<void> addTheInviteToDB() async {
     try {
@@ -382,17 +382,17 @@ class _CreateInviteState extends State<CreateInvite> {
         buttonText = 'Creating your invite....';
       });
 
-      String audioUrl =
-          (await ApiCalls.uploadImageOrAudioToCloudinary(audioPath))!;
+      String audioUrl = audioPath.isNotEmpty ? (await ApiCalls.uploadImageOrAudioToCloudinary(audioPath))! : 'No audio';
 
           await FirebaseFirestore.instance.collection('guestList').doc(widget.guest.guestId).update({
         'image': imageUrlEmbed,
         'memory': _text,
-        'audio': audioUrl
+        'audio': audioUrl,
+            'isCreated': true
       });
 
       setState(() {
-        buttonText = 'Create and share this personalised invite';
+        buttonText = 'Create and share your invite';
       });
 
       debugPrint('Data updated successfully');

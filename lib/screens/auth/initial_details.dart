@@ -189,6 +189,7 @@ class _InitialDetailsState extends State<InitialDetails> {
       });
 
       await LocalData.saveName(hashtag);
+      await ApiCalls.saveUpdatePrompt('Bride: $bride, Groom: $groom, Wedding hashtag: $hashtag, Venue: $venue, Date: $date, and some more details are $more');
 
       setState(() {
         docId = newDocumentRef.id;
@@ -198,7 +199,7 @@ class _InitialDetailsState extends State<InitialDetails> {
           .update({'id': docId}).whenComplete(() => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MainScreen(isBrideGroom: true),
+                  builder: (context) => const MainScreen(isBrideGroom: true, index: 0),
                 ),
               ));
     } catch (error) {

@@ -11,7 +11,8 @@ import 'package:vivah_ai/widgets/bottom_navigation_bar.dart';
 class MainScreen extends StatefulWidget {
 
   final bool isBrideGroom;
-  const MainScreen({super.key, required this.isBrideGroom});
+  final int index;
+  const MainScreen({super.key, required this.isBrideGroom, required this.index});
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -25,6 +26,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     setState(() {
       if (widget.isBrideGroom) _screens.last = const GuestListScreen();
+      _selectedIndex = widget.index;
     });
   }
 
