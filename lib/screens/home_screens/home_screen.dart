@@ -10,7 +10,7 @@ import 'package:vivah_ai/widgets/custom_button.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import '../../main_screen.dart';
 import '../../models/ceremony.dart';
-import '../auth/login_screen.dart';
+import '../auth/login/guest_login.dart';
 import 'ceremony_screen.dart';
 import 'highlights_screen.dart';
 
@@ -427,9 +427,7 @@ class _HighlightItemState extends State<HighlightItem> {
   String thumbnailPath = '';
 
   void _getThumbnail() async {
-    print('called');
     String path = await ApiCalls.getThumbnail(widget.title);
-    print(path);
     setState(() {
       thumbnailPath = path;
     });
@@ -732,7 +730,7 @@ class MyPopupMenuButton extends StatelessWidget {
             .signOut()
             .whenComplete(() => Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  MaterialPageRoute(builder: (context) => const GuestLogin()),
                   (route) => false,
                 ))
             .onError((error, stackTrace) => debugPrint(error.toString()));

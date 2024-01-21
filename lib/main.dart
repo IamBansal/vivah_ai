@@ -5,8 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vivah_ai/screens/auth/login/guest_login.dart';
 import 'main_screen.dart';
-import 'screens/auth/login_screen.dart';
 
 void main() async {
   await dotenv.load(fileName: '.env');
@@ -75,7 +75,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Timer(const Duration(seconds: 3), () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(builder: (context) => const GuestLogin()),
         );
       });
       debugPrint("User is not logged in");

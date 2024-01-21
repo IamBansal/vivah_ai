@@ -7,7 +7,7 @@ import 'package:vivah_ai/widgets/custom_button.dart';
 import '../../providers/api_calls.dart';
 import '../../providers/shared_pref.dart';
 import '../../widgets/custom_text_field.dart';
-import 'login_screen.dart';
+import 'login/guest_login.dart';
 
 class InitialDetails extends StatefulWidget {
   const InitialDetails({super.key});
@@ -55,7 +55,7 @@ class _InitialDetailsState extends State<InitialDetails> {
                     .whenComplete(() => Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const LoginScreen()),
+                              builder: (context) => const GuestLogin()),
                           (route) => false,
                         ));
               },
