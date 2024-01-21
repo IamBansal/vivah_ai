@@ -81,7 +81,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                         });
                       },
                       selectedColor: const Color(0xFF713C05),
-                      backgroundColor: Colors.grey,
+                      backgroundColor: const Color(0xFFC58D80),
                       labelStyle: const TextStyle(color: Colors.white),
                     );
                   },
@@ -484,7 +484,7 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      backgroundColor: Color(0xFF2F1F19),
+      backgroundColor: const Color(0xFF2F1F19),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

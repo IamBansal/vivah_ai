@@ -41,7 +41,7 @@ class _ShowBlessingsState extends State<ShowBlessings> {
             const Padding(
               padding: EdgeInsets.only(bottom: 8.0),
               child: Text(
-                'The blessings, the couple is blessed with',
+                'Wishes from the loved ones',
                 style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
               ),
             )
@@ -92,8 +92,7 @@ class _ShowBlessingsState extends State<ShowBlessings> {
                                           child: Padding(
                                         padding:
                                             const EdgeInsets.all(8.0),
-                                        child: Text(
-                                            'Uploaded by ${list[index][1]}'),
+                                        child: Text(list[index][1], style: const TextStyle(color: Colors.white),),
                                       ))
                                     ],
                                   ),
@@ -122,7 +121,7 @@ class _ShowBlessingsState extends State<ShowBlessings> {
           left: 5,
           right: 5,
           child: CustomButton(
-            label: 'Record my blessings',
+            label: 'Record blessings',
             onButtonPressed: (context) => {
               videoC.pause(),
               Navigator.push(

@@ -374,7 +374,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                         style: TextStyle(
                             color: Color(0xFF33201C), fontWeight: FontWeight.bold),
                       ),
-                      Chip(label: Text(ladkiVale.length.toString())),
+                      Chip(label: Text(ladkiVale.length.toString()), backgroundColor: Color(0xFFC58D80)),
                     ],
                   ),
                 ),
@@ -463,7 +463,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                         style: TextStyle(
                             color: Color(0xFF33201C), fontWeight: FontWeight.bold),
                       ),
-                      Chip(label: Text(ladkeVale.length.toString())),
+                      Chip(label: Text(ladkeVale.length.toString()), backgroundColor: Color(0xFFC58D80),),
                     ],
                   ),
                 ),

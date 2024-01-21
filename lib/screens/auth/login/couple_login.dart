@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:vivah_ai/providers/shared_pref.dart';
 import '../../../main_screen.dart';
 import '../../../widgets/custom_button.dart';
 import '../initial_details.dart';
@@ -21,158 +22,160 @@ class _CoupleLoginState extends State<CoupleLogin> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          body: Align(
-            alignment: Alignment.center,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 50,),
-                Text(
-                  'Vivah',
-                  style: GoogleFonts.carattere(
-                      textStyle: const TextStyle(
-                          color: Color(0xFF33201C),
-                          fontSize: 75,
-                          fontStyle: FontStyle.italic)),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 38.0),
-                  child: Text(
-                    'Your wedding, personalised',
-                    style: TextStyle(color: Color(0xFF33201C), fontSize: 15),
+          body: SingleChildScrollView(
+            child: Align(
+              alignment: Alignment.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 50,),
+                  Text(
+                    'Vivah',
+                    style: GoogleFonts.carattere(
+                        textStyle: const TextStyle(
+                            color: Color(0xFF33201C),
+                            fontSize: 75,
+                            fontStyle: FontStyle.italic)),
                   ),
-                ),
-                SizedBox(
-                  width: 340,
-                  child: TextField(
-                    keyboardType: TextInputType.emailAddress,
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      fillColor: const Color(0xFFDFDFDF),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: const BorderSide(color: Color(0xFF33201C)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: const BorderSide(color: Color(0xFF33201C)),
-                      ),
-                      hintText: 'Enter your email',
-                      hintStyle: const TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.grey,
-                      ),
-                      hintMaxLines: 1,
-                      labelText: 'Email',
-                      labelStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16.0,
-                      ),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 38.0),
+                    child: Text(
+                      'Your wedding, personalised',
+                      style: TextStyle(color: Color(0xFF33201C), fontSize: 15),
                     ),
-                    textAlignVertical: TextAlignVertical.center,
-                    style: const TextStyle(color: Color(0xFF33201C)),
                   ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: 340,
-                  child: TextField(
-                    controller: _passwordController,
-                    obscureText: _obscureText,
-                    decoration: InputDecoration(
-                      fillColor: const Color(0xFFDFDFDF),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: const BorderSide(color: Color(0xFF33201C)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: const BorderSide(color: Color(0xFF33201C)),
-                      ),
-                      hintText: 'Enter your password',
-                      hintStyle: const TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.grey,
-                      ),
-                      hintMaxLines: 1,
-                      labelText: 'Password',
-                      labelStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16.0,
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureText
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          color: const Color(0xFF33201C),
+                  SizedBox(
+                    width: 340,
+                    child: TextField(
+                      keyboardType: TextInputType.emailAddress,
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        fillColor: const Color(0xFFDFDFDF),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide: const BorderSide(color: Color(0xFF33201C)),
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        },
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide: const BorderSide(color: Color(0xFF33201C)),
+                        ),
+                        hintText: 'Enter your email',
+                        hintStyle: const TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.grey,
+                        ),
+                        hintMaxLines: 1,
+                        labelText: 'Email',
+                        labelStyle: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16.0,
+                        ),
                       ),
+                      textAlignVertical: TextAlignVertical.center,
+                      style: const TextStyle(color: Color(0xFF33201C)),
                     ),
-                    textAlignVertical: TextAlignVertical.center,
-                    style: const TextStyle(color: Color(0xFF33201C)),
                   ),
-                ),
-                const SizedBox(height: 50),
-                CustomButton(
-                    label: 'Login',
-                    onButtonPressed: (context) => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const InitialDetails(),
-                      ),
-                    )),
-                const SizedBox(height: 40),
-                const Text(
-                  "or log in with",
-                  style: TextStyle(color: Color(0xFF33201C)),
-                ),
-                const SizedBox(height: 30),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 35.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                              onTap: () async {
-                                await _signInWithGoogle();
-                              },
-                              child: const ImageButton(
-                                  imagePath: 'assets/google.png')),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: 340,
+                    child: TextField(
+                      controller: _passwordController,
+                      obscureText: _obscureText,
+                      decoration: InputDecoration(
+                        fillColor: const Color(0xFFDFDFDF),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide: const BorderSide(color: Color(0xFF33201C)),
                         ),
-                        if (Platform.isIOS)
-                          const Expanded(
-                            child: ImageButton(
-                                imagePath: 'assets/apple.png'),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide: const BorderSide(color: Color(0xFF33201C)),
+                        ),
+                        hintText: 'Enter your password',
+                        hintStyle: const TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.grey,
+                        ),
+                        hintMaxLines: 1,
+                        labelText: 'Password',
+                        labelStyle: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16.0,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureText
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: const Color(0xFF33201C),
                           ),
-                      ],
+                          onPressed: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                        ),
+                      ),
+                      textAlignVertical: TextAlignVertical.center,
+                      style: const TextStyle(color: Color(0xFF33201C)),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 28.0),
-                  child: GestureDetector(
-                    onTap: (){
-                      Navigator.pushReplacement(
+                  const SizedBox(height: 50),
+                  CustomButton(
+                      label: 'Login',
+                      onButtonPressed: (context) => Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const GuestLogin()),
-                      );
-                    },
-                    child: const Text(
-                      "log in as guest",
-                      style: TextStyle(color: Color(0xFF33201C)),
+                          builder: (context) => const InitialDetails(),
+                        ),
+                      )),
+                  const SizedBox(height: 40),
+                  const Text(
+                    "or log in with",
+                    style: TextStyle(color: Color(0xFF33201C)),
+                  ),
+                  const SizedBox(height: 30),
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 35.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                                onTap: () async {
+                                  await _signInWithGoogle();
+                                },
+                                child: const ImageButton(
+                                    imagePath: 'assets/google.png')),
+                          ),
+                          if (Platform.isIOS)
+                            const Expanded(
+                              child: ImageButton(
+                                  imagePath: 'assets/apple.png'),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
-                )
-              ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 28.0),
+                    child: GestureDetector(
+                      onTap: (){
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const GuestLogin()),
+                        );
+                      },
+                      child: const Text(
+                        "Log in as guest",
+                        style: TextStyle(color: Color(0xFF33201C)),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ));
@@ -210,6 +213,7 @@ class _CoupleLoginState extends State<CoupleLogin> {
           MaterialPageRoute(builder: (context) => const InitialDetails()),
         ));
       } else {
+        await LocalData.saveName('#AniKaTanmay');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

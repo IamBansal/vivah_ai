@@ -17,14 +17,15 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: const Color(0xFFFFFFFF),
+      // backgroundColor: Color(0xFFFF7E2),
+      backgroundColor: Colors.white,
       type: BottomNavigationBarType.fixed,
       currentIndex: widget.selectedIndex,
       onTap: widget.onItemTapped,
-      selectedItemColor: const Color(0xFF33201C),
+      selectedItemColor: const Color(0xFF4F2E22),
       showSelectedLabels: true,
       showUnselectedLabels: false,
-      unselectedItemColor: Colors.black38,
+      unselectedItemColor: const Color(0xFFC58D80),
       items: [
         const BottomNavigationBarItem(
           icon: Icon(Icons.home_filled),
@@ -36,7 +37,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         ),
         const BottomNavigationBarItem(
           icon: Icon(Icons.image),
-          label: 'Photos',
+          label: 'Album',
         ),
         const BottomNavigationBarItem(
           icon: Icon(Icons.info_outline),

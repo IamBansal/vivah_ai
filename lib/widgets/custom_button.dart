@@ -33,7 +33,7 @@ class _CustomButtonState extends State<CustomButton> {
         child: Text(
           widget.label,
           style: const TextStyle(
-              color: Color(0xFFFFF5EB),
+              color: Color(0xFFFFF1CC),
               // fontWeight: FontWeight.bold
           ),
         ),

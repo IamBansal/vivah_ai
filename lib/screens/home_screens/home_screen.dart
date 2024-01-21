@@ -26,7 +26,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+          backgroundColor: Color(0xFFFF7E2),
+          // backgroundColor: Colors.red,
       appBar: AppBar(
+        // backgroundColor: Color(0xFFAF3EC),
         backgroundColor: Colors.white,
         elevation: 0.2,
         automaticallyImplyLeading: false,
@@ -399,7 +402,7 @@ class _HighlightItemState extends State<HighlightItem> {
         ),
         Text(
           widget.title,
-          style: const TextStyle(color: Colors.grey),
+          style: const TextStyle(color: Color(0xFF33201C)),
         )
       ],
     );
@@ -677,7 +680,7 @@ class _CeremonyItemState extends State<CeremonyItem> {
             Text(
               widget.ceremony.description,
               style: const TextStyle(
-                  overflow: TextOverflow.ellipsis, color: Colors.grey),
+                  overflow: TextOverflow.ellipsis, color: Color(0xFF620600)),
               maxLines: 2,
               textAlign: TextAlign.center,
             )

@@ -14,7 +14,6 @@ import 'package:screenshot/screenshot.dart';
 
 class CreateInvite extends StatefulWidget {
   final Guest guest;
-
   const CreateInvite({super.key, required this.guest});
 
   @override
@@ -302,7 +301,7 @@ class _CreateInviteState extends State<CreateInvite> {
                 _screenshotController,
                 false,
                 context,
-                'Inviting you!!\nDownload the app to know more about what\'s for you'))
+                'Inviting you!!\nDownload the app to know more about what\'s for you\nUse the hashtag ${widget.guest.hashtag} to login'))
           },
         ),
       ],
@@ -312,6 +311,14 @@ class _CreateInviteState extends State<CreateInvite> {
   String _text = '';
   String imageUrlEmbed = '';
   final _screenshotController = ScreenshotController();
+  late AudioRecorder audioRecord;
+  late AudioPlayer audioPlayer;
+  bool isRecording = false;
+  String audioPath = "";
+  bool recodingNow = true;
+  String buttonText = 'Create and share your invite';
+  bool playing = false;
+  bool showLoader = false;
 
   @override
   void initState() {
@@ -321,21 +328,12 @@ class _CreateInviteState extends State<CreateInvite> {
     audioRecord = AudioRecorder();
   }
 
-  late AudioRecorder audioRecord;
-  late AudioPlayer audioPlayer;
-  bool isRecording = false;
-  String audioPath = "";
-  bool recodingNow = true;
-
   @override
   void dispose() {
     super.dispose();
     audioRecord.dispose();
     audioPlayer.dispose();
   }
-
-  bool playing = false;
-  bool showLoader = false;
 
   Future<void> startRecording() async {
     try {
@@ -374,8 +372,6 @@ class _CreateInviteState extends State<CreateInvite> {
       debugPrint(e.toString());
     }
   }
-
-  String buttonText = 'Create and share your invite';
 
   Future<void> addTheInviteToDB(ScreenshotController screenshotController) async {
     try {

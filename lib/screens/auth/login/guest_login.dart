@@ -23,81 +23,84 @@ class _GuestLoginState extends State<GuestLogin> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          body: Align(
-            alignment: Alignment.center,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 50,),
-                Text(
-                  'Vivah',
-                  style: GoogleFonts.carattere(
-                      textStyle: const TextStyle(
-                          color: Color(0xFF33201C),
-                          fontSize: 75,
-                          fontStyle: FontStyle.italic)),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 38.0),
-                  child: Text(
-                    'Your wedding, personalised',
-                    style: TextStyle(color: Color(0xFF33201C), fontSize: 15),
+          body: SingleChildScrollView(
+            child: Align(
+              alignment: Alignment.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 50,),
+                  Text(
+                    'Vivah',
+                    style: GoogleFonts.carattere(
+                        textStyle: const TextStyle(
+                            color: Color(0xFF33201C),
+                            fontSize: 75,
+                            fontStyle: FontStyle.italic)),
                   ),
-                ),
-                CustomTextField(controller: _nameController, label: 'Name', hint: 'Enter your name', expand: false),
-                const SizedBox(height: 20),
-                CustomTextFieldWithIcon(controller: _phoneController, label: 'Phone number', hint: 'Enter your phone number', icon: Icons.add_call, expand: false, onIconTap: (context) => _importContact(), keyboardType: TextInputType.phone),
-                const SizedBox(height: 20),
-                CustomTextField(controller: _hashtagController, label: 'Wedding hashtag', hint: '', expand: false),
-                const SizedBox(height: 20),
-                Visibility(
-                    visible: !_verificationId.isNotEmpty,
-                    child: CustomButton(
-                      label: 'Send OTP',
-                      onButtonPressed: (context) => verifyPhoneNumber(),
-                    )),
-                Visibility(
-                  visible: _verificationId.isNotEmpty,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      CustomTextField(
-                        controller: _otpController,
-                        label: 'OTP',
-                        hint: 'Enter OTP', expand: false,),
-                      InkWell(
-                          onTap: verifyPhoneNumber,
-                          child: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text('Resend OTP?'),
-                          )),
-                      const SizedBox(height: 10),
-                      CustomButton(
-                        label: 'Verify OTP and Login...',
-                        onButtonPressed: (context) =>
-                            signInWithPhoneNumber(),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 28.0),
-                  child: GestureDetector(
-                    onTap: (){
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CoupleLogin(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "log in as couple",
-                      style: TextStyle(color: Color(0xFF33201C)),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 38.0),
+                    child: Text(
+                      'Your wedding, personalised',
+                      style: TextStyle(color: Color(0xFF33201C), fontSize: 15),
                     ),
                   ),
-                )
-              ],
+                  CustomTextField(controller: _nameController, label: 'Name', hint: 'Enter your name', expand: false),
+                  const SizedBox(height: 20),
+                  CustomTextFieldWithIcon(controller: _phoneController, label: 'Phone number', hint: 'Enter your phone number', icon: Icons.add_call, expand: false, onIconTap: (context) => _importContact(), keyboardType: TextInputType.phone),
+                  const SizedBox(height: 20),
+                  CustomTextField(controller: _hashtagController, label: 'Wedding hashtag', hint: '', expand: false),
+                  const SizedBox(height: 20),
+                  Visibility(
+                      visible: !_verificationId.isNotEmpty,
+                      child: CustomButton(
+                        label: 'Send OTP',
+                        // onButtonPressed: (context) => saveAndNavigate(),
+                        onButtonPressed: (context) => verifyPhoneNumber(),
+                      )),
+                  Visibility(
+                    visible: _verificationId.isNotEmpty,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        CustomTextField(
+                          controller: _otpController,
+                          label: 'OTP',
+                          hint: 'Enter OTP', expand: false,),
+                        InkWell(
+                            onTap: verifyPhoneNumber,
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text('Resend OTP?'),
+                            )),
+                        const SizedBox(height: 10),
+                        CustomButton(
+                          label: 'Verify OTP and Login...',
+                          onButtonPressed: (context) =>
+                              signInWithPhoneNumber(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 28.0),
+                    child: GestureDetector(
+                      onTap: (){
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CoupleLogin(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        "Log in as host",
+                        style: TextStyle(color: Color(0xFF33201C)),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ));
