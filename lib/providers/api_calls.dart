@@ -151,6 +151,23 @@ class ApiCalls {
     }
   }
 
+  static Future<String> getScreenshotPath(
+      ScreenshotController screenshotController,
+      BuildContext context) async {
+    try {
+      final uint8List = await screenshotController.capture();
+      final tempDir = await getTemporaryDirectory();
+      final imagePath = '${tempDir.path}/image.png';
+
+      File imageFile = File(imagePath);
+      await imageFile.writeAsBytes(uint8List!);
+      return imagePath;
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
+    return '';
+  }
+
   static Future<void> shareDownloadVoiceInvite(bool download, [String? audioUrl]) async {
     try {
 

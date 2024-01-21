@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -296,7 +298,7 @@ class _CreateInviteState extends State<CreateInvite> {
         CustomButton(
           label: buttonText,
           onButtonPressed: (context) => {
-            addTheInviteToDB().whenComplete(() => ApiCalls.shareDownloadInvite(
+            addTheInviteToDB(_screenshotController).whenComplete(() => ApiCalls.shareDownloadInvite(
                 _screenshotController,
                 false,
                 context,
@@ -375,7 +377,7 @@ class _CreateInviteState extends State<CreateInvite> {
 
   String buttonText = 'Create and share your invite';
 
-  Future<void> addTheInviteToDB() async {
+  Future<void> addTheInviteToDB(ScreenshotController screenshotController) async {
     try {
 
       setState(() {
@@ -384,8 +386,11 @@ class _CreateInviteState extends State<CreateInvite> {
 
       String audioUrl = audioPath.isNotEmpty ? (await ApiCalls.uploadImageOrAudioToCloudinary(audioPath))! : 'No audio';
 
+      String path = await ApiCalls.getScreenshotPath(screenshotController, context);
+      String? url = await ApiCalls.uploadImageOrAudioToCloudinary(path);
+
           await FirebaseFirestore.instance.collection('guestList').doc(widget.guest.guestId).update({
-        'image': imageUrlEmbed,
+        'image': url,
         'memory': _text,
         'audio': audioUrl,
             'isCreated': true
