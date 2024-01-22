@@ -15,7 +15,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share/share.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:vivah_ai/models/guest.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
+import '../models/blessing.dart';
 import '../models/ceremony.dart';
 import '../models/photo.dart';
 
@@ -153,8 +155,7 @@ class ApiCalls {
     }
   }
 
-  static Future<String> getScreenshotPath(
-      ScreenshotController screenshotController, BuildContext context) async {
+  static Future<String> getScreenshotPath(ScreenshotController screenshotController) async {
     try {
       final uint8List = await screenshotController.capture();
       final tempDir = await getTemporaryDirectory();
@@ -461,4 +462,58 @@ class ApiCalls {
       return 'Error: $e';
     }
   }
+
+  static Future<List<BlessingItem>> getHighlightsList(String hashtag) async {
+    List<BlessingItem> list = [];
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('blessings')
+          .where('hashtag', isEqualTo: hashtag)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+          list.add(BlessingItem.fromMap(data!));
+        }
+        debugPrint('Found the highlights');
+        return list;
+      } else {
+        debugPrint('No matching documents found for highlights.');
+        return [];
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+      return [];
+    }
+  }
+
+  static Future<List<Guest>> getGuestList(String hashtag) async {
+    List<Guest> guest = [];
+    try {
+      await FirebaseFirestore.instance
+          .collection('guestList')
+          .where('hashtag', isEqualTo: hashtag)
+          .get();
+
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('guestList')
+          .where('hashtag', isEqualTo: hashtag)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+          guest.add(Guest.fromMap(data!));
+        }
+        debugPrint('Found the guest');
+      } else {
+        debugPrint('No matching documents found.');
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+    }
+    return guest;
+  }
+
 }

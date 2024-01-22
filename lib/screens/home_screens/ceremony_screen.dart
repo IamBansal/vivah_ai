@@ -3,15 +3,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:vivah_ai/models/ceremony.dart';
+import 'package:vivah_ai/viewmodels/main_view_model.dart';
 import '../../providers/api_calls.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 
 class CeremonyScreen extends StatefulWidget {
-  final Ceremony ceremony;
+  // final Ceremony ceremony;
+  final MainViewModel model;
 
-  const CeremonyScreen({super.key, required this.ceremony});
+  const CeremonyScreen({super.key, required this.model});
 
   @override
   State<CeremonyScreen> createState() => _CeremonyScreenState();
@@ -20,107 +23,121 @@ class CeremonyScreen extends StatefulWidget {
 class _CeremonyScreenState extends State<CeremonyScreen> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.black26,
-        toolbarHeight: 90,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.ceremony.title,
-              style: GoogleFonts.carattere(
-                  textStyle: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 35,
-                      fontStyle: FontStyle.italic)),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                'Enjoy the function to the most',
-                style: TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            )
-          ],
-        ),
-        actions: [
-          IconButton(
-              onPressed: () {
-                deleteCeremony(widget.ceremony);
-              },
-              icon: const Icon(
-                Icons.delete_outline,
-                color: Color(0xFF33201C),
-              )),
-          IconButton(
-              onPressed: () {
-                showUpdateCeremonyDialog();
-              },
-              icon: const Icon(
-                Icons.edit_note_outlined,
-                color: Color(0xFF33201C),
-              )),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(14),
-                    bottomRight: Radius.circular(14)),
-                child: Image.network(
-                  widget.ceremony.url,
-                  height: 600,
-                  width: MediaQuery.of(context).size.width,
-                  fit: BoxFit.cover,
-                )),
-            const SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0,),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${widget.ceremony.title} ceremony',
-                    style: GoogleFonts.carattere(
-                        textStyle: const TextStyle(
-                            color: Color(0xFF33201C),
-                            fontSize: 40,
-                            fontStyle: FontStyle.italic)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0, top: 12),
-                    child: Text(
-                      widget.ceremony.description,
-                      style: const TextStyle(color: Color(0xFF33201C), fontSize: 14),
+    return Consumer<MainViewModel>(
+      builder: (context, model, child){
+        return SafeArea(
+            child: Scaffold(
+              extendBodyBehindAppBar: true,
+              appBar: AppBar(
+                elevation: 0,
+                backgroundColor: Colors.black26,
+                toolbarHeight: 90,
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      model.ceremony.title,
+                      style: GoogleFonts.carattere(
+                          textStyle: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 35,
+                              fontStyle: FontStyle.italic)),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0, top: 8),
-                    child: Text(
-                      'Mark your presence on ${widget.ceremony.date} at ${widget.ceremony.location}',
-                      style: const TextStyle(color: Color(0xFF33201C), fontSize: 14),
-                    ),
-                  )
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        'Enjoy the function to the most',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                    )
+                  ],
+                ),
+                actions: [
+                  IconButton(
+                      onPressed: () {
+                        deleteCeremony(model.ceremony);
+                      },
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Color(0xFF33201C),
+                      )),
+                  IconButton(
+                      onPressed: () {
+                        showUpdateCeremonyDialog();
+                      },
+                      icon: const Icon(
+                        Icons.edit_note_outlined,
+                        color: Color(0xFF33201C),
+                      )),
                 ],
               ),
-            )
-          ],
-        ),
-      ),
-    ));
+              body: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(14),
+                            bottomRight: Radius.circular(14)),
+                        child: Image.network(
+                          model.ceremony.url,
+                          height: 600,
+                          width: MediaQuery.of(context).size.width,
+                          fit: BoxFit.cover,
+                        )),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0,),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${model.ceremony.title} ceremony',
+                            style: GoogleFonts.carattere(
+                                textStyle: const TextStyle(
+                                    color: Color(0xFF33201C),
+                                    fontSize: 40,
+                                    fontStyle: FontStyle.italic)),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0, top: 12),
+                            child: Text(
+                              model.ceremony.description,
+                              style: const TextStyle(color: Color(0xFF33201C), fontSize: 14),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0, top: 8),
+                            child: Text(
+                              'Mark your presence on ${model.ceremony.date} at ${model.ceremony.location}',
+                              style: const TextStyle(color: Color(0xFF33201C), fontSize: 14),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ));
+      }
+    );
+  }
+
+  late MainViewModel model;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model = Provider.of<MainViewModel>(context, listen: false);
+    });
   }
 
   void deleteCeremony(Ceremony ceremony) async {
-    await FirebaseFirestore.instance.collection('ceremonies').doc(ceremony.ceremonyId).delete().whenComplete(() => Navigator.pop(context));
+    model.deleteCeremony(ceremony.ceremonyId).whenComplete(() => Navigator.pop(context));
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('${ceremony.title} deleted successfully'),
       duration: const Duration(seconds: 2),
@@ -135,7 +152,7 @@ class _CeremonyScreenState extends State<CeremonyScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
-          child: UpdateCeremony(ceremony: widget.ceremony),
+          child: UpdateCeremony(ceremony: model.ceremony),
         );
       },
     );

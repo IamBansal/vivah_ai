@@ -9,6 +9,9 @@ class Guest {
   String userId;
   String guestId;
   bool isCreated;
+  String image;
+  String memory;
+  String audio;
 
   // Constructor
   Guest({
@@ -22,6 +25,9 @@ class Guest {
     required this.userId,
     required this.guestId,
     required this.isCreated,
+    required this.image,
+    required this.memory,
+    required this.audio,
   });
 
   // Factory method to create a Guest instance from a Map
@@ -37,6 +43,9 @@ class Guest {
       userId: map['userId'],
       guestId: map['guestId'],
       isCreated: map['isCreated'],
+      image: map['image'],
+      memory: map['memory'],
+      audio: map['audio'],
     );
   }
 
@@ -53,6 +62,9 @@ class Guest {
       'userId': userId,
       'guestId': guestId,
       'isCreated': isCreated,
+      'image': image,
+      'memory': memory,
+      'audio': audio,
     };
   }
 }

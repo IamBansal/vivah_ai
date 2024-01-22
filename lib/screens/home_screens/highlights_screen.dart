@@ -1,16 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:story_view/story_view.dart';
+import 'package:vivah_ai/models/blessing.dart';
 import 'package:vivah_ai/models/ceremony.dart';
 import 'package:vivah_ai/models/photo.dart';
-import 'package:vivah_ai/providers/api_calls.dart';
-import 'package:vivah_ai/providers/shared_pref.dart';
+import 'package:vivah_ai/viewmodels/main_view_model.dart';
 
 class StoryScreen extends StatefulWidget {
   final String filter;
-  final bool isCouple;
-
-  const StoryScreen({super.key, required this.filter, required this.isCouple});
+  const StoryScreen({super.key, required this.filter});
 
   @override
   _StoryScreenState createState() => _StoryScreenState();
@@ -19,106 +17,92 @@ class StoryScreen extends StatefulWidget {
 class _StoryScreenState extends State<StoryScreen> {
   @override
   Widget build(context) {
-    if (storyItems.isNotEmpty) {
-      return SafeArea(
-        child: Scaffold(
-          body: StoryView(
-            storyItems: storyItems,
-            controller: controller,
-            repeat: false,
-            onStoryShow: (storyItem) {},
-            onComplete: () {
-              Navigator.pop(context);
-            },
-            onVerticalSwipeComplete: (direction) {
-              if (direction == Direction.down) {
-                Navigator.pop(context);
-              }
-            },
-            indicatorColor: const Color(0xFF33201C),
-            indicatorForegroundColor: const Color(0xFFFFD384),
-          ),
-        ),
-      );
-    } else {
-      return const Center(
-        child: SizedBox(
-            height: 60,
-            width: 60,
-            child: CircularProgressIndicator(
-              color: Colors.white,
-            )),
-      );
-    }
+    return Consumer<MainViewModel>(
+      builder: (context, model, child){
+        if (storyItems.isNotEmpty) {
+          return SafeArea(
+            child: Scaffold(
+              body: StoryView(
+                storyItems: storyItems,
+                controller: controller,
+                repeat: false,
+                onStoryShow: (storyItem) {},
+                onComplete: () {
+                  Navigator.pop(context);
+                },
+                onVerticalSwipeComplete: (direction) {
+                  if (direction == Direction.down) {
+                    Navigator.pop(context);
+                  }
+                },
+                indicatorColor: const Color(0xFF33201C),
+                indicatorForegroundColor: const Color(0xFFFFD384),
+              ),
+            ),
+          );
+        } else {
+          return const Center(
+            child: SizedBox(
+                height: 60,
+                width: 60,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                )),
+          );
+        }
+      }
+    );
   }
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model = Provider.of<MainViewModel>(context, listen: false);
+    });
     _getHighlightsList();
   }
 
+  late MainViewModel model;
   final controller = StoryController();
   List<StoryItem> storyItems = [];
 
   Future<List<StoryItem>?> _getHighlightsList() async {
-    String hashtag = (await LocalData.getName())!;
     storyItems.clear();
     try {
       if (widget.filter == 'blessings') {
-        QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-            .instance
-            .collection('blessings')
-            .where('hashtag', isEqualTo: hashtag)
-            .get();
-        if (snapshot.docs.isNotEmpty) {
-          for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
-            Map<String, dynamic>? data = entry.data();
-            setState(() {
-              storyItems.add(StoryItem.pageVideo(
-                data!['video'],
-                caption: 'Uploaded by: ${data['name']}',
-                duration: Duration(seconds: data['duration'].toInt()),
-                controller: controller,
-              ));
-            });
-          }
-          debugPrint('Found the highlights');
-          return storyItems;
-        } else {
-          debugPrint('No matching documents found for highlights.');
-          return null;
+        for(BlessingItem item in model.blessingList){
+          setState(() {
+            storyItems.add(StoryItem.pageVideo(
+              item.video,
+              caption: 'Uploaded by: ${item.name}',
+              duration: Duration(seconds: item.duration.toInt()),
+              controller: controller,
+            ));
+          });
         }
       } else if (widget.filter == 'photos') {
-        List<PhotoItem> list = await ApiCalls.getPhotosList();
-        for (PhotoItem item in list) {
+        for (PhotoItem item in model.photoList) {
           setState(() {
             storyItems.add(StoryItem(
-              StoryWidget(image: item.image, text: '${item.name} in ${item.category}', isCouple: widget.isCouple),
+              StoryWidget(image: item.image, text: '${item.name} in ${item.category}', isCouple: model.isCouple),
                 duration: const Duration(seconds: 3)));
           });
         }
-        return storyItems;
       } else if (widget.filter == 'others') {
-        List<Ceremony> list = await ApiCalls.getCeremonyList();
-        for (Ceremony item in list) {
+        for (Ceremony item in model.ceremonyList) {
           setState(() {
-            // storyItems.add(StoryItem.pageImage(
-            //     url: item.url,
-            //     controller: controller,
-            //     caption: '${item.title} on ${item.date}'));
             storyItems.add(StoryItem(
                 StoryWidgetOthers(image: item.url, text: '${item.title} on ${item.date}'),
                 duration: const Duration(seconds: 3)));
           });
         }
-        return storyItems;
       }
+      return storyItems;
     } catch (error) {
       debugPrint('Error querying entries: $error');
       return null;
     }
-    return null;
   }
 }
 

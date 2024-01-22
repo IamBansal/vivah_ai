@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:vivah_ai/models/photo.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
+import 'package:vivah_ai/viewmodels/main_view_model.dart';
 import 'package:vivah_ai/widgets/custom_button.dart';
 import '../providers/shared_pref.dart';
 
@@ -21,257 +23,315 @@ class VivahPhotosScreen extends StatefulWidget {
 class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.2,
-        automaticallyImplyLeading: false,
-        toolbarHeight: 90,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Vivah Album',
-              style: GoogleFonts.carattere(
-                  textStyle: const TextStyle(
-                      color: Color(0xFF33201C),
-                      fontSize: 35,
-                      fontStyle: FontStyle.italic)),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 4.0),
-              child: Text(
-                'All occasions in one gallery',
-                style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
-              ),
-            )
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        controller: scrollController,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(
-              height: 10,
-            ),
-            Center(
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 5.0,
-                children: List<Widget>.generate(
-                  _options.length,
-                  (int index) {
-                    return ChoiceChip(
-                      label: Text(_options[index]),
-                      selected: _selectedChipIndex == index,
-                      onSelected: (bool selected) {
-                        setState(() {
-                          _selectedChipIndex = selected ? index : -1;
-                          _options[_selectedChipIndex];
-                          _selectedChipIndex == 0
-                              ? filteredPhotoList = photos
-                              : filteredPhotoList = photos
-                                  .where((item) =>
-                                      item.category ==
-                                      _options[_selectedChipIndex])
-                                  .toList();
-                        });
-                      },
-                      selectedColor: const Color(0xFF713C05),
-                      backgroundColor: const Color(0xFFC58D80),
-                      labelStyle: const TextStyle(color: Colors.white),
-                    );
-                  },
-                ).toList(),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Container(
-                      color: Colors.transparent,
-                      child: Wrap(
-                        children: [
-                          ListTile(
-                            leading: const Icon(Icons.camera,
-                                color: Color(0xFF33201C)),
-                            title: const Text('Take Photo'),
-                            onTap: () async {
-                              Navigator.pop(context); // Close the bottom sheet
-                              String path = (await ApiCalls.getImage(
-                                  ImageSource.camera))!;
-                              await LocalData.saveImage(path);
-                              setState(() {
-                                imagePath = path;
-                              });
-                            },
-                          ),
-                          ListTile(
-                            leading: const Icon(
-                              Icons.photo_library,
-                              color: Color(0xFF33201C),
-                            ),
-                            title: const Text('Choose from Gallery'),
-                            onTap: () async {
-                              Navigator.pop(context);
-                              String path = (await ApiCalls.getImage(
-                                  ImageSource.gallery))!;
-                              await LocalData.saveImage(path);
-                              setState(() {
-                                imagePath = path;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0.0, 20, 0, 10),
-                child: ClipOval(
-                    child: imagePath.isNotEmpty
-                        ? CircleAvatar(
-                            backgroundImage: FileImage(File(imagePath)),
-                            radius: 75.0,
-                          )
-                        : Image.asset(
-                            'assets/pic.png',
-                            width: 150,
-                            height: 150,
-                            fit: BoxFit.cover,
-                          )),
-              ),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            Text(
-              guestName,
-              style: GoogleFonts.carattere(
-                  textStyle: const TextStyle(
-                      color: Color(0xFF713C05),
-                      fontSize: 40,
-                      fontStyle: FontStyle.italic)),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
-              child: Text(
-                'Save your favorite moments to your gallery or upload some future-worthy clicks for everyone!',
-                style: TextStyle(color: Color(0xFF713C05)),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: InkWell(
-                onTap: () {
-                  showUploadPhotoDialog();
-                },
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
+    return Consumer<MainViewModel>(
+      builder: (context, model, child){
+        // filteredPhotoList = model.photoList.where((item) => item.category != 'Memory').toList();
+        return SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0.2,
+                automaticallyImplyLeading: false,
+                toolbarHeight: 90,
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.file_upload_outlined),
-                    SizedBox(
-                      width: 5,
-                    ),
                     Text(
-                      'Upload',
-                      style: TextStyle(color: Color(0xFF33201C)),
+                      'Vivah Album',
+                      style: GoogleFonts.carattere(
+                          textStyle: const TextStyle(
+                              color: Color(0xFF33201C),
+                              fontSize: 35,
+                              fontStyle: FontStyle.italic)),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 4.0),
+                      child: Text(
+                        'All occasions in one gallery',
+                        style: TextStyle(color: Color(0xFF33201C), fontSize: 12),
+                      ),
                     )
                   ],
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      //Handle All of images
-                    },
-                    child: const Text(
-                      'All Photos',
-                      style: TextStyle(color: Color(0xFF33201C)),
+              body: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      height: 10,
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      //Handle solo of images
-                    },
-                    child: const Text(
-                      'Your photos',
-                      style: TextStyle(color: Color(0xFF33201C)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(
-              height: 5,
-              color: Colors.grey,
-            ),
-            filteredPhotoList.isNotEmpty
-                ? SizedBox(
-                    height: filteredPhotoList.length % 3 == 0
-                        ? ((filteredPhotoList.length / 3)) * 150
-                        : ((filteredPhotoList.length / 3) + 1) * 120,
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
+                    Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 5.0,
+                        children: List<Widget>.generate(
+                          _options.length,
+                              (int index) {
+                            return ChoiceChip(
+                              label: Text(_options[index]),
+                              selected: _selectedChipIndex == index,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  _selectedChipIndex = selected ? index : -1;
+                                  _options[_selectedChipIndex];
+                                  _selectedChipIndex == 0
+                                      ? filteredPhotoList = model.photoList.where((item) => item.category != 'Memory').toList()
+                                      : filteredPhotoList = model.photoList.where((item) => item.category != 'Memory').toList()
+                                      .where((item) =>
+                                  item.category ==
+                                      _options[_selectedChipIndex])
+                                      .toList();
+                                });
+                              },
+                              selectedColor: const Color(0xFF713C05),
+                              backgroundColor: const Color(0xFFC58D80),
+                              labelStyle: const TextStyle(color: Colors.white),
+                            );
+                          },
+                        ).toList(),
                       ),
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      controller: scrollController,
-                      itemCount: filteredPhotoList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return GridTile(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => PhotoViewScreen(
-                                        url: filteredPhotoList[index].image)),
-                              );
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.all(2.0),
-                              color: Colors.white30,
-                              child: Center(
-                                child: Image.network(
-                                  filteredPhotoList[index].image,
-                                  width: 150,
-                                  height: 150,
-                                  fit: BoxFit.cover,
-                                ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Container(
+                              color: Colors.transparent,
+                              child: Wrap(
+                                children: [
+                                  ListTile(
+                                    leading: const Icon(Icons.camera,
+                                        color: Color(0xFF33201C)),
+                                    title: const Text('Take Photo'),
+                                    onTap: () async {
+                                      Navigator.pop(context); // Close the bottom sheet
+                                      String path = (await ApiCalls.getImage(
+                                          ImageSource.camera))!;
+                                      await LocalData.saveImage(path);
+                                      setState(() {
+                                        imagePath = path;
+                                      });
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(
+                                      Icons.photo_library,
+                                      color: Color(0xFF33201C),
+                                    ),
+                                    title: const Text('Choose from Gallery'),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      String path = (await ApiCalls.getImage(
+                                          ImageSource.gallery))!;
+                                      await LocalData.saveImage(path);
+                                      setState(() {
+                                        imagePath = path;
+                                      });
+                                    },
+                                  ),
+                                ],
                               ),
-                            ),
-                          ),
+                            );
+                          },
                         );
                       },
-                    ))
-                : Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                        'No ${_options[_selectedChipIndex]} photos for now'),
-                  )
-          ],
-        ),
-      ),
-    ));
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0.0, 20, 0, 10),
+                        child: ClipOval(
+                            child: imagePath.isNotEmpty
+                                ? CircleAvatar(
+                              backgroundImage: FileImage(File(imagePath)),
+                              radius: 75.0,
+                            )
+                                : Image.asset(
+                              'assets/pic.png',
+                              width: 150,
+                              height: 150,
+                              fit: BoxFit.cover,
+                            )),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      guestName,
+                      style: GoogleFonts.carattere(
+                          textStyle: const TextStyle(
+                              color: Color(0xFF713C05),
+                              fontSize: 40,
+                              fontStyle: FontStyle.italic)),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
+                      child: Text(
+                        'Save your favorite moments to your gallery or upload some future-worthy clicks for everyone!',
+                        style: TextStyle(color: Color(0xFF713C05)),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: InkWell(
+                        onTap: () {
+                          showUploadPhotoDialog();
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.file_upload_outlined),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              'Upload',
+                              style: TextStyle(color: Color(0xFF33201C)),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              //Handle All of images
+                            },
+                            child: const Text(
+                              'All Photos',
+                              style: TextStyle(color: Color(0xFF33201C)),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              //Handle solo of images
+                            },
+                            child: const Text(
+                              'Your photos',
+                              style: TextStyle(color: Color(0xFF33201C)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(
+                      height: 5,
+                      color: Colors.grey,
+                    ),
+                    filteredPhotoList.isNotEmpty
+                        ? SizedBox(
+                        height: filteredPhotoList.length % 3 == 0
+                            ? ((filteredPhotoList.length / 3)) * 150
+                            : ((filteredPhotoList.length / 3) + 1) * 120,
+                        child: GridView.builder(
+                          gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                          ),
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          controller: scrollController,
+                          itemCount: filteredPhotoList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return GridTile(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => PhotoViewScreen(
+                                            url: filteredPhotoList[index].image)),
+                                  );
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.all(2.0),
+                                  color: Colors.white30,
+                                  child: Center(
+                                    child: Image.network(
+                                      filteredPhotoList[index].image,
+                                      width: 150,
+                                      height: 150,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ))
+                        : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                          'No ${_options[_selectedChipIndex]} photos for now'),
+                    )
+                  ],
+                ),
+              ),
+            ));
+      }
+    );
   }
 
+  final List<String> _options = [
+    'All events',
+    'Haldi',
+    'Ladies Sangeet',
+    'Mehndi',
+    'Wedding'
+  ];
+  static const List<String> list = <String>[
+    'Wedding',
+    'Haldi',
+    'Mehndi',
+    'Ladies Sangeet',
+  ];
   ScrollController scrollController = ScrollController();
+  int _selectedChipIndex = 0;
+  String imagePath = '';
+  String imagePathForDialog = '';
+  String photoCategory = list.first;
+  String buttonText = 'Upload the photo';
+  String guestName = '';
+  List<PhotoItem> filteredPhotoList = [];
+
+  late MainViewModel model;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model = Provider.of<MainViewModel>(context, listen: false);
+      filteredPhotoList = model.photoList.where((item) => item.category != 'Memory').toList();
+    });
+    _getImageAndName();
+  }
+
+  void _getImageAndName() async {
+    String path = (await LocalData.getImage())!;
+    String name = (await LocalData.getGuestName())!;
+
+    setState(() {
+      imagePath = path;
+      guestName = name;
+    });
+  }
+
+  void saveToDB() {
+    setState(() {
+      buttonText = 'Uploading the photo.....';
+    });
+    model.savePhotoToDB(imagePathForDialog, photoCategory).whenComplete(() => setState(() {
+      filteredPhotoList = model.photoList.where((item) => item.category != 'Memory').toList();
+      _selectedChipIndex = 0;
+      buttonText = 'Upload the photo';
+      Navigator.of(context).pop();
+    }));
+  }
 
   void showUploadPhotoDialog() {
     showDialog(
@@ -343,21 +403,21 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                           width: 180,
                           height: 180,
                           decoration: BoxDecoration(
-                              // shape: BoxShape.circle,
+                            // shape: BoxShape.circle,
                               border: Border.all(
                                   color: const Color(0xFF33201C), width: 1)),
                           child: Padding(
                             padding: const EdgeInsets.all(2.0),
                             child: imagePathForDialog.isNotEmpty
                                 ? CircleAvatar(
-                                    backgroundImage:
-                                        FileImage(File(imagePathForDialog)),
-                                    radius: 5.0,
-                                  )
+                              backgroundImage:
+                              FileImage(File(imagePathForDialog)),
+                              radius: 5.0,
+                            )
                                 : const Icon(
-                                    Icons.add_a_photo,
-                                    color: Color(0xFF33201C),
-                                  ),
+                              Icons.add_a_photo,
+                              color: Color(0xFF33201C),
+                            ),
                           )),
                     ),
                   ),
@@ -382,7 +442,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                       ),
                     ),
                     dropdownMenuEntries:
-                        list.map<DropdownMenuEntry<String>>((String value) {
+                    list.map<DropdownMenuEntry<String>>((String value) {
                       return DropdownMenuEntry<String>(
                           value: value, label: value);
                     }).toList(),
@@ -392,11 +452,11 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
                   ),
                   Center(
                       child: CustomButton(
-                    label: buttonText,
-                    onButtonPressed: (context) => {
-                      if (imagePathForDialog.isNotEmpty) {saveToDB()}
-                    },
-                  )),
+                        label: buttonText,
+                        onButtonPressed: (context) => {
+                          if (imagePathForDialog.isNotEmpty) {saveToDB()}
+                        },
+                      )),
                 ],
               ),
             ),
@@ -404,69 +464,6 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
         );
       },
     );
-  }
-
-  int _selectedChipIndex = 0;
-  final List<String> _options = [
-    'All events',
-    'Haldi',
-    'Ladies Sangeet',
-    'Mehndi',
-    'Wedding'
-  ];
-  String imagePath = '';
-  String imagePathForDialog = '';
-
-  static const List<String> list = <String>[
-    'Wedding',
-    'Haldi',
-    'Mehndi',
-    'Ladies Sangeet',
-  ];
-  String photoCategory = list.first;
-  String buttonText = 'Upload the photo';
-  String guestName = '';
-
-  Future<void> saveToDB() async {
-    setState(() {
-      buttonText = 'Uploading the photo.....';
-    });
-    await ApiCalls.uploadPhoto(imagePathForDialog, photoCategory).whenComplete(() => _getPhotosList().whenComplete(() => Navigator.of(context).pop()));
-
-    setState(() {
-      buttonText = 'Upload the photo';
-    });
-  }
-
-  List<PhotoItem> photos = [];
-  List<PhotoItem> filteredPhotoList = [];
-
-  Future<void> _getPhotosList() async {
-    photos.clear();
-    photos = (await ApiCalls.getPhotosList())
-        .where((item) => item.category != 'Memory')
-        .toList();
-    setState(() {
-      filteredPhotoList = photos;
-      _selectedChipIndex = 0;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _getPhotosList();
-    _getImageAndName();
-  }
-
-  void _getImageAndName() async {
-    String path = (await LocalData.getImage())!;
-    String name = (await LocalData.getGuestName())!;
-
-    setState(() {
-      imagePath = path;
-      guestName = name;
-    });
   }
 }
 
@@ -519,7 +516,6 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
                 disableGestures: false,
                 imageProvider: NetworkImage(widget.url),
                 customSize: MediaQuery.of(context).size,
-                // customSize: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
                 minScale: PhotoViewComputedScale.contained,
                 maxScale: PhotoViewComputedScale.covered * 2,
                 backgroundDecoration: const BoxDecoration(
