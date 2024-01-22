@@ -176,6 +176,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Divider(
+                  thickness: 1,
+                  color: Colors.grey,
+                  indent: 20,
+                  endIndent: 20,
+                ),
+              ),
+              const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
                   'Vivah Album',
@@ -202,6 +211,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     child:
                         const Center(child: Text('Placeholder for vivah album')),
                   ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Divider(
+                  thickness: 1,
+                  color: Colors.grey,
+                  indent: 20,
+                  endIndent: 20,
                 ),
               ),
               const Padding(
