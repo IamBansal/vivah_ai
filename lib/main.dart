@@ -7,9 +7,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vivah_ai/screens/auth/login/guest_login.dart';
 import 'main_screen.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
   await dotenv.load(fileName: '.env');
+  await FlutterConfig.loadEnvVariables();
   await Firebase.initializeApp();
   runApp(const MyApp());
 }
