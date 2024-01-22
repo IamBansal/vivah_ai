@@ -23,6 +23,24 @@
     <string>Your message to the user when the photo library is accessed</string>
     <key>NSAppleMusicUsageDescription</key>
     <string>Allow access to Apple Music for selecting music files</string>
+    <key>io.flutter.embedded.platform-incremental-compiler</key>
+    <string>11.6</string>
+    <key>io.flutter.embedded.platform-request-incremental-compilation</key>
+    <true/>
+    <key>io.flutter.embedded.platform-request-incremental-compilation.threshold</key>
+    <string>5</string>
+    <key>io.flutter.embedded.platform-version</key>
+    <string>3.6</string>
+    <key>io.flutter.embedded.platform-version-name</key>
+    <string>3.6</string>
+    <key>io.flutter.embedded.platform-version-platform</key>
+    <string>ios</string>
+    <key>io.flutter.embedded.platform-version-version</key>
+    <string>3.6</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Need access to location</string>
+    <key>io.flutter.embedded.platform-version-revision</key>
+    <string>3.6</string>
 	<key>CFBundleDisplayName</key>
 	<string>Vivah Ai</string>
 	<key>CFBundleExecutable</key>

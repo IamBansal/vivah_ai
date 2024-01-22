@@ -6,6 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
@@ -152,8 +154,7 @@ class ApiCalls {
   }
 
   static Future<String> getScreenshotPath(
-      ScreenshotController screenshotController,
-      BuildContext context) async {
+      ScreenshotController screenshotController, BuildContext context) async {
     try {
       final uint8List = await screenshotController.capture();
       final tempDir = await getTemporaryDirectory();
@@ -168,9 +169,9 @@ class ApiCalls {
     return '';
   }
 
-  static Future<void> shareDownloadVoiceInvite(bool download, [String? audioUrl]) async {
+  static Future<void> shareDownloadVoiceInvite(bool download,
+      [String? audioUrl]) async {
     try {
-
       final tempDir = await getTemporaryDirectory();
       final audioPath = '${tempDir.path}/audio.mp3';
 
@@ -184,7 +185,8 @@ class ApiCalls {
           await file.writeAsBytes(response.bodyBytes);
           debugPrint('Audio file downloaded at: $audioPath');
         } else {
-          debugPrint('Failed to download audio. Status code: ${response.statusCode}');
+          debugPrint(
+              'Failed to download audio. Status code: ${response.statusCode}');
         }
       }
     } catch (e) {
@@ -233,7 +235,7 @@ class ApiCalls {
     }
   }
 
-  static  Future<List<PhotoItem>> getPhotosList() async {
+  static Future<List<PhotoItem>> getPhotosList() async {
     String hashtag = (await LocalData.getName())!;
     List<PhotoItem> photo = [];
     try {
@@ -263,13 +265,13 @@ class ApiCalls {
     await uploadPic('photos', imagePath, category);
   }
 
-  static Future<void> uploadPic(String collection, String imagePath, String category) async {
+  static Future<void> uploadPic(
+      String collection, String imagePath, String category) async {
     String id = (FirebaseAuth.instance.currentUser?.uid)!;
     String hashtag = (await LocalData.getName())!;
     List<String> nameList = (await LocalData.getNameAndId())!;
 
-    String url =
-    (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
+    String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
     try {
       final firestore = FirebaseFirestore.instance.collection(collection);
       DocumentReference newDoc = await firestore.add({
@@ -300,7 +302,7 @@ class ApiCalls {
       if (snapshot.docs.isNotEmpty) {
         for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
           Map<String, dynamic>? data = entry.data();
-            ceremonies.add(Ceremony.fromMap(data!));
+          ceremonies.add(Ceremony.fromMap(data!));
         }
         debugPrint('Found the ceremony');
         return ceremonies;
@@ -343,14 +345,13 @@ class ApiCalls {
     final firestore = FirebaseFirestore.instance.collection('prompts');
     try {
       if (oldPrompt.isNotEmpty) {
-
         debugPrint('prompt already available');
 
-        await firestore.doc(oldPrompt[1]).update(
-            {'prompt': oldPrompt[0] + prompt});
+        await firestore
+            .doc(oldPrompt[1])
+            .update({'prompt': oldPrompt[0] + prompt});
 
         debugPrint('Prompt updated');
-
       } else {
         debugPrint('new prompt');
         String id = (FirebaseAuth.instance.currentUser?.uid)!;
@@ -362,9 +363,7 @@ class ApiCalls {
           'prompt': prompt,
         });
 
-        await firestore
-            .doc(newDoc.id)
-            .update({'promptId': newDoc.id});
+        await firestore.doc(newDoc.id).update({'promptId': newDoc.id});
 
         debugPrint('Prompt uploaded');
       }
@@ -377,7 +376,7 @@ class ApiCalls {
     await uploadPic('thumbnail', imagePath, category);
   }
 
-  static  Future<String> getThumbnail(String category) async {
+  static Future<String> getThumbnail(String category) async {
     String hashtag = (await LocalData.getName())!;
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
@@ -402,4 +401,64 @@ class ApiCalls {
     }
   }
 
+  static Future<bool> _handleLocationPermission(BuildContext context) async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location services are disabled. Please enable the services')));
+      return false;
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')));
+        return false;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
+      return false;
+    }
+    return true;
+  }
+
+  static Future<String> getCurrentPosition(BuildContext context) async {
+
+    try {
+      final hasPermission = await _handleLocationPermission(context);
+      if (!hasPermission) return '';
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      String address = await getAddressFromLatLng(position);
+      debugPrint('Address is $address');
+      return address;
+    } catch(e) {
+      debugPrint(e.toString());
+      return 'Error: $e';
+    }
+  }
+
+  static Future<String> getAddressFromLatLng(Position position) async {
+    try {
+      List<Placemark> placeMarks = await GeocodingPlatform.instance
+          .placemarkFromCoordinates(position.latitude, position.longitude,
+          localeIdentifier: 'en');
+      if (placeMarks.isNotEmpty) {
+        Placemark place = placeMarks[0];
+        return '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}';
+      } else {
+        return 'Unable to fetch address';
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      return 'Error: $e';
+    }
+  }
 }

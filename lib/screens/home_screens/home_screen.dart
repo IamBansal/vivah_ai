@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
+import 'package:vivah_ai/screens/map_screens/select_location.dart';
 import 'package:vivah_ai/widgets/custom_button.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import '../../main_screen.dart';
@@ -26,10 +27,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          backgroundColor: Color(0xFFFF7E2),
-          // backgroundColor: Colors.red,
+          backgroundColor: const Color(0x0ffff7e2),
       appBar: AppBar(
-        // backgroundColor: Color(0xFFAF3EC),
         backgroundColor: Colors.white,
         elevation: 0.2,
         automaticallyImplyLeading: false,
@@ -169,13 +168,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontSize: 17),
                 ),
               ),
-              Center(
-                child: Container(
+              const Center(
+                child: SizedBox(
                   height: 200,
                   width: 355,
-                  color: Colors.grey,
-                  child:
-                      const Center(child: Text('Placeholder for google maps')),
+                  child: MyMap(showLocation: true,),
                 ),
               ),
               const Padding(
@@ -548,7 +545,13 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                 hint: 'Ceremony Location',
                 icon: Icons.location_on_outlined,
                 expand: true,
-                onIconTap: (context) => null,
+                onIconTap: (context) => showSelectLocationDialog(),
+                // onIconTap: (context) => Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => const MyMap(showLocation: false),
+                //   ),
+                // ),
                 keyboardType: TextInputType.text,
               ),
               const SizedBox(height: 20),
@@ -580,6 +583,29 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
         ),
       ),
     );
+  }
+
+  void showSelectLocationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: const MyMap(showLocation: false,)),
+        );
+      },
+    );
+  }
+
+  void getCurrentLocation() async {
+    String address = await ApiCalls.getCurrentPosition(context);
+    setState(() {
+      _locationController.text = address;
+    });
   }
 
   String buttonText = 'Add ceremony';

@@ -7,6 +7,7 @@ import 'package:vivah_ai/widgets/custom_button.dart';
 import '../../providers/api_calls.dart';
 import '../../providers/shared_pref.dart';
 import '../../widgets/custom_text_field.dart';
+import '../map_screens/select_location.dart';
 import 'login/guest_login.dart';
 
 class InitialDetails extends StatefulWidget {
@@ -112,7 +113,7 @@ class _InitialDetailsState extends State<InitialDetails> {
               hint: 'Enter wedding\'s venue',
               icon: Icons.location_on_outlined,
               expand: true,
-              onIconTap: (context) => null,
+              onIconTap: (context) => showSelectLocationDialog(),
               keyboardType: TextInputType.text,
             ),
             const SizedBox(
@@ -167,6 +168,29 @@ class _InitialDetailsState extends State<InitialDetails> {
   void initState() {
     super.initState();
     _hashtagController.text = '#';
+  }
+
+  void showSelectLocationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: const MyMap(showLocation: false,)),
+        );
+      },
+    );
+  }
+
+  void getCurrentLocation() async {
+    String address = await ApiCalls.getCurrentPosition(context);
+    setState(() {
+      _venueController.text = address;
+    });
   }
 
   Future<void> addData(String bride, String groom, String hashtag, String venue,
