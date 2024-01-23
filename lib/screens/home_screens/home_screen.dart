@@ -12,6 +12,7 @@ import 'package:vivah_ai/widgets/custom_button.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import '../../models/ceremony.dart';
 import '../auth/login/guest_login.dart';
+import '../info_screen.dart';
 import 'ceremony_screen.dart';
 import 'highlights_screen.dart';
 
@@ -199,36 +200,33 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontSize: 17),
                         ),
                       ),
-                      Visibility(
-                        visible: model.photoList.isNotEmpty,
-                        child: GestureDetector(
-                          onTap: () {
-                            model.setTabIndex(2);
-                          },
+                      GestureDetector(
+                        onTap: () {
+                          model.setTabIndex(2);
+                        },
+                        child: SizedBox(
+                          height: 170,
                           child: SizedBox(
-                            height: 170,
-                            child: SizedBox(
-                              height: double.infinity,
-                              child: ListView.builder(
-                                controller: scrollController,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: model.photoList.length,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                    margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 5),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.network(
-                                        model.photoList[index].image,
-                                        width: 150,
-                                        height: 150,
-                                        fit: BoxFit.cover,
-                                      ),
+                            height: double.infinity,
+                            child: model.photoList.isNotEmpty ? ListView.builder(
+                              controller: scrollController,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: model.photoList.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 5),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.network(
+                                      model.photoList[index].image,
+                                      width: 150,
+                                      height: 150,
+                                      fit: BoxFit.cover,
                                     ),
-                                  );
-                                },
-                              ),
-                            ),
+                                  ),
+                                );
+                              },
+                            ) : const Text('Add some cool photos man!!'),
                           ),
                         ),
                       ),
@@ -257,11 +255,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: Center(
                           child: Container(
-                            height: 200,
-                            width: 355,
-                            color: Colors.grey,
-                            child:
-                            const Center(child: Text('Placeholder for chat bot')),
+                            decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(12)
+                            ),
+                            child: ListView.separated(
+                            shrinkWrap: true,
+                            reverse: true,
+                            padding: const EdgeInsets.only(top: 12, bottom: 20) +
+                                const EdgeInsets.symmetric(horizontal: 12),
+                            separatorBuilder: (_, __) => const SizedBox(
+                              height: 12,
+                            ),
+                            controller: scrollController,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: model.chatHistory.length <= 3 ? model.chatHistory.length : 3,
+                            itemBuilder: (context, index) {
+                              return ChatBubble(
+                                message: model.chatHistory[index]['message'],
+                                isSentByMe: model.chatHistory[index]['isUser'],
+                              );
+                            },
+                            ),
                           ),
                         ),
                       ),
