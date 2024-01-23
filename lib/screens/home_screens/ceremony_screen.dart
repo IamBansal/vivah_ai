@@ -11,7 +11,6 @@ import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 
 class CeremonyScreen extends StatefulWidget {
-  // final Ceremony ceremony;
   final MainViewModel model;
 
   const CeremonyScreen({super.key, required this.model});
@@ -137,7 +136,7 @@ class _CeremonyScreenState extends State<CeremonyScreen> {
   }
 
   void deleteCeremony(Ceremony ceremony) async {
-    model.deleteCeremony(ceremony.ceremonyId).whenComplete(() => Navigator.pop(context));
+    model.deleteCeremony(ceremony).whenComplete(() => Navigator.pop(context));
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('${ceremony.title} deleted successfully'),
       duration: const Duration(seconds: 2),

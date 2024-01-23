@@ -176,8 +176,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: SizedBox(
                           height: 200,
                           width: 355,
-                          // child: MyMap(showLocation: true,),
-                          child: Text('acbecbow'),
+                          child: MyMap(showLocation: true,),
+                          // child: Text('acbecbow'),
                         ),
                       ),
                       const Padding(
@@ -203,13 +203,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         visible: model.photoList.isNotEmpty,
                         child: GestureDetector(
                           onTap: () {
-                            // Navigator.pushReplacement(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) =>
-                            //         MainScreen(isBrideGroom: model.isCouple, index: 2),
-                            //   ),
-                            // );
                             model.setTabIndex(2);
                           },
                           child: SizedBox(
@@ -239,26 +232,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     Navigator.pushReplacement(
-                      //       context,
-                      //       MaterialPageRoute(
-                      //         builder: (context) =>
-                      //             MainScreen(isBrideGroom: model.isCouple, index: 2),
-                      //       ),
-                      //     );
-                      //   },
-                      //   child: Center(
-                      //     child: Container(
-                      //       height: 200,
-                      //       width: 355,
-                      //       color: Colors.grey,
-                      //       child: const Center(
-                      //           child: Text('Placeholder for vivah album')),
-                      //     ),
-                      //   ),
-                      // ),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8.0),
                         child: Divider(
@@ -280,13 +253,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          // Navigator.pushReplacement(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) =>
-                          //         MainScreen(isBrideGroom: model.isCouple, index: 3),
-                          //   ),
-                          // );
                           model.setTabIndex(3);
                         },
                         child: Center(
@@ -308,13 +274,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 CustomButton(
                   label: 'Record Blessing',
                   onButtonPressed: (context) => model.setTabIndex(1)
-                  //     Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) =>
-                  //         MainScreen(isBrideGroom: model.isCouple, index: 1),
-                  //   ),
-                  // ),
                 )
               ],
             ));
@@ -322,67 +281,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // late MainViewModel model;
   final firestore = FirebaseFirestore.instance;
-  // String userId = '';
-  // String bride = 'Bride';
-  // String groom = 'Groom';
-  // String hashtag = '';
-  // bool isBrideGroom = false;
-
-  // List<Ceremony> ceremonies = [];
   ScrollController scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    // model = widget.;
-    // _getHashTagAndId();
-  }
-
-  // Future<void> _getHashTagAndId() async {
-  //   String? hash = await LocalData.getName();
-  //   setState(() {
-  //     hashtag = hash!;
-  //   });
-  //   // _getCeremonyList();
-  //   // widget.model.getCeremonyList();
-  //   debugPrint(hashtag);
-  //
-  //   try {
-  //     QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
-  //         .collection('entries')
-  //         .where('hashtag', isEqualTo: hashtag)
-  //         .limit(1)
-  //         .get();
-  //     if (snapshot.docs.isNotEmpty) {
-  //       DocumentSnapshot<Map<String, dynamic>> firstEntry = snapshot.docs.first;
-  //       Map<String, dynamic>? data = firstEntry.data();
-  //       setState(() {
-  //         bride = data!['bride'].toString();
-  //         groom = data['groom'].toString();
-  //         userId = data['userId'].toString();
-  //       });
-  //       await LocalData.saveNameAndId(bride, groom, userId);
-  //
-  //       bool isCouple = await ApiCalls.isCouple();
-  //       setState(() {
-  //         // isBrideGroom = isCouple;
-  //       });
-  //
-  //       debugPrint('Found for bride groom');
-  //     } else {
-  //       debugPrint('No matching documents found for bride groom.');
-  //     }
-  //   } catch (error) {
-  //     debugPrint('Error querying entries: $error');
-  //   }
-  // }
-
-  // Future<void> _getCeremonyList() async {
-  //   ceremonies.clear();
-  //   ceremonies = await ApiCalls.getCeremonyList();
-  // }
 
   void showAddCeremonyDialog() {
     showDialog(
@@ -532,6 +432,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
   Widget build(BuildContext context) {
     return Consumer<MainViewModel>(
         builder: (context, model, child) {
+          _locationController.text = model.address;
           return SizedBox(
             height: MediaQuery.of(context).size.height * 0.6,
             child: SingleChildScrollView(
@@ -630,12 +531,6 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                       icon: Icons.location_on_outlined,
                       expand: true,
                       onIconTap: (context) => showSelectLocationDialog(),
-                      // onIconTap: (context) => Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const MyMap(showLocation: false),
-                      //   ),
-                      // ),
                       keyboardType: TextInputType.text,
                     ),
                     const SizedBox(height: 20),

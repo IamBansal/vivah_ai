@@ -7,6 +7,8 @@ class Ceremony {
   String userId;
   String hashtag;
   String ceremonyId;
+  double longitude;
+  double latitude;
 
   Ceremony({
     required this.title,
@@ -16,7 +18,9 @@ class Ceremony {
     required this.date,
     required this.userId,
     required this.hashtag,
-    required this.ceremonyId
+    required this.ceremonyId,
+    required this.longitude,
+    required this.latitude,
   });
 
   factory Ceremony.fromMap(Map<String, dynamic> map) {
@@ -29,6 +33,8 @@ class Ceremony {
       userId: map['userId'],
       hashtag: map['hashtag'],
       ceremonyId: map['ceremonyId'],
+      longitude: map['longitude'],
+      latitude: map['latitude'],
     );
   }
 
@@ -41,7 +47,9 @@ class Ceremony {
       'date': date,
       'userId' : userId,
       'hashtag': hashtag,
-      'ceremonyId': ceremonyId
+      'ceremonyId': ceremonyId,
+      'longitude': longitude,
+      'latitude': latitude
     };
   }
 }

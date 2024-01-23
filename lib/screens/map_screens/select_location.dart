@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import '../../models/address.dart';
+import 'package:provider/provider.dart';
+import 'package:vivah_ai/viewmodels/main_view_model.dart';
 
 class MyMap extends StatefulWidget {
   final bool showLocation;
@@ -12,34 +13,16 @@ class MyMap extends StatefulWidget {
 }
 
 class _MyMapState extends State<MyMap> {
-  final Set<Marker> _markers = {};
+  late MainViewModel model;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model = Provider.of<MainViewModel>(context, listen: false);
+      if(!widget.showLocation) { _getCurrentLocation(); }
+    });
     _checkLocationPermission();
-    if(widget.showLocation) {
-      List<Address> addresses = [
-        Address("Address 1", const LatLng(37.7749, -122.4194)),
-        Address("Address 2", const LatLng(34.0522, -118.2437)),
-      ];
-      for (var address in addresses) {
-        _markers.add(
-          Marker(
-            markerId: MarkerId(address.name),
-            position: address.location,
-              draggable: false,
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueRed),
-            onTap: () {
-              _showDetailsDialog(context, address);
-            },
-          ),
-        );
-      }
-    } else {
-      _getCurrentLocation();
-    }
   }
 
   final Location _location = Location();
@@ -95,46 +78,55 @@ class _MyMapState extends State<MyMap> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: GoogleMap(
-            myLocationEnabled: true,
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(37.7749, -122.4194),
-              zoom: 5.0,
+    return Consumer<MainViewModel>(
+      builder: (context, model, child){
+
+        return Column(
+          children: [
+            Expanded(
+              child: GoogleMap(
+                myLocationEnabled: true,
+                initialCameraPosition: const CameraPosition(
+                  target: LatLng(37.7749, -122.4194),
+                  zoom: 5.0,
+                ),
+                onMapCreated: (controller) async {
+                  setState(() {
+                    _mapController = controller;
+                    _mapController?.animateCamera(
+                      CameraUpdate.newLatLng(model.markers.first.position),
+                    );
+                  });
+                },
+                onTap: (LatLng latLng) {
+                  setState(() {
+                    _selectedLocation = latLng;
+                  });
+                },
+                markers: widget.showLocation ? model.markers : {
+                  Marker(
+                      markerId: const MarkerId('drop'),
+                      position: _selectedLocation,
+                      draggable: true,
+                      icon: BitmapDescriptor.defaultMarkerWithHue(
+                          BitmapDescriptor.hueRed)),
+                },
+              ),
             ),
-            onMapCreated: (controller) async {
-              setState(() {
-                _mapController = controller;
-              });
-            },
-            onTap: (LatLng latLng) {
-              setState(() {
-                _selectedLocation = latLng;
-              });
-            },
-            markers: widget.showLocation ? _markers : {
-              Marker(
-                  markerId: const MarkerId('drop'),
-                  position: _selectedLocation,
-                  draggable: true,
-                  icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueRed)),
-            },
-          ),
-        ),
-        const SizedBox(height: 16.0),
-        Visibility(
-          visible: !widget.showLocation,
-          child: ElevatedButton(
-            onPressed: () {
-              _showLocationDetailsDialog(context, _selectedLocation);
-            },
-            child: const Text('Select this Location'),
-          ),
-        ),
-      ],
+            const SizedBox(height: 16.0),
+            Visibility(
+              visible: !widget.showLocation,
+              child: ElevatedButton(
+                onPressed: () async {
+                  // _showLocationDetailsDialog(context, _selectedLocation);
+                  await model.getLocation(_selectedLocation.latitude, _selectedLocation.longitude).whenComplete(() => Navigator.of(context).pop());
+                },
+                child: const Text('Select this Location'),
+              ),
+            ),
+          ],
+        );
+      }
     );
   }
 
@@ -147,8 +139,8 @@ class _MyMapState extends State<MyMap> {
           content: Text('Latitude: ${location.latitude}\nLongitude: ${location.longitude}'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
+              onPressed: () async {
+                await model.getLocation(location.latitude, location.longitude).whenComplete(() => Navigator.of(context).pop());
               },
               child: const Text('Close'),
             ),
@@ -158,13 +150,13 @@ class _MyMapState extends State<MyMap> {
     );
   }
 
-  void _showDetailsDialog(BuildContext context, Address address) {
+  void _showDetailsDialog(BuildContext context, String address) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Address Details'),
-          content: Text(address.name),
+          content: Text(address),
           actions: [
             TextButton(
               onPressed: () {

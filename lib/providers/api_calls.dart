@@ -439,7 +439,7 @@ class ApiCalls {
       final hasPermission = await _handleLocationPermission(context);
       if (!hasPermission) return '';
       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      String address = await getAddressFromLatLng(position);
+      String address = await getAddressFromLatLng(position.latitude, position.longitude);
       debugPrint('Address is $address');
       return address;
     } catch(e) {
@@ -448,10 +448,10 @@ class ApiCalls {
     }
   }
 
-  static Future<String> getAddressFromLatLng(Position position) async {
+  static Future<String> getAddressFromLatLng(double lat, double lon) async {
     try {
       List<Placemark> placeMarks = await GeocodingPlatform.instance
-          .placemarkFromCoordinates(position.latitude, position.longitude,
+          .placemarkFromCoordinates(lat, lon,
           localeIdentifier: 'en');
       if (placeMarks.isNotEmpty) {
         Placemark place = placeMarks[0];

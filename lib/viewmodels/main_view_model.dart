@@ -3,7 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:vivah_ai/models/address.dart';
 import 'package:vivah_ai/viewmodels/base.dart';
 import '../models/blessing.dart';
 import '../models/ceremony.dart';
@@ -12,6 +14,7 @@ import '../models/photo.dart';
 import '../providers/api_calls.dart';
 import '../providers/shared_pref.dart';
 import 'package:http/http.dart' as http;
+import 'package:geocoding/geocoding.dart';
 
 class MainViewModel extends BaseViewModel {
   Future<void> init() async {
@@ -26,7 +29,7 @@ class MainViewModel extends BaseViewModel {
     prompt = promptAndId[0];
     promptId = promptAndId[1];
 
-    getCeremonyList();
+    getCeremonyList().whenComplete(() => getLocationList());
     getPhotoList();
     getBlessingsList();
     getGuestList();
@@ -108,7 +111,10 @@ class MainViewModel extends BaseViewModel {
       date: 'date',
       userId: 'userId',
       hashtag: 'hashtag',
-      ceremonyId: 'ceremonyId');
+      ceremonyId: 'ceremonyId',
+    latitude: 0,
+    longitude: 0
+  );
 
   Future<void> getCeremonyList() async {
     ceremonyList = await ApiCalls.getCeremonyList();
@@ -118,6 +124,7 @@ class MainViewModel extends BaseViewModel {
   Future<void> saveCeremonyToDB(String imagePath, String title, String desc,
       String location, String date) async {
     String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
+    final addressesList = await GeocodingPlatform.instance.locationFromAddress(location);
     try {
       final firestore = FirebaseFirestore.instance.collection('ceremonies');
       Ceremony cer = Ceremony(
@@ -128,7 +135,10 @@ class MainViewModel extends BaseViewModel {
           date: date,
           userId: userId,
           hashtag: hashtag,
-          ceremonyId: '');
+          ceremonyId: '',
+        latitude: addressesList.first.latitude,
+        longitude: addressesList.first.longitude,
+      );
       DocumentReference newDocumentRef = await firestore.add(cer.toMap());
 
       cer.ceremonyId = newDocumentRef.id;
@@ -137,6 +147,17 @@ class MainViewModel extends BaseViewModel {
           .update({'ceremonyId': newDocumentRef.id});
 
       ceremonyList.add(cer);
+      listForLocations.add(Address(cer.location, LatLng(cer.latitude, cer.longitude)));
+
+      markers.add(Marker(
+        markerId: MarkerId(cer.title),
+        position: LatLng(cer.latitude, cer.longitude),
+        draggable: false,
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueRed),
+      ));
+
+      address = '';
       notifyListeners();
       debugPrint('Ceremony added');
     } catch (e) {
@@ -144,12 +165,14 @@ class MainViewModel extends BaseViewModel {
     }
   }
 
-  Future<void> deleteCeremony(String ceremonyId) async {
+  Future<void> deleteCeremony(Ceremony ceremony) async {
     await FirebaseFirestore.instance
         .collection('ceremonies')
-        .doc(ceremonyId)
+        .doc(ceremony.ceremonyId)
         .delete();
-    ceremonyList.removeWhere((ceremony) => ceremony.ceremonyId == ceremonyId);
+    ceremonyList.removeWhere((item) => item.ceremonyId == ceremony.ceremonyId);
+    listForLocations.removeWhere((element) => element.name == ceremony.title);
+    markers.removeWhere((marker) => marker.markerId.value == ceremony.title);
     notifyListeners();
   }
 
@@ -375,6 +398,30 @@ class MainViewModel extends BaseViewModel {
     } catch (error) {
       debugPrint('Error querying entries: $error');
     }
+  }
+
+  String address = '';
+
+  Future<void> getLocation(double lat, double lon) async {
+    address = await ApiCalls.getAddressFromLatLng(lat, lon);
+    notifyListeners();
+  }
+
+  List<Address> listForLocations = [];
+  Set<Marker> markers = {};
+
+  void getLocationList(){
+    for(Ceremony event in ceremonyList) {
+      listForLocations.add(Address(event.location, LatLng(event.latitude, event.longitude)));
+      markers.add(Marker(
+        markerId: MarkerId(event.title),
+        position: LatLng(event.latitude, event.longitude),
+        draggable: false,
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueRed),
+      ));
+    }
+    notifyListeners();
   }
 
 // String thumbnailUrl = '';
