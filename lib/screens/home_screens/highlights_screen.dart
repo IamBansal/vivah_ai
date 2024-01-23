@@ -59,8 +59,8 @@ class _StoryScreenState extends State<StoryScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       model = Provider.of<MainViewModel>(context, listen: false);
+      _getHighlightsList();
     });
-    _getHighlightsList();
   }
 
   late MainViewModel model;

@@ -13,6 +13,18 @@ class LocalData {
     return prefs.getString(hashtagKey);
   }
 
+  static const String isCoupleKey = 'is_couple_key';
+
+  static Future<void> saveIsCouple(bool isCouple) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(isCoupleKey, isCouple);
+  }
+
+  static Future<bool?> getIsCouple() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(isCoupleKey);
+  }
+
   static const String guestNameKey = 'guest_name_key';
 
   static Future<void> saveGuestName(String name) async {

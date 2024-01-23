@@ -312,8 +312,8 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
   }
 
   void _getImageAndName() async {
-    String path = (await LocalData.getImage())!;
-    String name = (await LocalData.getGuestName())!;
+    String path = await LocalData.getImage() ?? '';
+    String name = await LocalData.getGuestName() ?? '${model.bride} | ${model.groom}';
 
     setState(() {
       imagePath = path;

@@ -204,25 +204,28 @@ class _GuestLoginState extends State<GuestLogin> {
         .collection('entries')
         .where('hashtag', isEqualTo: _hashtagController.text)
         .get();
-    return snapshot.size != 0;
+    bool valid = snapshot.size != 0;
+
+    if(valid) {
+      final data = snapshot.docs[0].data();
+      await LocalData.saveName(data['hashtag'])
+          .whenComplete(() async =>
+      await LocalData.saveNameAndId(
+          data['bride'], data['groom'], data['userId'])).whenComplete(() async => await LocalData.saveIsCouple(false));
+    }
+    return valid;
   }
 
   void saveAndNavigate() async {
-    if (await checkForHashtag()) {
-      await LocalData.saveGuestName(_nameController.text);
-      await LocalData.saveName(_hashtagController.text)
-          .whenComplete(() => Navigator.pushReplacement(
+      await LocalData.saveGuestName(_nameController.text).whenComplete(() async => await checkForHashtag() ? Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => const WelcomeScreen(),
         ),
-      ));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      ) : ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('No matching hashtag found'),
         duration: Duration(seconds: 2),
-      ));
-    }
+      )));
   }
 }
 
@@ -241,7 +244,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MainScreen(isBrideGroom: false, index: 0)),
+        MaterialPageRoute(builder: (context) => const MainScreen()),
       );
     });
   }

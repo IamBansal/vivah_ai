@@ -341,18 +341,18 @@ class ApiCalls {
     return [];
   }
 
-  static Future<void> saveUpdatePrompt(String prompt) async {
-    List<String> oldPrompt = await ApiCalls.getPromptAndId();
+  static Future<List<String>> saveUpdatePrompt(String prompt, String oldPrompt, String promptId) async {
     final firestore = FirebaseFirestore.instance.collection('prompts');
     try {
       if (oldPrompt.isNotEmpty) {
         debugPrint('prompt already available');
 
         await firestore
-            .doc(oldPrompt[1])
-            .update({'prompt': oldPrompt[0] + prompt});
+            .doc(promptId)
+            .update({'prompt': oldPrompt + prompt});
 
         debugPrint('Prompt updated');
+        return [oldPrompt + prompt, promptId];
       } else {
         debugPrint('new prompt');
         String id = (FirebaseAuth.instance.currentUser?.uid)!;
@@ -367,10 +367,12 @@ class ApiCalls {
         await firestore.doc(newDoc.id).update({'promptId': newDoc.id});
 
         debugPrint('Prompt uploaded');
+        return [prompt, newDoc.id];
       }
     } catch (e) {
       debugPrint('Error uploading prompt to Firestore: $e');
     }
+    return [oldPrompt, promptId];
   }
 
   static Future<void> uploadThumbnail(String imagePath, String category) async {

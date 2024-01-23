@@ -3,13 +3,11 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 import 'package:jumping_dot/jumping_dot.dart';
+import 'package:provider/provider.dart';
 import 'package:read_pdf_text/read_pdf_text.dart';
-import 'package:vivah_ai/providers/api_calls.dart';
-import 'dart:convert';
+import 'package:vivah_ai/viewmodels/main_view_model.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 
 class InfoScreen extends StatefulWidget {
@@ -22,181 +20,182 @@ class InfoScreen extends StatefulWidget {
 class _InfoScreenState extends State<InfoScreen> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.2,
-        automaticallyImplyLeading: false,
-        toolbarHeight: 90,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Vivah Guide',
-              style: GoogleFonts.carattere(
-                  textStyle: const TextStyle(
-                      color: Color(0xFF33201C),
-                      fontSize: 35,
-                      fontStyle: FontStyle.italic)),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                'Chat to get all details here',
-                style: TextStyle(color: Colors.black, fontSize: 12),
+    return Consumer<MainViewModel>(builder: (context, model, child) {
+      return SafeArea(
+          child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.2,
+          automaticallyImplyLeading: false,
+          toolbarHeight: 90,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Vivah Guide',
+                style: GoogleFonts.carattere(
+                    textStyle: const TextStyle(
+                        color: Color(0xFF33201C),
+                        fontSize: 35,
+                        fontStyle: FontStyle.italic)),
               ),
-            )
-          ],
-        ),
-        actions: [
-          Visibility(
-            visible: isCouple,
-            child: IconButton(
-                onPressed: () {
-                  pickFile(context);
-                },
-                icon: const Icon(
-                  Icons.edit_note_outlined,
-                  color: Color(0xFF33201C),
-                )),
-          ),
-        ],
-      ),
-      bottomSheet: DraggableScrollableSheet(
-          controller: dragController,
-          expand: false,
-          initialChildSize: 0.22,
-          minChildSize: 0.22,
-          maxChildSize: 0.5,
-          builder: (context, scrollController) {
-            return Container(
-              color: Colors.grey[200],
-              child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                        child: Divider(
-                          indent: 170,
-                          endIndent: 170,
-                          height: 5,
-                          thickness: 5,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: Text(
-                          'Ask a question about the wedding',
-                          style: TextStyle(
-                              color: Color(0xFF33201C),
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      CustomTextFieldWithIcon(
-                        controller: _askController,
-                        label: 'Ask me',
-                        hint: 'Ask anything',
-                        icon: Icons.send,
-                        expand: true,
-                        onIconTap: (context) => _askController.text.isNotEmpty
-                            ? sendMessageToChatGPT(_askController.text)
-                            : null,
-                        keyboardType: TextInputType.text,
-                      ),
-                      const SizedBox(height: 15),
-                      Wrap(
-                        spacing: 5.0,
-                        children: List<Widget>.generate(
-                          _options.length,
-                          (int index) {
-                            return ChoiceChip(
-                              label: Text(_options[index]),
-                              selected: _selectedChipIndex == index,
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  _selectedChipIndex = selected ? index : -1;
-                                  _askController.text =
-                                      _options[_selectedChipIndex];
-                                });
-                              },
-                              selectedColor: const Color(0xFF713C05),
-                              backgroundColor: Colors.grey,
-                              labelStyle: const TextStyle(color: Colors.white),
-                            );
-                          },
-                        ).toList(),
-                      )
-                    ],
-                  )),
-            );
-          }),
-      body: Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.2),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.separated(
-                shrinkWrap: true,
-                reverse: true,
-                padding: const EdgeInsets.only(top: 12, bottom: 20) +
-                    const EdgeInsets.symmetric(horizontal: 12),
-                separatorBuilder: (_, __) => const SizedBox(
-                  height: 12,
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  'Chat to get all details here',
+                  style: TextStyle(color: Colors.black, fontSize: 12),
                 ),
-                controller: scrollController,
-                itemCount: chatHistory.length,
-                itemBuilder: (context, index) {
-                  return ChatBubble(
-                    message: chatHistory[index]['message'],
-                    isSentByMe: chatHistory[index]['isUser'],
-                  );
-                },
-              ),
-            ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Visibility(
-                  visible: isBotTyping,
-                  child: JumpingDots(
-                    color: Colors.black,
-                    radius: 8,
-                    numberOfDots: 3,
+              )
+            ],
+          ),
+          actions: [
+            Visibility(
+              visible: model.isCouple,
+              child: IconButton(
+                  onPressed: () {
+                    pickFile(context);
+                  },
+                  icon: const Icon(
+                    Icons.edit_note_outlined,
+                    color: Color(0xFF33201C),
                   )),
-            )
+            ),
           ],
         ),
-      ),
-    ));
+        bottomSheet: DraggableScrollableSheet(
+            controller: dragController,
+            expand: false,
+            initialChildSize: 0.22,
+            minChildSize: 0.22,
+            maxChildSize: 0.5,
+            builder: (context, scrollController) {
+              return Container(
+                color: Colors.grey[200],
+                child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 10.0),
+                          child: Divider(
+                            indent: 170,
+                            endIndent: 170,
+                            height: 5,
+                            thickness: 5,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Text(
+                            'Ask a question about the wedding',
+                            style: TextStyle(
+                                color: Color(0xFF33201C),
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        CustomTextFieldWithIcon(
+                          controller: _askController,
+                          label: 'Ask me',
+                          hint: 'Ask anything',
+                          icon: Icons.send,
+                          expand: true,
+                          onIconTap: (context) {
+                            if (_askController.text.isNotEmpty) {
+                              setState(() {
+                                isBotTyping = true;
+                              });
+                              model.sendMessageToChatGPT(_askController.text);
+                              _updateUI();
+                            }
+                          },
+                          keyboardType: TextInputType.text,
+                        ),
+                        const SizedBox(height: 15),
+                        Wrap(
+                          spacing: 5.0,
+                          children: List<Widget>.generate(
+                            _options.length,
+                            (int index) {
+                              return ChoiceChip(
+                                label: Text(_options[index]),
+                                selected: _selectedChipIndex == index,
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    _selectedChipIndex = selected ? index : -1;
+                                    _askController.text =
+                                        _options[_selectedChipIndex];
+                                  });
+                                },
+                                selectedColor: const Color(0xFF713C05),
+                                backgroundColor: Colors.grey,
+                                labelStyle:
+                                    const TextStyle(color: Colors.white),
+                              );
+                            },
+                          ).toList(),
+                        )
+                      ],
+                    )),
+              );
+            }),
+        body: Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.2),
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  reverse: true,
+                  padding: const EdgeInsets.only(top: 12, bottom: 20) +
+                      const EdgeInsets.symmetric(horizontal: 12),
+                  separatorBuilder: (_, __) => const SizedBox(
+                    height: 12,
+                  ),
+                  controller: scrollController,
+                  itemCount: model.chatHistory.length,
+                  itemBuilder: (context, index) {
+                    return ChatBubble(
+                      message: model.chatHistory[index]['message'],
+                      isSentByMe: model.chatHistory[index]['isUser'],
+                    );
+                  },
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Visibility(
+                    visible: isBotTyping,
+                    child: JumpingDots(
+                      color: Colors.black,
+                      radius: 8,
+                      numberOfDots: 3,
+                    )),
+              )
+            ],
+          ),
+        ),
+      ));
+    });
   }
 
-  bool isCouple = false;
   bool isBotTyping = false;
+  final scrollController = ScrollController();
+  final dragController = DraggableScrollableController();
+  final _askController = TextEditingController();
+  int _selectedChipIndex = 0;
+  late MainViewModel model;
 
   @override
   void initState() {
     super.initState();
-    _isCouple();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model = Provider.of<MainViewModel>(context, listen: false);
+    });
   }
-
-  final scrollController = ScrollController();
-  final dragController = DraggableScrollableController();
-  final _askController = TextEditingController();
-  String apiKey = dotenv.env['API_KEY'] ?? '';
-  int _selectedChipIndex = 0;
-  String prompt = '';
-
-  List<Map<String, dynamic>> chatHistory = [
-    {
-      'message': 'How can I help you?',
-      'isUser': false,
-    },
-  ];
 
   final List<String> _options = [
     'How did you both meet?',
@@ -230,53 +229,10 @@ class _InfoScreenState extends State<InfoScreen> {
     }
   }
 
-  Future<void> sendMessageToChatGPT(String message) async {
-    setState(() {
-      isBotTyping = true;
-    });
-    List<String> promptAndId = await ApiCalls.getPromptAndId();
-    String prompt = promptAndId.isNotEmpty ? promptAndId[0] : 'No prompt';
-
-    debugPrint(prompt);
-
-    setState(() {
-      chatHistory.insert(0, {'message': message, 'isUser': true});
-    });
-    _askController.text = '';
-
-    final response = await http.post(
-      Uri.parse('https://api.openai.com/v1/chat/completions'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $apiKey',
-      },
-      body: jsonEncode({
-        'model': 'gpt-3.5-turbo',
-        'messages': [
-          {'role': 'system', 'content': prompt},
-          {'role': 'user', 'content': message}
-        ]
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      final chatResponse = responseData['choices'][0]['message']['content'];
-      setState(() {
-        isBotTyping = false;
-        chatHistory.insert(0, {'message': chatResponse, 'isUser': false});
-      });
-      debugPrint(chatResponse.toString());
-      _updateUI();
-      return chatResponse;
-    } else {
-      debugPrint(response.statusCode.toString());
-      throw Exception(
-          'Uh oh! Network Error\nYou are just a bit away, try again and beat the issue.');
-    }
-  }
-
   void _updateUI() {
+    setState(() {
+      isBotTyping = false;
+    });
     dragController.animateTo(
       0,
       duration: const Duration(milliseconds: 300),
@@ -287,13 +243,6 @@ class _InfoScreenState extends State<InfoScreen> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
-  }
-
-  void _isCouple() async {
-    bool isCoupleOrNot = await ApiCalls.isCouple();
-    setState(() {
-      isCouple = isCoupleOrNot;
-    });
   }
 }
 
@@ -336,59 +285,63 @@ class _PdfTextParsingDialogState extends State<PdfTextParsingDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      scrollable: true,
-      icon: const Icon(Icons.picture_as_pdf),
-      title: Text(parsingResult.isEmpty
-          ? 'Parsing your file.....'
-          : 'Parsed successfully'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: parsingResult.isEmpty
-                ? JumpingDots(
-                    color: Colors.black,
-                    radius: 8,
-                    numberOfDots: 3,
-                  )
-                : Text(
-                    parsingResult,
-                  ),
-          ),
-          Visibility(
-              visible: pages != 0,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  'Number of pages parsed: $pages',
-                  style: const TextStyle(
-                      overflow: TextOverflow.ellipsis, fontSize: 13),
+    return Consumer<MainViewModel>(
+      builder: (context, model, child){
+        return AlertDialog(
+          scrollable: true,
+          icon: const Icon(Icons.picture_as_pdf),
+          title: Text(parsingResult.isEmpty
+              ? 'Parsing your file.....'
+              : 'Parsed successfully'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: parsingResult.isEmpty
+                    ? JumpingDots(
+                  color: Colors.black,
+                  radius: 8,
+                  numberOfDots: 3,
+                )
+                    : Text(
+                  parsingResult,
                 ),
-              )),
-        ],
-      ),
-      actions: [
-        Visibility(
-          visible: parsingResult.isNotEmpty,
-          child: ElevatedButton(
-            onPressed: () {
-              ApiCalls.saveUpdatePrompt(parsingResult).whenComplete(() => Navigator.of(context).pop());
-            },
-            child: const Text('Upload'),
+              ),
+              Visibility(
+                  visible: pages != 0,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      'Number of pages parsed: $pages',
+                      style: const TextStyle(
+                          overflow: TextOverflow.ellipsis, fontSize: 13),
+                    ),
+                  )),
+            ],
           ),
-        ),
-        Visibility(
-          visible: parsingResult.isEmpty,
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Cancel'),
-          ),
-        ),
-      ],
+          actions: [
+            Visibility(
+              visible: parsingResult.isNotEmpty,
+              child: ElevatedButton(
+                onPressed: () {
+                  model.saveUpdatePrompt(parsingResult).whenComplete(() => Navigator.of(context).pop());
+                },
+                child: const Text('Upload'),
+              ),
+            ),
+            Visibility(
+              visible: parsingResult.isEmpty,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+            ),
+          ],
+        );
+      }
     );
   }
 }

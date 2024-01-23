@@ -10,7 +10,6 @@ import 'package:vivah_ai/screens/map_screens/select_location.dart';
 import 'package:vivah_ai/viewmodels/main_view_model.dart';
 import 'package:vivah_ai/widgets/custom_button.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
-import '../../main_screen.dart';
 import '../../models/ceremony.dart';
 import '../auth/login/guest_login.dart';
 import 'ceremony_screen.dart';
@@ -204,13 +203,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         visible: model.photoList.isNotEmpty,
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    MainScreen(isBrideGroom: model.isCouple, index: 2),
-                              ),
-                            );
+                            // Navigator.pushReplacement(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) =>
+                            //         MainScreen(isBrideGroom: model.isCouple, index: 2),
+                            //   ),
+                            // );
+                            model.setTabIndex(2);
                           },
                           child: SizedBox(
                             height: 170,
@@ -280,13 +280,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  MainScreen(isBrideGroom: model.isCouple, index: 3),
-                            ),
-                          );
+                          // Navigator.pushReplacement(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) =>
+                          //         MainScreen(isBrideGroom: model.isCouple, index: 3),
+                          //   ),
+                          // );
+                          model.setTabIndex(3);
                         },
                         child: Center(
                           child: Container(
@@ -306,13 +307,14 @@ class _HomeScreenState extends State<HomeScreen> {
               persistentFooterButtons: [
                 CustomButton(
                   label: 'Record Blessing',
-                  onButtonPressed: (context) => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          MainScreen(isBrideGroom: model.isCouple, index: 1),
-                    ),
-                  ),
+                  onButtonPressed: (context) => model.setTabIndex(1)
+                  //     Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) =>
+                  //         MainScreen(isBrideGroom: model.isCouple, index: 1),
+                  //   ),
+                  // ),
                 )
               ],
             ));

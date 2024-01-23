@@ -12,6 +12,7 @@ class Guest {
   String image;
   String memory;
   String audio;
+  String room;
 
   // Constructor
   Guest({
@@ -28,6 +29,7 @@ class Guest {
     required this.image,
     required this.memory,
     required this.audio,
+    required this.room
   });
 
   // Factory method to create a Guest instance from a Map
@@ -46,6 +48,7 @@ class Guest {
       image: map['image'],
       memory: map['memory'],
       audio: map['audio'],
+      room: map['room'],
     );
   }
 
@@ -65,6 +68,7 @@ class Guest {
       'image': image,
       'memory': memory,
       'audio': audio,
+      'room': room,
     };
   }
 }

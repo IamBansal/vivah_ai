@@ -75,7 +75,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Timer(const Duration(seconds: 3), () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const MainScreen(isBrideGroom: false, index: 0)),
+            MaterialPageRoute(builder: (context) => const MainScreen()),
           );
         });
       } else {
@@ -83,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen> {
           Navigator.pushReplacement(
             context,
             //TODO - CHANGE THIS isBrideGroom
-            MaterialPageRoute(builder: (context) => const MainScreen(isBrideGroom: true, index: 0)),
+            MaterialPageRoute(builder: (context) => const MainScreen()),
             // MaterialPageRoute(builder: (context) => const InitialDetails()),
           );
         });

@@ -22,163 +22,162 @@ class _CoupleLoginState extends State<CoupleLogin> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          body: SingleChildScrollView(
-            child: Align(
-              alignment: Alignment.center,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 50,),
-                  Text(
-                    'Vivah',
-                    style: GoogleFonts.carattere(
-                        textStyle: const TextStyle(
-                            color: Color(0xFF33201C),
-                            fontSize: 75,
-                            fontStyle: FontStyle.italic)),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 38.0),
-                    child: Text(
-                      'Your wedding, personalised',
-                      style: TextStyle(color: Color(0xFF33201C), fontSize: 15),
+      body: SingleChildScrollView(
+        child: Align(
+          alignment: Alignment.center,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 50,
+              ),
+              Text(
+                'Vivah',
+                style: GoogleFonts.carattere(
+                    textStyle: const TextStyle(
+                        color: Color(0xFF33201C),
+                        fontSize: 75,
+                        fontStyle: FontStyle.italic)),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 38.0),
+                child: Text(
+                  'Your wedding, personalised',
+                  style: TextStyle(color: Color(0xFF33201C), fontSize: 15),
+                ),
+              ),
+              SizedBox(
+                width: 340,
+                child: TextField(
+                  keyboardType: TextInputType.emailAddress,
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    fillColor: const Color(0xFFDFDFDF),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: const BorderSide(color: Color(0xFF33201C)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: const BorderSide(color: Color(0xFF33201C)),
+                    ),
+                    hintText: 'Enter your email',
+                    hintStyle: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.grey,
+                    ),
+                    hintMaxLines: 1,
+                    labelText: 'Email',
+                    labelStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16.0,
                     ),
                   ),
-                  SizedBox(
-                    width: 340,
-                    child: TextField(
-                      keyboardType: TextInputType.emailAddress,
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        fillColor: const Color(0xFFDFDFDF),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25.0),
-                          borderSide: const BorderSide(color: Color(0xFF33201C)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25.0),
-                          borderSide: const BorderSide(color: Color(0xFF33201C)),
-                        ),
-                        hintText: 'Enter your email',
-                        hintStyle: const TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.grey,
-                        ),
-                        hintMaxLines: 1,
-                        labelText: 'Email',
-                        labelStyle: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 16.0,
-                        ),
+                  textAlignVertical: TextAlignVertical.center,
+                  style: const TextStyle(color: Color(0xFF33201C)),
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: 340,
+                child: TextField(
+                  controller: _passwordController,
+                  obscureText: _obscureText,
+                  decoration: InputDecoration(
+                    fillColor: const Color(0xFFDFDFDF),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: const BorderSide(color: Color(0xFF33201C)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: const BorderSide(color: Color(0xFF33201C)),
+                    ),
+                    hintText: 'Enter your password',
+                    hintStyle: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.grey,
+                    ),
+                    hintMaxLines: 1,
+                    labelText: 'Password',
+                    labelStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16.0,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility : Icons.visibility_off,
+                        color: const Color(0xFF33201C),
                       ),
-                      textAlignVertical: TextAlignVertical.center,
-                      style: const TextStyle(color: Color(0xFF33201C)),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: 340,
-                    child: TextField(
-                      controller: _passwordController,
-                      obscureText: _obscureText,
-                      decoration: InputDecoration(
-                        fillColor: const Color(0xFFDFDFDF),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25.0),
-                          borderSide: const BorderSide(color: Color(0xFF33201C)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25.0),
-                          borderSide: const BorderSide(color: Color(0xFF33201C)),
-                        ),
-                        hintText: 'Enter your password',
-                        hintStyle: const TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.grey,
-                        ),
-                        hintMaxLines: 1,
-                        labelText: 'Password',
-                        labelStyle: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 16.0,
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureText
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: const Color(0xFF33201C),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
-                        ),
-                      ),
-                      textAlignVertical: TextAlignVertical.center,
-                      style: const TextStyle(color: Color(0xFF33201C)),
-                    ),
-                  ),
-                  const SizedBox(height: 50),
-                  CustomButton(
-                      label: 'Login',
-                      onButtonPressed: (context) => Navigator.pushReplacement(
+                  textAlignVertical: TextAlignVertical.center,
+                  style: const TextStyle(color: Color(0xFF33201C)),
+                ),
+              ),
+              const SizedBox(height: 50),
+              CustomButton(
+                  label: 'Login',
+                  onButtonPressed: (context) => Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const InitialDetails(),
                         ),
                       )),
-                  const SizedBox(height: 40),
-                  const Text(
-                    "or log in with",
+              const SizedBox(height: 40),
+              const Text(
+                "or log in with",
+                style: TextStyle(color: Color(0xFF33201C)),
+              ),
+              const SizedBox(height: 30),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 35.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                            onTap: () async {
+                              await _signInWithGoogle();
+                            },
+                            child: const ImageButton(
+                                imagePath: 'assets/google.png')),
+                      ),
+                      if (Platform.isIOS)
+                        const Expanded(
+                          child: ImageButton(imagePath: 'assets/apple.png'),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 28.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const GuestLogin()),
+                    );
+                  },
+                  child: const Text(
+                    "Log in as guest",
                     style: TextStyle(color: Color(0xFF33201C)),
                   ),
-                  const SizedBox(height: 30),
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 35.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                                onTap: () async {
-                                  await _signInWithGoogle();
-                                },
-                                child: const ImageButton(
-                                    imagePath: 'assets/google.png')),
-                          ),
-                          if (Platform.isIOS)
-                            const Expanded(
-                              child: ImageButton(
-                                  imagePath: 'assets/apple.png'),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 28.0),
-                    child: GestureDetector(
-                      onTap: (){
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const GuestLogin()),
-                        );
-                      },
-                      child: const Text(
-                        "Log in as guest",
-                        style: TextStyle(color: Color(0xFF33201C)),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
+                ),
+              )
+            ],
           ),
-        ));
+        ),
+      ),
+    ));
   }
 
   Future<UserCredential?> _signInWithGoogle() async {
@@ -188,14 +187,14 @@ class _CoupleLoginState extends State<CoupleLogin> {
       if (googleUser == null) return null;
 
       final GoogleSignInAuthentication googleAuth =
-      await googleUser.authentication;
+          await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
       UserCredential userCredential =
-      await FirebaseAuth.instance.signInWithCredential(credential);
+          await FirebaseAuth.instance.signInWithCredential(credential);
 
       final firestore = FirebaseFirestore.instance;
 
@@ -209,16 +208,22 @@ class _CoupleLoginState extends State<CoupleLogin> {
           'id': userCredential.user?.uid,
           'email': userCredential.user!.email.toString(),
         }).whenComplete(() => Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const InitialDetails()),
-        ));
+              context,
+              MaterialPageRoute(builder: (context) => const InitialDetails()),
+            ));
       } else {
-        await LocalData.saveName('#AniKaTanmay');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const MainScreen(isBrideGroom: true, index: 0)),
-        );
+
+        final data = snapshot.docs[0].data();
+        await LocalData.saveName(data['hashtag'])
+            .whenComplete(() async => await LocalData.saveNameAndId(
+                data['bride'], data['groom'], data['userId'])).whenComplete(() async =>
+        await LocalData.saveIsCouple(true))
+            .whenComplete(() => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const MainScreen()),
+                ));
       }
     } catch (e) {
       debugPrint("Google Sign-In Failed: $e");
