@@ -97,6 +97,14 @@ class _StoryScreenState extends State<StoryScreen> {
                 duration: const Duration(seconds: 3)));
           });
         }
+      } else {
+        for (PhotoItem item in model.storyList) {
+          setState(() {
+            storyItems.add(StoryItem(
+                StoryWidgetOthers(image: item.image, text: ''),
+                duration: const Duration(seconds: 3)));
+          });
+        }
       }
       return storyItems;
     } catch (error) {

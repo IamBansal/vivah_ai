@@ -69,12 +69,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           HighlightItem(
-                            title: 'Our story',
+                            title: 'Story',
                             onItemPressed: (context) => Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const StoryScreen(
-                                      filter: '',
+                                      filter: 'story',
                                     ))),
                           ),
                           HighlightItem(
@@ -339,7 +339,7 @@ class _HighlightItemState extends State<HighlightItem> {
                   }
                 },
                 onLongPress: () {
-                  showMenu(
+                  model.isCouple ? showMenu(
                     context: context,
                     position: calculatePosition(),
                     items: [
@@ -356,7 +356,7 @@ class _HighlightItemState extends State<HighlightItem> {
                         },
                         child: const Text('Edit thumbnail'),
                       ),
-                      PopupMenuItem(
+                      if (widget.title == 'Memories') PopupMenuItem(
                         value: 'upload',
                         onTap: () async {
                           String path =
@@ -369,8 +369,19 @@ class _HighlightItemState extends State<HighlightItem> {
                         },
                         child: const Text('Upload memory'),
                       ),
+                      if (widget.title == 'Story') PopupMenuItem(
+                        value: 'upload',
+                        onTap: () async {
+                          String path = (await ApiCalls.getImage(ImageSource.gallery))!;
+                          model.saveStoryToDB(path).whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                  Text('Story uploaded successfully'))));
+                        },
+                        child: const Text('Upload story'),
+                      ),
                     ],
-                  );
+                  ) : null;
                 },
                 child: Container(
                     width: 70,
