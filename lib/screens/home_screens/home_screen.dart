@@ -76,6 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     builder: (context) => const StoryScreen(
                                       filter: 'story',
                                     ))),
+                            enable: model.storyList.isNotEmpty,
                           ),
                           HighlightItem(
                               title: 'Memories',
@@ -83,7 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => const StoryScreen(
-                                          filter: 'photos',)))),
+                                          filter: 'photos',))),
+                            enable: model.photoList.isNotEmpty,),
                           HighlightItem(
                               title: 'Blessings',
                               onItemPressed: (context) => Navigator.push(
@@ -91,7 +93,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   MaterialPageRoute(
                                       builder: (context) => const StoryScreen(
                                           filter: 'blessings',
-                                      )))),
+                                      ))),
+                            enable: model.blessingList.isNotEmpty,),
                           HighlightItem(
                               title: 'Others',
                               onItemPressed: (context) => Navigator.push(
@@ -99,7 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   MaterialPageRoute(
                                       builder: (context) => const StoryScreen(
                                           filter: 'others',
-                                      )))),
+                                      ))),
+                            enable: model.ceremonyList.isNotEmpty,),
                         ],
                       ),
                       const Padding(
@@ -178,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 200,
                           width: 355,
                           child: MyMap(showLocation: true,),
-                          // child: Text('acbecbow'),
+                          // child: Text('n'),
                         ),
                       ),
                       const Padding(
@@ -226,7 +230,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 );
                               },
-                            ) : const Text('Add some cool photos man!!'),
+                            ) : const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text('Add some cool photos man!!'),
+                            ),
                           ),
                         ),
                       ),
@@ -315,11 +322,12 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class HighlightItem extends StatefulWidget {
+  final bool enable;
   final String title;
   final Function(BuildContext)? onItemPressed;
 
   const HighlightItem(
-      {super.key, required this.title, required this.onItemPressed});
+      {super.key, required this.title, required this.onItemPressed, required this.enable});
 
   @override
   State<HighlightItem> createState() => _HighlightItemState();
@@ -334,12 +342,12 @@ class _HighlightItemState extends State<HighlightItem> {
             children: [
               GestureDetector(
                 onTap: () {
-                  if (widget.onItemPressed != null) {
+                  if (widget.onItemPressed != null && widget.enable) {
                     widget.onItemPressed!(context);
                   }
                 },
                 onLongPress: () {
-                  model.isCouple ? showMenu(
+                  widget.enable ? model.isCouple ? showMenu(
                     context: context,
                     position: calculatePosition(),
                     items: [
@@ -348,7 +356,7 @@ class _HighlightItemState extends State<HighlightItem> {
                         onTap: () async {
                           String path =
                           (await ApiCalls.getImage(ImageSource.gallery))!;
-                          ApiCalls.uploadThumbnail(path, widget.title).whenComplete(
+                          model.saveUpdateThumbnail(path, widget.title).whenComplete(
                                   () => ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content:
@@ -361,7 +369,7 @@ class _HighlightItemState extends State<HighlightItem> {
                         onTap: () async {
                           String path =
                           (await ApiCalls.getImage(ImageSource.gallery))!;
-                          ApiCalls.uploadPhoto(path, 'Memory').whenComplete(() =>
+                          model.savePhotoToDB(path, 'Memory').whenComplete(() =>
                           model.getPhotoList().whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content:
@@ -381,7 +389,7 @@ class _HighlightItemState extends State<HighlightItem> {
                         child: const Text('Upload story'),
                       ),
                     ],
-                  ) : null;
+                  ) : null : null;
                 },
                 child: Container(
                     width: 70,
@@ -392,14 +400,12 @@ class _HighlightItemState extends State<HighlightItem> {
                     child: Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: ClipOval(
-                          child: thumbnailPath.isNotEmpty
-                              ? Image.network(
-                            thumbnailPath,
+                          child: model.thumbnailList.where((thumbnail) => thumbnail.category == widget.title).toList().isNotEmpty ? Image.network(
+                              model.thumbnailList.where((thumbnail) => thumbnail.category == widget.title).toList().first.image,
                             width: 120,
                             height: 120,
                             fit: BoxFit.cover,
-                          )
-                              : Image.asset(
+                          ) : Image.asset(
                             'assets/pic.png',
                             width: 120,
                             height: 120,
@@ -417,12 +423,6 @@ class _HighlightItemState extends State<HighlightItem> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _getThumbnail();
-  }
-
   RelativeRect calculatePosition() {
     RenderBox renderBox = context.findRenderObject() as RenderBox;
     var offset = renderBox.localToGlobal(Offset.zero);
@@ -434,15 +434,6 @@ class _HighlightItemState extends State<HighlightItem> {
       screenSize.height - offset.dy,
     );
     return position;
-  }
-
-  String thumbnailPath = '';
-
-  void _getThumbnail() async {
-    String path = await ApiCalls.getThumbnail(widget.title);
-    setState(() {
-      thumbnailPath = path;
-    });
   }
 }
 
@@ -726,35 +717,40 @@ class MyPopupMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
-      icon: const Icon(
-        Icons.more_vert,
-        color: Color(0xFF33201C),
-      ),
-      onSelected: (String result) {
-        handleMenuItemSelected(result, context);
-      },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
-          value: 'logout',
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.logout,
-                color: Color(0xFF33201C),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(
-                  'Sign out',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ),
-            ],
+    return Consumer<MainViewModel>(
+      builder: (context, model, child){
+        return PopupMenuButton<String>(
+          icon: const Icon(
+            Icons.more_vert,
+            color: Color(0xFF33201C),
           ),
-        ),
-      ],
+          onSelected: (String result) {
+            model.clearAll();
+            handleMenuItemSelected(result, context);
+          },
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            const PopupMenuItem<String>(
+              value: 'logout',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.logout,
+                    color: Color(0xFF33201C),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      'Sign out',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }
     );
   }
 
