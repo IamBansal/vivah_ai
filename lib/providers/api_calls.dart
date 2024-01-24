@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -152,6 +153,52 @@ class ApiCalls {
       }
     } catch (e) {
       debugPrint('Error: $e');
+    }
+  }
+
+  static Future<void> createShareVideo(ScreenshotController screenshotController, String audioPath) async {
+    final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
+
+    final uint8List = await screenshotController.capture();
+    final tempDir = await getTemporaryDirectory();
+    final imagePath = '${tempDir.path}/image.png';
+
+    File imageFile = File(imagePath);
+    await imageFile.writeAsBytes(uint8List!);
+
+    Directory? directory = await getExternalStorageDirectory();
+    if (Directory("${directory!.path.toString()}/Stikkr").existsSync()) {
+      Directory("${directory.path.toString()}/Stikkr")
+          .createSync(recursive: true);
+    }
+    String path = directory.path;
+    String outputVideo = "$path/output_video.mp4";
+
+    // Ensure the output directory exists
+    await Directory(outputVideo).parent.create(recursive: true);
+
+    List<String> arguments = [
+      '-loop', '1',
+      '-i', imagePath,
+      '-i', audioPath,
+      '-c:v', 'mpeg4',
+      '-c:a', 'aac',
+      '-strict', 'experimental',
+      '-b:a', '192k',
+      '-shortest',
+      outputVideo,
+    ];
+
+    int returnCode = await _flutterFFmpeg.executeWithArguments(arguments);
+    debugPrint("Video creation process exited with code $returnCode");
+
+    if (await File(outputVideo).exists()) {
+      await Share.shareFiles(
+        [outputVideo],
+        text: 'Sharing it as a video' ?? '',
+      );
+    } else {
+      debugPrint("Error: Video file does not exist.");
     }
   }
 

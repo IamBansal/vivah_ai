@@ -382,8 +382,6 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                       content: Text('Guest deleted successfully'),
                                       duration: Duration(seconds: 2),
                                     )));
-                                    // model.ladkiVale.removeAt(index);
-                                    // _getGuestList();
                                   }
                                 },
                                 child: Card(
@@ -475,8 +473,6 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                       content: Text('Guest deleted successfully'),
                                       duration: Duration(seconds: 2),
                                     )));
-                                    // model.ladkeVale.removeAt(index);
-                                    // _getGuestList();
                                   }
                                 },
                                 child: Card(

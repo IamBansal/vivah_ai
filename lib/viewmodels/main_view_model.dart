@@ -203,6 +203,56 @@ class MainViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  List<PhotoItem> storyList = [];
+
+  Future<void> saveStoryToDB(String imagePath) async {
+    String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
+    try {
+    final firestore = FirebaseFirestore.instance.collection('stories');
+    PhotoItem story = PhotoItem.fromMap({
+      'hashtag': hashtag,
+      'addedBy': userId,
+      'image': url,
+      'name': '$bride | $groom',
+      'category': 'story',
+      'photoId' : ''
+    });
+    DocumentReference newDoc = await firestore.add(story.toMap());
+
+    await firestore.doc(newDoc.id).update({'photoId': newDoc.id});
+
+    story.photoId = newDoc.id;
+    storyList.add(story);
+    notifyListeners();
+
+    debugPrint('Story uploaded');
+    } catch (e) {
+    debugPrint('Error uploading Story to Firestore: $e');
+    }
+  }
+
+  Future<void> getStoryPhotoList() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('stories')
+          .where('hashtag', isEqualTo: hashtag)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+          storyList.add(PhotoItem.fromMap(data!));
+        }
+        notifyListeners();
+        debugPrint('Found the stories');
+      } else {
+        debugPrint('No matching documents found.');
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+    }
+  }
+
   Future<void> saveBlessingToDB(String filePath) async {
     String id = (FirebaseAuth.instance.currentUser?.uid)!;
     String name =
@@ -312,7 +362,8 @@ class MainViewModel extends BaseViewModel {
       String audioPath,
       Guest guest,
       String memory,
-      int indexInList) async {
+      int indexInList,
+      String cartoonImage) async {
     try {
       guestCreateInviteButtonText = 'Creating your invite....';
       notifyListeners();
@@ -330,13 +381,15 @@ class MainViewModel extends BaseViewModel {
         'image': url,
         'memory': memory,
         'audio': audioUrl,
-        'isCreated': true
+        'isCreated': true,
+        'url': cartoonImage
       });
 
       guest.isCreated = true;
       guest.image = url!;
       guest.memory = memory;
       guest.audio = audioUrl;
+      guest.url = cartoonImage;
 
       if (guest.team == 'Ladki wale') {
         ladkiVale.removeAt(indexInList);
