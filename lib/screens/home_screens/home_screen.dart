@@ -242,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
-                          'Vivah bot',
+                          'Vivah Guide',
                           style: TextStyle(
                               color: Color(0xFF33201C),
                               fontWeight: FontWeight.bold,
@@ -256,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Center(
                           child: Container(
                             decoration: BoxDecoration(
-                                color: Colors.grey[300],
+                                color: const Color(0xFFFBEDEA),
                                 borderRadius: BorderRadius.circular(12)
                             ),
                             child: ListView.separated(
@@ -547,6 +547,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                       expand: true,
                       onIconTap: (context) => showSelectLocationDialog(),
                       keyboardType: TextInputType.text,
+                      readOnly: false,
                     ),
                     const SizedBox(height: 20),
                     CustomTextFieldWithIcon(
@@ -559,6 +560,7 @@ class _AddNewCeremonyState extends State<AddNewCeremony> {
                         _dateController.text = (await ApiCalls.selectDate(context))!
                       },
                       keyboardType: TextInputType.text,
+                      readOnly: true,
                     ),
                     const SizedBox(height: 20),
                     Center(

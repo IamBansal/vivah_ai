@@ -134,6 +134,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                         onIconTap: (context) => _importContact(),
                         keyboardType:
                         const TextInputType.numberWithOptions(decimal: false),
+                        readOnly: false,
                       ),
                       const SizedBox(
                         height: 15,
@@ -168,12 +169,12 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(30.0),
                                         borderSide:
-                                        const BorderSide(color: Color(0xFF5271EF)),
+                                        const BorderSide(color: Color(0xFF4F2E22)),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(30.0),
                                         borderSide:
-                                        const BorderSide(color: Color(0xFF5271EF)),
+                                        const BorderSide(color: Color(0xFF4F2E22)),
                                       ),
                                     ),
                                     dropdownMenuEntries: list
@@ -195,12 +196,12 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(30.0),
                                         borderSide:
-                                        const BorderSide(color: Color(0xFF5271EF)),
+                                        const BorderSide(color: Color(0xFF4F2E22)),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(30.0),
                                         borderSide:
-                                        const BorderSide(color: Color(0xFF5271EF)),
+                                        const BorderSide(color: Color(0xFF4F2E22)),
                                       ),
                                     ),
                                     dropdownMenuEntries: listTeam
@@ -262,7 +263,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                             children: [
                                               ListTile(
                                                 leading: const Icon(Icons.camera,
-                                                    color: Color(0xFF5271EF)),
+                                                    color: Color(0xFF4F2E22)),
                                                 title: const Text('Take Photo'),
                                                 onTap: () async {
                                                   Navigator.pop(
@@ -278,7 +279,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                               ListTile(
                                                 leading: const Icon(
                                                   Icons.photo_library,
-                                                  color: Color(0xFF5271EF),
+                                                  color: Color(0xFF4F2E22),
                                                 ),
                                                 title:
                                                 const Text('Choose from Gallery'),
@@ -304,7 +305,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                       decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                              color: const Color(0xFF5271EF),
+                                              color: const Color(0xFF4F2E22),
                                               width: 1)),
                                       child: Padding(
                                         padding: const EdgeInsets.all(2.0),
@@ -316,7 +317,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                         )
                                             : const Icon(
                                           Icons.add_a_photo,
-                                          color: Color(0xFF5271EF),
+                                          color: Color(0xFF4F2E22),
                                         ),
                                       )),
                                 ),
@@ -361,7 +362,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                 style: TextStyle(
                                     color: Color(0xFF33201C), fontWeight: FontWeight.bold),
                               ),
-                              Chip(label: Text(model.ladkiVale.length.toString()), backgroundColor: const Color(0xFFC58D80)),
+                              Chip(label: Text(model.ladkiVale.length.toString()), backgroundColor: const Color(0xFFFBEDEA)),
                             ],
                           ),
                         ),
@@ -413,7 +414,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                       children: [
                                         Visibility(visible: model.ladkiVale[index].isCreated,child: const Icon(Icons.check, color: Colors.green,),),
                                         const SizedBox(width: 5,),
-                                        const Icon(Icons.arrow_forward),
+                                        const Icon(Icons.arrow_forward, color: Color(0xFF4F2E22),),
                                       ],
                                     ),
                                     onTap: () {
@@ -453,7 +454,7 @@ class _GuestListScreenState extends State<GuestListScreen> {
                                 style: TextStyle(
                                     color: Color(0xFF33201C), fontWeight: FontWeight.bold),
                               ),
-                              Chip(label: Text(model.ladkeVale.length.toString()), backgroundColor: const Color(0xFFC58D80),),
+                              Chip(label: Text(model.ladkeVale.length.toString()), backgroundColor: const Color(0xFFFBEDEA),),
                             ],
                           ),
                         ),

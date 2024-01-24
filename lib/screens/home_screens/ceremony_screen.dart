@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:vivah_ai/models/ceremony.dart';
 import 'package:vivah_ai/viewmodels/main_view_model.dart';
@@ -110,7 +111,7 @@ class _CeremonyScreenState extends State<CeremonyScreen> {
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8.0, top: 8),
                             child: Text(
-                              'Mark your presence on ${model.ceremony.date} at ${model.ceremony.location}',
+                              'Mark your presence on ${getDateInFormat(model.ceremony.date)} at ${model.ceremony.location}',
                               style: const TextStyle(color: Color(0xFF33201C), fontSize: 14),
                             ),
                           )
@@ -155,6 +156,16 @@ class _CeremonyScreenState extends State<CeremonyScreen> {
         );
       },
     );
+  }
+
+  getDateInFormat(String date) {
+    List<String> dateParts = date.split('-');
+    int year = int.parse(dateParts[0]);
+    int month = int.parse(dateParts[1]);
+    int day = int.parse(dateParts[2]);
+
+    DateTime dateTime = DateTime(year, month, day);
+    return DateFormat('MMMM dd, yyyy').format(dateTime);
   }
 }
 
@@ -269,6 +280,7 @@ class _UpdateCeremonyState extends State<UpdateCeremony> {
                 expand: true,
                 onIconTap: (context) => null,
                 keyboardType: TextInputType.text,
+                readOnly: false,
               ),
               const SizedBox(height: 20),
               CustomTextFieldWithIcon(
@@ -281,6 +293,7 @@ class _UpdateCeremonyState extends State<UpdateCeremony> {
                   _dateController.text = (await ApiCalls.selectDate(context))!
                 },
                 keyboardType: TextInputType.text,
+                readOnly: true,
               ),
               const SizedBox(height: 20),
               Center(

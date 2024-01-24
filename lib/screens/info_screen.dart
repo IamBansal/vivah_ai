@@ -112,6 +112,7 @@ class _InfoScreenState extends State<InfoScreen> {
                             }
                           },
                           keyboardType: TextInputType.text,
+                          readOnly: false,
                         ),
                         const SizedBox(height: 15),
                         Wrap(
@@ -361,7 +362,7 @@ class ChatBubble extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         decoration: BoxDecoration(
-          color: isSentByMe ? const Color(0xFF713C05) : Colors.grey,
+          color: isSentByMe ? const Color(0xFFC58D80) : const Color(0xFF4F2E22),
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(isSentByMe ? 12.0 : 0.0),
             topRight: Radius.circular(isSentByMe ? 0.0 : 12.0),
@@ -371,7 +372,7 @@ class ChatBubble extends StatelessWidget {
         ),
         child: Text(
           message,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: isSentByMe ? const Color(0xFF4F2E22) : Colors.white),
         ),
       ),
     );

@@ -119,6 +119,7 @@ class _InitialDetailsState extends State<InitialDetails> {
                       expand: true,
                       onIconTap: (context) => showSelectLocationDialog(),
                       keyboardType: TextInputType.text,
+                      readOnly: false,
                     ),
                     const SizedBox(
                       height: 15,
@@ -133,6 +134,7 @@ class _InitialDetailsState extends State<InitialDetails> {
                         _dateController.text = (await ApiCalls.selectDate(context))!
                       },
                       keyboardType: TextInputType.text,
+                      readOnly: true,
                     ),
                     const SizedBox(
                       height: 15,

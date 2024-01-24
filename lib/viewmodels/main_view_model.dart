@@ -417,6 +417,9 @@ class MainViewModel extends BaseViewModel {
         markerId: MarkerId(event.title),
         position: LatLng(event.latitude, event.longitude),
         draggable: false,
+        infoWindow: InfoWindow(
+          title: event.title,
+        ),
         icon: BitmapDescriptor.defaultMarkerWithHue(
             BitmapDescriptor.hueRed),
       ));

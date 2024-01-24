@@ -47,7 +47,7 @@ class _GuestLoginState extends State<GuestLogin> {
                   ),
                   CustomTextField(controller: _nameController, label: 'Name', hint: 'Enter your name', expand: false),
                   const SizedBox(height: 20),
-                  CustomTextFieldWithIcon(controller: _phoneController, label: 'Phone number', hint: 'Enter your phone number', icon: Icons.add_call, expand: false, onIconTap: (context) => _importContact(), keyboardType: TextInputType.phone),
+                  CustomTextFieldWithIcon(controller: _phoneController, label: 'Phone number', hint: 'Enter your phone number', icon: Icons.add_call, expand: false, onIconTap: (context) => _importContact(), keyboardType: TextInputType.phone, readOnly: false,),
                   const SizedBox(height: 20),
                   CustomTextField(controller: _hashtagController, label: 'Wedding hashtag', hint: '', expand: false),
                   const SizedBox(height: 20),

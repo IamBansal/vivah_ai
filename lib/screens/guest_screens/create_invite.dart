@@ -229,6 +229,7 @@ class _CreateInviteState extends State<CreateInvite> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
+                        const SizedBox(width: 5,),
                         GestureDetector(
                           onTap: () {
                             isRecording ? stopRecording() : startRecording();
@@ -256,18 +257,62 @@ class _CreateInviteState extends State<CreateInvite> {
                             ),
                           ),
                         ),
-                        Column(
-                          children: [
-                            Text(
-                              'Your memory with ${widget.guest.name}',
-                              style: const TextStyle(
-                                  color: Colors.black, fontWeight: FontWeight.bold),
+                        const SizedBox(width: 5,),
+                        Visibility(
+                          visible: widget.guest.audio.isNotEmpty,
+                          child: GestureDetector(
+                            onTap: () {
+                              if (widget.guest.audio.isNotEmpty) {
+                                playing
+                                    ? audioPlayer.pause()
+                                    : audioPlayer.play(UrlSource(widget.guest.audio));
+                                setState(() {
+                                  playing = !playing;
+                                });
+                              }
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12.0),
+                                color:
+                                !isRecording ? const Color(0xFF713C05) : Colors.green,
+                              ),
+                              child: Card(
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                color: Colors.transparent,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Icon(
+                                    Icons.play_arrow_outlined,
+                                    size: 36,
+                                    color: Color(0xFFFFD384),
+                                  ),
+                                ),
+                              ),
                             ),
-                            const Text(
-                              'Voice Record your favorite memories',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ],
+                          ),
+                        ),
+                        const SizedBox(width: 10,),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Your memory with ${widget.guest.name}',
+                                style: const TextStyle(
+                                    color: Colors.black, fontWeight: FontWeight.bold),
+                              ),
+                              const Text(
+                                'Voice Record your favorite memories',
+                                style: TextStyle(color: Colors.black),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         )
                       ],
                     ),
