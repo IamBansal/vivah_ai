@@ -4,6 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:story_view/controller/story_controller.dart';
+import 'package:story_view/utils.dart';
+import 'package:story_view/widgets/story_view.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import '../../../main_screen.dart';
@@ -18,92 +21,111 @@ class GuestLogin extends StatefulWidget {
 }
 
 class _GuestLoginState extends State<GuestLogin> {
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          body: SingleChildScrollView(
-            child: Align(
-              alignment: Alignment.center,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 50,),
-                  Text(
-                    'Vivah',
-                    style: GoogleFonts.carattere(
-                        textStyle: const TextStyle(
-                            color: Color(0xFF33201C),
-                            fontSize: 75,
-                            fontStyle: FontStyle.italic)),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 38.0),
-                    child: Text(
-                      'Your wedding, personalised',
-                      style: TextStyle(color: Color(0xFF33201C), fontSize: 15),
-                    ),
-                  ),
-                  CustomTextField(controller: _nameController, label: 'Name', hint: 'Enter your name', expand: false),
-                  const SizedBox(height: 20),
-                  CustomTextFieldWithIcon(controller: _phoneController, label: 'Phone number', hint: 'Enter your phone number', icon: Icons.add_call, expand: false, onIconTap: (context) => _importContact(), keyboardType: TextInputType.phone, readOnly: false,),
-                  const SizedBox(height: 20),
-                  CustomTextField(controller: _hashtagController, label: 'Wedding hashtag', hint: '', expand: false),
-                  const SizedBox(height: 20),
-                  Visibility(
-                      visible: !_verificationId.isNotEmpty,
-                      child: CustomButton(
-                        label: 'Send OTP',
-                        // onButtonPressed: (context) => saveAndNavigate(),
-                        onButtonPressed: (context) => verifyPhoneNumber(),
-                      )),
-                  Visibility(
-                    visible: _verificationId.isNotEmpty,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        CustomTextField(
-                          controller: _otpController,
-                          label: 'OTP',
-                          hint: 'Enter OTP', expand: false,),
-                        InkWell(
-                            onTap: verifyPhoneNumber,
-                            child: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text('Resend OTP?'),
-                            )),
-                        const SizedBox(height: 10),
-                        CustomButton(
-                          label: 'Verify OTP and Login...',
-                          onButtonPressed: (context) =>
-                              signInWithPhoneNumber(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 28.0),
-                    child: GestureDetector(
-                      onTap: (){
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CoupleLogin(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        "Log in as host",
-                        style: TextStyle(color: Color(0xFF33201C)),
-                      ),
-                    ),
-                  )
-                ],
+      body: SingleChildScrollView(
+        child: Align(
+          alignment: Alignment.center,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 50,
               ),
-            ),
+              Text(
+                'Vivah',
+                style: GoogleFonts.carattere(
+                    textStyle: const TextStyle(
+                        color: Color(0xFF33201C),
+                        fontSize: 75,
+                        fontStyle: FontStyle.italic)),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 38.0),
+                child: Text(
+                  'Your wedding, personalised',
+                  style: TextStyle(color: Color(0xFF33201C), fontSize: 15),
+                ),
+              ),
+              CustomTextField(
+                  controller: _nameController,
+                  label: 'Name',
+                  hint: 'Enter your name',
+                  expand: false),
+              const SizedBox(height: 20),
+              CustomTextFieldWithIcon(
+                controller: _phoneController,
+                label: 'Phone number',
+                hint: 'Enter your phone number',
+                icon: Icons.add_call,
+                expand: false,
+                onIconTap: (context) => _importContact(),
+                keyboardType: TextInputType.phone,
+                readOnly: false,
+              ),
+              const SizedBox(height: 20),
+              CustomTextField(
+                  controller: _hashtagController,
+                  label: 'Wedding hashtag',
+                  hint: '',
+                  expand: false),
+              const SizedBox(height: 20),
+              Visibility(
+                  visible: !_verificationId.isNotEmpty,
+                  child: CustomButton(
+                    label: 'Send OTP',
+                    // onButtonPressed: (context) => saveAndNavigate(),
+                    onButtonPressed: (context) => verifyPhoneNumber(),
+                  )),
+              Visibility(
+                visible: _verificationId.isNotEmpty,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    CustomTextField(
+                      controller: _otpController,
+                      label: 'OTP',
+                      hint: 'Enter OTP',
+                      expand: false,
+                    ),
+                    InkWell(
+                        onTap: verifyPhoneNumber,
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Resend OTP?'),
+                        )),
+                    const SizedBox(height: 10),
+                    CustomButton(
+                      label: 'Verify OTP and Login...',
+                      onButtonPressed: (context) => signInWithPhoneNumber(),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 28.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CoupleLogin(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "Log in as host",
+                    style: TextStyle(color: Color(0xFF33201C)),
+                  ),
+                ),
+              )
+            ],
           ),
-        ));
+        ),
+      ),
+    ));
   }
 
   @override
@@ -176,7 +198,7 @@ class _GuestLoginState extends State<GuestLogin> {
         smsCode: _otpController.text,
       );
       UserCredential userCredential =
-      await _auth.signInWithCredential(credential);
+          await _auth.signInWithCredential(credential);
       saveAndNavigate();
       debugPrint(
           'Signed in with ${userCredential.user?.phoneNumber.toString()}');
@@ -206,26 +228,29 @@ class _GuestLoginState extends State<GuestLogin> {
         .get();
     bool valid = snapshot.size != 0;
 
-    if(valid) {
+    if (valid) {
       final data = snapshot.docs[0].data();
       await LocalData.saveName(data['hashtag'])
-          .whenComplete(() async =>
-      await LocalData.saveNameAndId(
-          data['bride'], data['groom'], data['userId'])).whenComplete(() async => await LocalData.saveIsCouple(false));
+          .whenComplete(() async => await LocalData.saveNameAndId(
+              data['bride'], data['groom'], data['userId']))
+          .whenComplete(() async => await LocalData.saveIsCouple(false));
     }
     return valid;
   }
 
   void saveAndNavigate() async {
-      await LocalData.saveGuestName(_nameController.text).whenComplete(() async => await checkForHashtag() ? Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const WelcomeScreen(),
-        ),
-      ) : ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('No matching hashtag found'),
-        duration: Duration(seconds: 2),
-      )));
+    await LocalData.saveGuestName(_nameController.text)
+        .whenComplete(() async => await checkForHashtag()
+            ? Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WelcomeScreen(),
+                ),
+              )
+            : ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('No matching hashtag found'),
+                duration: Duration(seconds: 2),
+              )));
   }
 }
 
@@ -237,63 +262,40 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-
-  @override
-  void initState() {
-    super.initState();
-    Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          ShaderMask(
-            blendMode: BlendMode.srcATop,
-            shaderCallback: (Rect bounds) {
-              return const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Colors.black54, Colors.black45],
-                stops: [0.0, 1],
-              ).createShader(bounds);
-            },
-            child: ClipRRect(
-                child: Image.asset(
-                  'assets/pic.png',
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  fit: BoxFit.cover,
-                )),
-          ),
-          Positioned(
-            left: MediaQuery.of(context).size.width * 0.26,
-            top: MediaQuery.of(context).size.height * 0.4,
-            child:Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Vivah',
-                    style: GoogleFonts.carattere(
-                        textStyle: const TextStyle(color: Colors.white, fontSize: 90, fontStyle: FontStyle.italic)
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 8.0),
-                    child: Text('Your wedding, personalised', style: TextStyle(color: Colors.white ,fontSize: 15 ,fontWeight: FontWeight.bold),),
-                  )
-                ],
-              ),
-            ),),
-        ],
+    return SafeArea(
+      child: Scaffold(
+        body: StoryView(
+          storyItems: [
+            StoryItem.pageVideo(
+              'https://res.cloudinary.com/dz1lt2wwz/video/upload/v1706109689/Public/scenl4fut0qqlkmrsz8u.mp4',
+              duration: Duration(seconds: (35.78195).toInt()),
+              controller: controller,
+            )
+          ],
+          controller: controller,
+          repeat: false,
+          onStoryShow: (storyItem) {},
+          onComplete: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainScreen()),
+            );
+          },
+          progressPosition: ProgressPosition.none,
+          onVerticalSwipeComplete: (direction) {
+            if (direction == Direction.down) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const MainScreen()),
+              );
+            }
+          },
+        ),
       ),
     );
   }
+
+  final controller = StoryController();
 }
