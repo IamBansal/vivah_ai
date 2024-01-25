@@ -233,6 +233,7 @@ class _InfoScreenState extends State<InfoScreen> {
   void _updateUI() {
     setState(() {
       isBotTyping = false;
+      _askController.text = '';
     });
     dragController.animateTo(
       0,
