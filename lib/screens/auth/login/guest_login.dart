@@ -4,10 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:story_view/controller/story_controller.dart';
 import 'package:story_view/utils.dart';
 import 'package:story_view/widgets/story_view.dart';
 import 'package:vivah_ai/providers/shared_pref.dart';
+import 'package:vivah_ai/viewmodels/main_view_model.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import '../../../main_screen.dart';
 import '../../../widgets/custom_button.dart';
@@ -128,9 +130,14 @@ class _GuestLoginState extends State<GuestLogin> {
     ));
   }
 
+  late MainViewModel model;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model = Provider.of<MainViewModel>(context, listen: false);
+    });
     _hashtagController.text = '#';
   }
 
@@ -152,36 +159,44 @@ class _GuestLoginState extends State<GuestLogin> {
         _phoneController.text.isNotEmpty &&
         _hashtagController.text.isNotEmpty &&
         _hashtagController.text.startsWith('#')) {
-      try {
-        await _auth.verifyPhoneNumber(
-          phoneNumber: '+91${_phoneController.text}',
-          verificationCompleted: (PhoneAuthCredential credential) async {
-            await _auth.signInWithCredential(credential);
-          },
-          verificationFailed: (FirebaseAuthException e) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(e.message.toString()),
-              duration: const Duration(seconds: 2),
-            ));
-            debugPrint(e.message);
-          },
-          codeSent: (String verificationId, int? resendToken) {
-            setState(() {
-              _verificationId = verificationId;
-            });
-          },
-          codeAutoRetrievalTimeout: (String verificationId) {
-            setState(() {
-              _verificationId = verificationId;
-            });
-          },
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString()),
-          duration: const Duration(seconds: 2),
+      bool valid = await checkForHashtag();
+      if (valid) {
+        try {
+          await _auth.verifyPhoneNumber(
+            phoneNumber: '+91${_phoneController.text}',
+            verificationCompleted: (PhoneAuthCredential credential) async {
+              await _auth.signInWithCredential(credential);
+            },
+            verificationFailed: (FirebaseAuthException e) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(e.message.toString()),
+                duration: const Duration(seconds: 2),
+              ));
+              debugPrint(e.message);
+            },
+            codeSent: (String verificationId, int? resendToken) {
+              setState(() {
+                _verificationId = verificationId;
+              });
+            },
+            codeAutoRetrievalTimeout: (String verificationId) {
+              setState(() {
+                _verificationId = verificationId;
+              });
+            },
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(e.toString()),
+            duration: const Duration(seconds: 2),
+          ));
+          debugPrint(e.toString());
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('No matching hashtag found'),
+          duration: Duration(seconds: 2),
         ));
-        debugPrint(e.toString());
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -226,31 +241,18 @@ class _GuestLoginState extends State<GuestLogin> {
         .collection('entries')
         .where('hashtag', isEqualTo: _hashtagController.text)
         .get();
-    bool valid = snapshot.size != 0;
-
-    if (valid) {
-      final data = snapshot.docs[0].data();
-      await LocalData.saveName(data['hashtag'])
-          .whenComplete(() async => await LocalData.saveNameAndId(
-              data['bride'], data['groom'], data['userId']))
-          .whenComplete(() async => await LocalData.saveIsCouple(false));
-    }
-    return valid;
+    return snapshot.size != 0;
   }
 
   void saveAndNavigate() async {
-    await LocalData.saveGuestName(_nameController.text)
-        .whenComplete(() async => await checkForHashtag()
-            ? Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const WelcomeScreen(),
-                ),
-              )
-            : ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('No matching hashtag found'),
-                duration: Duration(seconds: 2),
-              )));
+    await LocalData.saveGuestName(_nameController.text).whenComplete(() async =>
+        await LocalData.saveIsCouple(false)
+            .whenComplete(() => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WelcomeScreen(),
+                  ),
+                )));
   }
 }
 

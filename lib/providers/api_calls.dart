@@ -283,8 +283,7 @@ class ApiCalls {
     }
   }
 
-  static Future<List<PhotoItem>> getPhotosList() async {
-    String hashtag = (await LocalData.getName())!;
+  static Future<List<PhotoItem>> getPhotosList(String hashtag) async {
     List<PhotoItem> photo = [];
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
@@ -300,7 +299,7 @@ class ApiCalls {
         debugPrint('Found the images');
         return photo;
       } else {
-        debugPrint('No matching documents found.');
+        debugPrint('No matching documents found for photos.');
         return [];
       }
     } catch (error) {
@@ -309,24 +308,17 @@ class ApiCalls {
     }
   }
 
-  static Future<void> uploadPhoto(String imagePath, String category) async {
-    await uploadPic('photos', imagePath, category);
-  }
-
-  static Future<void> uploadPic(
-      String collection, String imagePath, String category) async {
+  static Future<void> uploadPhoto(String imagePath, String category, String hashtag, String name) async {
     String id = (FirebaseAuth.instance.currentUser?.uid)!;
-    String hashtag = (await LocalData.getName())!;
-    List<String> nameList = (await LocalData.getNameAndId())!;
 
     String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
     try {
-      final firestore = FirebaseFirestore.instance.collection(collection);
+      final firestore = FirebaseFirestore.instance.collection('photos');
       DocumentReference newDoc = await firestore.add({
         'hashtag': hashtag,
         'addedBy': id,
         'image': url,
-        'name': nameList[0].isNotEmpty ? nameList[0] : 'No name',
+        'name': name,
         'category': category
       });
 
@@ -338,8 +330,7 @@ class ApiCalls {
     }
   }
 
-  static Future<List<Ceremony>> getCeremonyList() async {
-    String hashtag = (await LocalData.getName())!;
+  static Future<List<Ceremony>> getCeremonyList(String hashtag) async {
     List<Ceremony> ceremonies = [];
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
@@ -364,8 +355,7 @@ class ApiCalls {
     }
   }
 
-  static Future<List<String>> getPromptAndId() async {
-    String hashtag = (await LocalData.getName())!;
+  static Future<List<String>> getPromptAndId(String hashtag) async {
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
           .instance
@@ -388,7 +378,7 @@ class ApiCalls {
     return [];
   }
 
-  static Future<List<String>> saveUpdatePrompt(String prompt, String oldPrompt, String promptId) async {
+  static Future<List<String>> saveUpdatePrompt(String prompt, String oldPrompt, String promptId, String hashtag) async {
     final firestore = FirebaseFirestore.instance.collection('prompts');
     try {
       if (oldPrompt.isNotEmpty) {
@@ -403,7 +393,6 @@ class ApiCalls {
       } else {
         debugPrint('new prompt');
         String id = (FirebaseAuth.instance.currentUser?.uid)!;
-        String hashtag = (await LocalData.getName())!;
 
         DocumentReference newDoc = await firestore.add({
           'hashtag': hashtag,
@@ -420,35 +409,6 @@ class ApiCalls {
       debugPrint('Error uploading prompt to Firestore: $e');
     }
     return [oldPrompt, promptId];
-  }
-
-  static Future<void> uploadThumbnail(String imagePath, String category) async {
-    await uploadPic('thumbnail', imagePath, category);
-  }
-
-  static Future<String> getThumbnail(String category) async {
-    String hashtag = (await LocalData.getName())!;
-    try {
-      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-          .instance
-          .collection('thumbnail')
-          .where('hashtag', isEqualTo: hashtag)
-          .get();
-      if (snapshot.docs.isNotEmpty) {
-        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
-          Map<String, dynamic>? data = entry.data();
-          final photo = PhotoItem.fromMap(data!);
-          if (photo.category == category) return photo.image;
-        }
-        return '';
-      } else {
-        debugPrint('No matching documents found for $category');
-        return '';
-      }
-    } catch (error) {
-      debugPrint('Error querying entries: $error');
-      return '';
-    }
   }
 
   static Future<bool> _handleLocationPermission(BuildContext context) async {
@@ -557,7 +517,7 @@ class ApiCalls {
         }
         debugPrint('Found the guest');
       } else {
-        debugPrint('No matching documents found.');
+        debugPrint('No matching documents found for guests.');
       }
     } catch (error) {
       debugPrint('Error querying entries: $error');

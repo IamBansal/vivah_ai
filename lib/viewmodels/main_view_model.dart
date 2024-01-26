@@ -20,21 +20,23 @@ class MainViewModel extends BaseViewModel {
   Future<void> init() async {
     debugPrint('Init in main view model is called');
     isCouple = (await LocalData.getIsCouple())!;
-    hashtag = (await LocalData.getName())!;
-    List<String> listName = (await LocalData.getNameAndId())!;
-    bride = listName[0];
-    groom = listName[1];
-    userId = listName[2];
-    List<String> promptAndId = await ApiCalls.getPromptAndId();
-    prompt = promptAndId[0];
-    promptId = promptAndId[1];
+    // hashtag = (await LocalData.getName())!;
+    // List<String> listName = (await LocalData.getNameAndId())!;
+    // bride = listName[0];
+    // groom = listName[1];
+    // userId = listName[2];
+    await getMainDetails();
+    List<String> promptAndId = await ApiCalls.getPromptAndId(hashtag);
+    prompt = promptAndId.isNotEmpty ? promptAndId[0] : '';
+    promptId = promptAndId.isNotEmpty ? promptAndId[1] : '';
 
     getCeremonyList().whenComplete(() => getLocationList());
     getPhotoList();
+    getThumbnails();
     getBlessingsList();
     getGuestList();
-    notifyListeners();
     if (!isCouple) getPersonalInvite();
+    notifyListeners();
   }
 
   String hashtag = '';
@@ -45,6 +47,27 @@ class MainViewModel extends BaseViewModel {
   int selectedIndex = 0;
   String prompt = '';
   String promptId = '';
+
+  Future<void> getMainDetails() async {
+    try {
+      userId = FirebaseAuth.instance.currentUser!.uid;
+
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+          .collection('entries')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      final data = snapshot.docs[0].data();
+
+      hashtag = data['hashtag'];
+      bride = data['bride'];
+      groom = data['groom'];
+      notifyListeners();
+      debugPrint('Fetched: $data');
+    } catch(e) {
+      debugPrint('Error: $e in fetching main details');
+    }
+  }
 
   void setTabIndex(int index) {
     selectedIndex = index;
@@ -64,39 +87,47 @@ class MainViewModel extends BaseViewModel {
   String apiKey = dotenv.env['API_KEY'] ?? '';
 
   Future<void> sendMessageToChatGPT(String message) async {
-    chatHistory.insert(0, {'message': message, 'isUser': true});
-    notifyListeners();
-
-    final response = await http.post(
-      Uri.parse('https://api.openai.com/v1/chat/completions'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $apiKey',
-      },
-      body: jsonEncode({
-        'model': 'gpt-3.5-turbo',
-        'messages': [
-          {'role': 'system', 'content': prompt},
-          {'role': 'user', 'content': message}
-        ]
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      final chatResponse = responseData['choices'][0]['message']['content'];
-      chatHistory.insert(0, {'message': chatResponse, 'isUser': false});
+    try {
+      chatHistory.insert(0, {'message': message, 'isUser': true});
       notifyListeners();
-    } else {
-      debugPrint(response.statusCode.toString());
-      throw Exception(
-          'Uh oh! Network Error\nYou are just a bit away, try again and beat the issue.');
+
+      final response = await http.post(
+        Uri.parse('https://api.openai.com/v1/chat/completions'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $apiKey',
+        },
+        body: jsonEncode({
+          'model': 'gpt-3.5-turbo',
+          'messages': [
+            {'role': 'system', 'content': prompt},
+            {'role': 'user', 'content': message}
+          ]
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final chatResponse = responseData['choices'][0]['message']['content'];
+        chatHistory.insert(0, {'message': chatResponse, 'isUser': false});
+        notifyListeners();
+      } else {
+        debugPrint(response.statusCode.toString());
+        chatHistory.insert(0, {'message': 'Sorry some error occurred', 'isUser': false});
+        notifyListeners();
+        // throw Exception('Uh oh! Network Error\nYou are just a bit away, try again and beat the issue.');
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      chatHistory.insert(0, {'message': 'Sorry some error occurred', 'isUser': false});
+      notifyListeners();
     }
+
   }
 
   Future<void> saveUpdatePrompt(String newPrompt) async {
     List<String> prAndId =
-        await ApiCalls.saveUpdatePrompt(newPrompt, prompt, promptId);
+        await ApiCalls.saveUpdatePrompt(newPrompt, prompt, promptId, hashtag);
     prompt = prAndId[0];
     promptId = prAndId[1];
     notifyListeners();
@@ -117,7 +148,7 @@ class MainViewModel extends BaseViewModel {
   );
 
   Future<void> getCeremonyList() async {
-    ceremonyList = await ApiCalls.getCeremonyList();
+    ceremonyList = await ApiCalls.getCeremonyList(hashtag);
     notifyListeners();
   }
 
@@ -165,6 +196,46 @@ class MainViewModel extends BaseViewModel {
     }
   }
 
+  Future<void> updateCeremony(String imagePath, String title, String desc,
+      String location, String date, Ceremony ceremony) async {
+
+    String url = imagePath.isNotEmpty ? (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))! : ceremony.url;
+    List<Location> addressList = location != ceremony.location ? await GeocodingPlatform.instance.locationFromAddress(location) : [];
+    try {
+
+      Ceremony cer = ceremony;
+      cer.location = location;
+      cer.latitude = addressList.isNotEmpty ? addressList.first.latitude : ceremony.latitude;
+      cer.longitude = addressList.isNotEmpty ? addressList.first.longitude : ceremony.longitude;
+      cer.title = title;
+      cer.description = desc;
+      cer.date = date;
+      cer.url = url;
+
+      await FirebaseFirestore.instance.collection('ceremonies').doc(ceremony.ceremonyId).update(cer.toMap());
+
+      ceremonyList.removeWhere((element) => element.ceremonyId == cer.ceremonyId);
+      ceremonyList.add(cer);
+
+      listForLocations.removeWhere((element) => element.location.latitude == ceremony.latitude);
+      listForLocations.add(Address(cer.location, LatLng(cer.latitude, cer.longitude)));
+
+      markers.removeWhere((element) => element.markerId.value == ceremony.title);
+      markers.add(Marker(
+        markerId: MarkerId(cer.title),
+        position: LatLng(cer.latitude, cer.longitude),
+        draggable: false,
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueRed),
+      ));
+
+      notifyListeners();
+      debugPrint('Ceremony updated');
+    } catch (e) {
+      debugPrint('Error updating ceremony to Firestore: $e');
+    }
+  }
+
   Future<void> deleteCeremony(Ceremony ceremony) async {
     await FirebaseFirestore.instance
         .collection('ceremonies')
@@ -179,12 +250,12 @@ class MainViewModel extends BaseViewModel {
   List<PhotoItem> photoList = [];
 
   Future<void> getPhotoList() async {
-    photoList = await ApiCalls.getPhotosList();
+    photoList = await ApiCalls.getPhotosList(hashtag);
     notifyListeners();
   }
 
   Future<void> savePhotoToDB(String imagePath, String photoCategory) async {
-    await ApiCalls.uploadPhoto(imagePath, photoCategory);
+    await ApiCalls.uploadPhoto(imagePath, photoCategory, hashtag, '$bride | $groom');
     //TODO - make it better
     getPhotoList();
     notifyListeners();
@@ -436,11 +507,6 @@ class MainViewModel extends BaseViewModel {
           .get();
 
       if (snapshot.docs.isNotEmpty) {
-        // for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
-        //   Map<String, dynamic>? data = entry.data();
-        //   personalInvite = Guest.fromMap(data!);
-        //   notifyListeners();
-        // }
         personalInvite = Guest.fromMap(snapshot.docs[0].data());
         notifyListeners();
         debugPrint('Found the invitation');
@@ -480,15 +546,92 @@ class MainViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-// String thumbnailUrl = '';
+  List<PhotoItem> thumbnailList = [];
 
-// Future<void> saveThumbnailToDB(String imagePath, String category) async {
-//   await ApiCalls.uploadThumbnail(imagePath, category);
-//   getPhotoList();
-//   notifyListeners();
-// }
+  Future<void> getThumbnails() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('thumbnail')
+          .where('hashtag', isEqualTo: hashtag)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot<Map<String, dynamic>> entry in snapshot.docs) {
+          Map<String, dynamic>? data = entry.data();
+          thumbnailList.add(PhotoItem.fromMap(data!));
+        }
+        notifyListeners();
+        debugPrint('Found the thumbnails');
+      } else {
+        debugPrint('No matching documents found for thumbnails');
+      }
+    } catch (error) {
+      debugPrint('Error querying entries: $error');
+    }
+  }
 
-// Future<void> getThumbnail(String title) async{
-//   thumbnailUrl = await ApiCalls.getThumbnail(title);
-// }
+  Future<void> saveUpdateThumbnail(String imagePath, String category) async {
+    String id = (FirebaseAuth.instance.currentUser?.uid)!;
+    String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
+    try {
+
+      final firestore = FirebaseFirestore.instance.collection('thumbnail');
+      QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+          .where('hashtag', isEqualTo: hashtag)
+          .where('category', isEqualTo: category)
+          .limit(1)
+          .get();
+
+      if(snapshot.docs.isNotEmpty) {
+
+        var thumbnail = PhotoItem.fromMap(snapshot.docs[0].data());
+        firestore.doc(thumbnail.photoId).update({'image': url});
+        thumbnail.image = url;
+        thumbnailList.removeWhere((element) => element.photoId == thumbnail.photoId);
+        thumbnailList.add(thumbnail);
+        notifyListeners();
+        debugPrint('Thumbnail updated');
+
+      } else {
+
+        PhotoItem thumbnail = PhotoItem.fromMap({
+          'hashtag': hashtag,
+          'addedBy': id,
+          'image': url,
+          'name': '$bride | $groom',
+          'category': category,
+          'photoId': ''
+        });
+        DocumentReference newDoc = await firestore.add(thumbnail.toMap());
+
+        await firestore.doc(newDoc.id).update({'photoId': newDoc.id});
+        thumbnail.photoId = newDoc.id;
+        thumbnailList.add(thumbnail);
+        notifyListeners();
+        debugPrint('Thumbnail uploaded');
+      }
+    } catch (e) {
+      debugPrint('Error uploading photo to Firestore: $e');
+    }
+  }
+
+  void clearAll() {
+    photoList = [];
+    ceremonyList = [];
+    blessingList = [];
+    thumbnailList = [];
+    markers = {};
+    listForLocations = [];
+    storyList = [];
+    ladkiVale = [];
+    ladkeVale = [];
+    isCouple = false;
+    hashtag = '';
+    bride = '';
+    groom = '';
+    userId = '';
+    prompt = '';
+    promptId = '';
+    notifyListeners();
+  }
 }

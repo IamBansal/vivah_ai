@@ -123,12 +123,7 @@ class _CoupleLoginState extends State<CoupleLogin> {
               const SizedBox(height: 50),
               CustomButton(
                   label: 'Login',
-                  onButtonPressed: (context) => Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const InitialDetails(),
-                        ),
-                      )),
+                  onButtonPressed: (context) => signUpOrLoginWithEmail()),
               const SizedBox(height: 40),
               const Text(
                 "or log in with",
@@ -212,12 +207,7 @@ class _CoupleLoginState extends State<CoupleLogin> {
               MaterialPageRoute(builder: (context) => const InitialDetails()),
             ));
       } else {
-
-        final data = snapshot.docs[0].data();
-        await LocalData.saveName(data['hashtag'])
-            .whenComplete(() async => await LocalData.saveNameAndId(
-                data['bride'], data['groom'], data['userId'])).whenComplete(() async =>
-        await LocalData.saveIsCouple(true))
+        await LocalData.saveIsCouple(true)
             .whenComplete(() => Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -236,6 +226,49 @@ class _CoupleLoginState extends State<CoupleLogin> {
   final _passwordController = TextEditingController();
   bool _obscureText = true;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> signUpOrLoginWithEmail() async {
+    if(_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
+    try {
+      final firestore = FirebaseFirestore.instance;
+
+      QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+          .collection('entries')
+          .where('email', isEqualTo: _emailController.text)
+          .get();
+
+      if (snapshot.size == 0) {
+
+        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+
+        await firestore.collection('couple').add({
+          'id': userCredential.user?.uid,
+          'email': _emailController.text,
+        }).whenComplete(() => Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const InitialDetails()),
+        ));
+      } else {
+        debugPrint('Old user..Logging in');
+        UserCredential cred = await _auth.signInWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        ).whenComplete(() async => await LocalData.saveIsCouple(true).whenComplete(() => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                const MainScreen()))));
+        debugPrint('Logged in with ${cred.user?.uid}');
+      }
+    } catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), duration: const Duration(seconds: 2),));
+    } } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fill all fields first'), duration: Duration(seconds: 2),));
+    }
+  }
 
   Future<bool> authenticate(String email, String password) async {
     try {
