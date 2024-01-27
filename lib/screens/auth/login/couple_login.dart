@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:vivah_ai/providers/shared_pref.dart';
+import 'package:provider/provider.dart';
 import '../../../main_screen.dart';
+import '../../../viewmodels/main_view_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../initial_details.dart';
 import 'guest_login.dart';
@@ -175,6 +176,16 @@ class _CoupleLoginState extends State<CoupleLogin> {
     ));
   }
 
+  late MainViewModel model;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model = Provider.of<MainViewModel>(context, listen: false);
+    });
+  }
+
   Future<UserCredential?> _signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
@@ -207,13 +218,10 @@ class _CoupleLoginState extends State<CoupleLogin> {
               MaterialPageRoute(builder: (context) => const InitialDetails()),
             ));
       } else {
-        await LocalData.saveIsCouple(true)
-            .whenComplete(() => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          const MainScreen()),
-                ));
+        await getMainDetails().whenComplete(() => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainScreen()),
+            ));
       }
     } catch (e) {
       debugPrint("Google Sign-In Failed: $e");
@@ -228,45 +236,70 @@ class _CoupleLoginState extends State<CoupleLogin> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> signUpOrLoginWithEmail() async {
-    if(_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-    try {
-      final firestore = FirebaseFirestore.instance;
+    if (_emailController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty) {
+      try {
+        final firestore = FirebaseFirestore.instance;
 
-      QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
-          .collection('entries')
-          .where('email', isEqualTo: _emailController.text)
-          .get();
+        QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+            .collection('entries')
+            .where('email', isEqualTo: _emailController.text)
+            .get();
 
-      if (snapshot.size == 0) {
+        if (snapshot.size == 0) {
+          UserCredential userCredential =
+              await _auth.createUserWithEmailAndPassword(
+            email: _emailController.text,
+            password: _passwordController.text,
+          );
 
-        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
-
-        await firestore.collection('couple').add({
-          'id': userCredential.user?.uid,
-          'email': _emailController.text,
-        }).whenComplete(() => Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const InitialDetails()),
+          await firestore.collection('couple').add({
+            'id': userCredential.user?.uid,
+            'email': _emailController.text,
+          }).whenComplete(() => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const InitialDetails()),
+              ));
+        } else {
+          debugPrint('Old user..Logging in');
+          UserCredential cred = await _auth
+              .signInWithEmailAndPassword(
+                email: _emailController.text,
+                password: _passwordController.text,
+              )
+              .whenComplete(() async => await getMainDetails().whenComplete(
+                  () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const MainScreen()))));
+          debugPrint('Logged in with ${cred.user?.uid}');
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString()),
+          duration: const Duration(seconds: 2),
         ));
-      } else {
-        debugPrint('Old user..Logging in');
-        UserCredential cred = await _auth.signInWithEmailAndPassword(
-          email: _emailController.text,
-          password: _passwordController.text,
-        ).whenComplete(() async => await LocalData.saveIsCouple(true).whenComplete(() => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                const MainScreen()))));
-        debugPrint('Logged in with ${cred.user?.uid}');
       }
-    } catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), duration: const Duration(seconds: 2),));
-    } } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fill all fields first'), duration: Duration(seconds: 2),));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Fill all fields first'),
+        duration: Duration(seconds: 2),
+      ));
+    }
+  }
+
+  Future<void> getMainDetails() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('entries')
+          .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      final data = snapshot.docs[0].data();
+      model.setForCouple(data['hashtag'], data['bride'], data['groom']);
+      debugPrint('Fetched: $data');
+    } catch (e) {
+      debugPrint('Error: $e in fetching main details');
     }
   }
 

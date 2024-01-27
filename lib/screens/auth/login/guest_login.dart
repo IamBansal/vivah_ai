@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:story_view/controller/story_controller.dart';
 import 'package:story_view/utils.dart';
 import 'package:story_view/widgets/story_view.dart';
-import 'package:vivah_ai/providers/shared_pref.dart';
 import 'package:vivah_ai/viewmodels/main_view_model.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import '../../../main_screen.dart';
@@ -165,7 +164,9 @@ class _GuestLoginState extends State<GuestLogin> {
           await _auth.verifyPhoneNumber(
             phoneNumber: '+91${_phoneController.text}',
             verificationCompleted: (PhoneAuthCredential credential) async {
-              await _auth.signInWithCredential(credential);
+              await _auth
+                  .signInWithCredential(credential)
+                  .whenComplete(() => saveAndNavigate());
             },
             verificationFailed: (FirebaseAuthException e) {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -244,15 +245,14 @@ class _GuestLoginState extends State<GuestLogin> {
     return snapshot.size != 0;
   }
 
-  void saveAndNavigate() async {
-    await LocalData.saveGuestName(_nameController.text).whenComplete(() async =>
-        await LocalData.saveIsCouple(false)
-            .whenComplete(() => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WelcomeScreen(),
-                  ),
-                )));
+  void saveAndNavigate() {
+    model.setForGuest(_hashtagController.text, _nameController.text);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const WelcomeScreen(),
+      ),
+    );
   }
 }
 

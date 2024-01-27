@@ -8,6 +8,7 @@ import 'package:vivah_ai/viewmodels/main_view_model.dart';
 
 class StoryScreen extends StatefulWidget {
   final String filter;
+
   const StoryScreen({super.key, required this.filter});
 
   @override
@@ -17,41 +18,39 @@ class StoryScreen extends StatefulWidget {
 class _StoryScreenState extends State<StoryScreen> {
   @override
   Widget build(context) {
-    return Consumer<MainViewModel>(
-      builder: (context, model, child){
-        if (storyItems.isNotEmpty) {
-          return SafeArea(
-            child: Scaffold(
-              body: StoryView(
-                storyItems: storyItems,
-                controller: controller,
-                repeat: false,
-                onStoryShow: (storyItem) {},
-                onComplete: () {
+    return Consumer<MainViewModel>(builder: (context, model, child) {
+      if (storyItems.isNotEmpty) {
+        return SafeArea(
+          child: Scaffold(
+            body: StoryView(
+              storyItems: storyItems,
+              controller: controller,
+              repeat: false,
+              onStoryShow: (storyItem) {},
+              onComplete: () {
+                Navigator.pop(context);
+              },
+              onVerticalSwipeComplete: (direction) {
+                if (direction == Direction.down) {
                   Navigator.pop(context);
-                },
-                onVerticalSwipeComplete: (direction) {
-                  if (direction == Direction.down) {
-                    Navigator.pop(context);
-                  }
-                },
-                indicatorColor: const Color(0xFF33201C),
-                indicatorForegroundColor: const Color(0xFFFFD384),
-              ),
+                }
+              },
+              indicatorColor: const Color(0xFF33201C),
+              indicatorForegroundColor: const Color(0xFFFFD384),
             ),
-          );
-        } else {
-          return const Center(
-            child: SizedBox(
-                height: 60,
-                width: 60,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                )),
-          );
-        }
+          ),
+        );
+      } else {
+        return const Center(
+          child: SizedBox(
+              height: 60,
+              width: 60,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+              )),
+        );
       }
-    );
+    });
   }
 
   @override
@@ -71,7 +70,7 @@ class _StoryScreenState extends State<StoryScreen> {
     storyItems.clear();
     try {
       if (widget.filter == 'blessings') {
-        for(BlessingItem item in model.blessingList){
+        for (BlessingItem item in model.blessingList) {
           setState(() {
             storyItems.add(StoryItem.pageVideo(
               item.video,
@@ -85,7 +84,10 @@ class _StoryScreenState extends State<StoryScreen> {
         for (PhotoItem item in model.photoList) {
           setState(() {
             storyItems.add(StoryItem(
-              StoryWidget(image: item.image, text: '${item.name} in ${item.category}', isCouple: model.isCouple),
+                StoryWidget(
+                    image: item.image,
+                    text: '${item.name} in ${item.category}',
+                    isCouple: model.isCouple),
                 duration: const Duration(seconds: 3)));
           });
         }
@@ -93,7 +95,8 @@ class _StoryScreenState extends State<StoryScreen> {
         for (Ceremony item in model.ceremonyList) {
           setState(() {
             storyItems.add(StoryItem(
-                StoryWidgetOthers(image: item.url, text: '${item.title} on ${item.date}'),
+                StoryWidgetOthers(
+                    image: item.url, text: '${item.title} on ${item.date}'),
                 duration: const Duration(seconds: 3)));
           });
         }
@@ -118,7 +121,12 @@ class StoryWidget extends StatelessWidget {
   final String image;
   final String text;
   final bool isCouple;
-  const StoryWidget({super.key, required this.image, required this.text, required this.isCouple});
+
+  const StoryWidget(
+      {super.key,
+      required this.image,
+      required this.text,
+      required this.isCouple});
 
   @override
   Widget build(BuildContext context) {
@@ -138,13 +146,10 @@ class StoryWidget extends StatelessWidget {
                 } else {
                   return Center(
                     child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes !=
-                          null
-                          ? loadingProgress
-                          .cumulativeBytesLoaded /
-                          (loadingProgress
-                              .expectedTotalBytes ??
-                              1)
+                      color: const Color(0xFFFFD384),
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              (loadingProgress.expectedTotalBytes ?? 1)
                           : null,
                     ),
                   );
@@ -155,16 +160,25 @@ class StoryWidget extends StatelessWidget {
               left: 5,
               top: 15,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
                 child: Text(text),
               ),
             ),
-            if (isCouple) Positioned(right: 5, top: 10,child: IconButton(onPressed: (){
-              //TODO - deleteMemory();
-            }, icon: const Icon(
-              Icons.delete_outline,
-              color: Color(0xFF33201C),
-            ),),)
+            if (isCouple)
+              Positioned(
+                right: 5,
+                top: 10,
+                child: IconButton(
+                  onPressed: () {
+                    //TODO - deleteMemory();
+                  },
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: Color(0xFF33201C),
+                  ),
+                ),
+              )
           ],
         ),
       ),
@@ -175,6 +189,7 @@ class StoryWidget extends StatelessWidget {
 class StoryWidgetOthers extends StatelessWidget {
   final String image;
   final String text;
+
   const StoryWidgetOthers({super.key, required this.image, required this.text});
 
   @override
@@ -195,13 +210,10 @@ class StoryWidgetOthers extends StatelessWidget {
                 } else {
                   return Center(
                     child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes !=
-                          null
-                          ? loadingProgress
-                          .cumulativeBytesLoaded /
-                          (loadingProgress
-                              .expectedTotalBytes ??
-                              1)
+                      color: const Color(0xFFFFD384),
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              (loadingProgress.expectedTotalBytes ?? 1)
                           : null,
                     ),
                   );
@@ -212,7 +224,8 @@ class StoryWidgetOthers extends StatelessWidget {
               left: 5,
               top: 15,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
                 child: Text(text),
               ),
             ),
@@ -222,4 +235,3 @@ class StoryWidgetOthers extends StatelessWidget {
     );
   }
 }
-

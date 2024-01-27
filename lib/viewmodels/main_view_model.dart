@@ -12,15 +12,17 @@ import '../models/ceremony.dart';
 import '../models/guest.dart';
 import '../models/photo.dart';
 import '../providers/api_calls.dart';
-import '../providers/shared_pref.dart';
 import 'package:http/http.dart' as http;
 import 'package:geocoding/geocoding.dart';
 
 class MainViewModel extends BaseViewModel {
   Future<void> init() async {
     debugPrint('Init in main view model is called');
-    isCouple = (await LocalData.getIsCouple())!;
-    await getMainDetails();
+    debugPrint(
+        'Before main call ===> Hashtag: $hashtag and isCouple: $isCouple, bride: $bride, groom: $groom, guest: $guestName');
+    if (!isCouple) await getMainDetails();
+    debugPrint(
+        'After main call ===> Hashtag: $hashtag and isCouple: $isCouple, bride: $bride, groom: $groom, guest: $guestName');
     List<String> promptAndId = await ApiCalls.getPromptAndId(hashtag);
     prompt = promptAndId.isNotEmpty ? promptAndId[0] : '';
     promptId = promptAndId.isNotEmpty ? promptAndId[1] : '';
@@ -42,24 +44,38 @@ class MainViewModel extends BaseViewModel {
   int selectedIndex = 0;
   String prompt = '';
   String promptId = '';
+  String guestName = '';
+
+  void setForCouple(String hash, String brideName, String groomName) {
+    hashtag = hash;
+    bride = brideName;
+    groom = groomName;
+    isCouple = true;
+    notifyListeners();
+  }
+
+  void setForGuest(String hash, String guest) {
+    hashtag = hash;
+    guestName = guest;
+    isCouple = false;
+    notifyListeners();
+  }
 
   Future<void> getMainDetails() async {
     try {
-      userId = FirebaseAuth.instance.currentUser!.uid;
-
-      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
           .collection('entries')
-          .where('userId', isEqualTo: userId)
+          .where('hashtag', isEqualTo: hashtag)
           .get();
 
       final data = snapshot.docs[0].data();
 
-      hashtag = data['hashtag'];
       bride = data['bride'];
       groom = data['groom'];
       notifyListeners();
       debugPrint('Fetched: $data');
-    } catch(e) {
+    } catch (e) {
       debugPrint('Error: $e in fetching main details');
     }
   }
@@ -104,12 +120,14 @@ class MainViewModel extends BaseViewModel {
         notifyListeners();
       } else {
         debugPrint(response.statusCode.toString());
-        chatHistory.insert(0, {'message': 'Sorry some error occurred', 'isUser': false});
+        chatHistory.insert(
+            0, {'message': 'Sorry some error occurred', 'isUser': false});
         notifyListeners();
       }
     } catch (e) {
       debugPrint(e.toString());
-      chatHistory.insert(0, {'message': 'Sorry some error occurred', 'isUser': false});
+      chatHistory
+          .insert(0, {'message': 'Sorry some error occurred', 'isUser': false});
       notifyListeners();
     }
   }
@@ -132,9 +150,8 @@ class MainViewModel extends BaseViewModel {
       userId: 'userId',
       hashtag: 'hashtag',
       ceremonyId: 'ceremonyId',
-    latitude: 0,
-    longitude: 0
-  );
+      latitude: 0,
+      longitude: 0);
 
   Future<void> getCeremonyList() async {
     ceremonyList = await ApiCalls.getCeremonyList(hashtag);
@@ -144,18 +161,19 @@ class MainViewModel extends BaseViewModel {
   Future<void> saveCeremonyToDB(String imagePath, String title, String desc,
       String location, String date) async {
     String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
-    final addressesList = await GeocodingPlatform.instance.locationFromAddress(location);
+    final addressesList =
+        await GeocodingPlatform.instance.locationFromAddress(location);
     try {
       final firestore = FirebaseFirestore.instance.collection('ceremonies');
       Ceremony cer = Ceremony(
-          title: title,
-          description: desc,
-          url: url,
-          location: location,
-          date: date,
-          userId: userId,
-          hashtag: hashtag,
-          ceremonyId: '',
+        title: title,
+        description: desc,
+        url: url,
+        location: location,
+        date: date,
+        userId: userId,
+        hashtag: hashtag,
+        ceremonyId: '',
         latitude: addressesList.first.latitude,
         longitude: addressesList.first.longitude,
       );
@@ -167,14 +185,14 @@ class MainViewModel extends BaseViewModel {
           .update({'ceremonyId': newDocumentRef.id});
 
       ceremonyList.add(cer);
-      listForLocations.add(Address(cer.location, LatLng(cer.latitude, cer.longitude)));
+      listForLocations
+          .add(Address(cer.location, LatLng(cer.latitude, cer.longitude)));
 
       markers.add(Marker(
         markerId: MarkerId(cer.title),
         position: LatLng(cer.latitude, cer.longitude),
         draggable: false,
-        icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueRed),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       ));
 
       address = '';
@@ -187,35 +205,47 @@ class MainViewModel extends BaseViewModel {
 
   Future<void> updateCeremony(String imagePath, String title, String desc,
       String location, String date, Ceremony ceremony) async {
-
-    String url = imagePath.isNotEmpty ? (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))! : ceremony.url;
-    List<Location> addressList = location != ceremony.location ? await GeocodingPlatform.instance.locationFromAddress(location) : [];
+    String url = imagePath.isNotEmpty
+        ? (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!
+        : ceremony.url;
+    List<Location> addressList = location != ceremony.location
+        ? await GeocodingPlatform.instance.locationFromAddress(location)
+        : [];
     try {
-
       Ceremony cer = ceremony;
       cer.location = location;
-      cer.latitude = addressList.isNotEmpty ? addressList.first.latitude : ceremony.latitude;
-      cer.longitude = addressList.isNotEmpty ? addressList.first.longitude : ceremony.longitude;
+      cer.latitude = addressList.isNotEmpty
+          ? addressList.first.latitude
+          : ceremony.latitude;
+      cer.longitude = addressList.isNotEmpty
+          ? addressList.first.longitude
+          : ceremony.longitude;
       cer.title = title;
       cer.description = desc;
       cer.date = date;
       cer.url = url;
 
-      await FirebaseFirestore.instance.collection('ceremonies').doc(ceremony.ceremonyId).update(cer.toMap());
+      await FirebaseFirestore.instance
+          .collection('ceremonies')
+          .doc(ceremony.ceremonyId)
+          .update(cer.toMap());
 
-      ceremonyList.removeWhere((element) => element.ceremonyId == cer.ceremonyId);
+      ceremonyList
+          .removeWhere((element) => element.ceremonyId == cer.ceremonyId);
       ceremonyList.add(cer);
 
-      listForLocations.removeWhere((element) => element.location.latitude == ceremony.latitude);
-      listForLocations.add(Address(cer.location, LatLng(cer.latitude, cer.longitude)));
+      listForLocations.removeWhere(
+          (element) => element.location.latitude == ceremony.latitude);
+      listForLocations
+          .add(Address(cer.location, LatLng(cer.latitude, cer.longitude)));
 
-      markers.removeWhere((element) => element.markerId.value == ceremony.title);
+      markers
+          .removeWhere((element) => element.markerId.value == ceremony.title);
       markers.add(Marker(
         markerId: MarkerId(cer.title),
         position: LatLng(cer.latitude, cer.longitude),
         draggable: false,
-        icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueRed),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       ));
 
       notifyListeners();
@@ -244,7 +274,8 @@ class MainViewModel extends BaseViewModel {
   }
 
   Future<void> savePhotoToDB(String imagePath, String photoCategory) async {
-    await ApiCalls.uploadPhoto(imagePath, photoCategory, hashtag, '$bride | $groom');
+    await ApiCalls.uploadPhoto(imagePath, photoCategory, hashtag,
+        isCouple ? '$bride | $groom' : guestName);
     getPhotoList();
     notifyListeners();
   }
@@ -267,26 +298,26 @@ class MainViewModel extends BaseViewModel {
   Future<void> saveStoryToDB(String imagePath) async {
     String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
     try {
-    final firestore = FirebaseFirestore.instance.collection('stories');
-    PhotoItem story = PhotoItem.fromMap({
-      'hashtag': hashtag,
-      'addedBy': userId,
-      'image': url,
-      'name': '$bride | $groom',
-      'category': 'story',
-      'photoId' : ''
-    });
-    DocumentReference newDoc = await firestore.add(story.toMap());
+      final firestore = FirebaseFirestore.instance.collection('stories');
+      PhotoItem story = PhotoItem.fromMap({
+        'hashtag': hashtag,
+        'addedBy': userId,
+        'image': url,
+        'name': '$bride | $groom',
+        'category': 'story',
+        'photoId': ''
+      });
+      DocumentReference newDoc = await firestore.add(story.toMap());
 
-    await firestore.doc(newDoc.id).update({'photoId': newDoc.id});
+      await firestore.doc(newDoc.id).update({'photoId': newDoc.id});
 
-    story.photoId = newDoc.id;
-    storyList.add(story);
-    notifyListeners();
+      story.photoId = newDoc.id;
+      storyList.add(story);
+      notifyListeners();
 
-    debugPrint('Story uploaded');
+      debugPrint('Story uploaded');
     } catch (e) {
-    debugPrint('Error uploading Story to Firestore: $e');
+      debugPrint('Error uploading Story to Firestore: $e');
     }
   }
 
@@ -314,8 +345,6 @@ class MainViewModel extends BaseViewModel {
 
   Future<void> saveBlessingToDB(String filePath) async {
     String id = (FirebaseAuth.instance.currentUser?.uid)!;
-    String name =
-        isCouple ? await LocalData.getGuestName() ?? 'No name' : bride + groom;
 
     List<dynamic> cloudinaryResponse =
         (await ApiCalls.uploadVideoToCloudinary(filePath))!;
@@ -325,7 +354,7 @@ class MainViewModel extends BaseViewModel {
         'addedBy': id,
         'video': cloudinaryResponse[0],
         'duration': cloudinaryResponse[1],
-        'name': name,
+        'name': isCouple ? '$bride | $groom' : guestName,
         'blessingId': ''
       });
       DocumentReference newDocumentRef = await FirebaseFirestore.instance
@@ -517,9 +546,10 @@ class MainViewModel extends BaseViewModel {
   List<Address> listForLocations = [];
   Set<Marker> markers = {};
 
-  void getLocationList(){
-    for(Ceremony event in ceremonyList) {
-      listForLocations.add(Address(event.location, LatLng(event.latitude, event.longitude)));
+  void getLocationList() {
+    for (Ceremony event in ceremonyList) {
+      listForLocations.add(
+          Address(event.location, LatLng(event.latitude, event.longitude)));
       markers.add(Marker(
         markerId: MarkerId(event.title),
         position: LatLng(event.latitude, event.longitude),
@@ -527,8 +557,7 @@ class MainViewModel extends BaseViewModel {
         infoWindow: InfoWindow(
           title: event.title,
         ),
-        icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueRed),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       ));
     }
     notifyListeners();
@@ -562,7 +591,6 @@ class MainViewModel extends BaseViewModel {
     String id = (FirebaseAuth.instance.currentUser?.uid)!;
     String url = (await ApiCalls.uploadImageOrAudioToCloudinary(imagePath))!;
     try {
-
       final firestore = FirebaseFirestore.instance.collection('thumbnail');
       QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
           .where('hashtag', isEqualTo: hashtag)
@@ -570,18 +598,16 @@ class MainViewModel extends BaseViewModel {
           .limit(1)
           .get();
 
-      if(snapshot.docs.isNotEmpty) {
-
+      if (snapshot.docs.isNotEmpty) {
         var thumbnail = PhotoItem.fromMap(snapshot.docs[0].data());
         firestore.doc(thumbnail.photoId).update({'image': url});
         thumbnail.image = url;
-        thumbnailList.removeWhere((element) => element.photoId == thumbnail.photoId);
+        thumbnailList
+            .removeWhere((element) => element.photoId == thumbnail.photoId);
         thumbnailList.add(thumbnail);
         notifyListeners();
         debugPrint('Thumbnail updated');
-
       } else {
-
         PhotoItem thumbnail = PhotoItem.fromMap({
           'hashtag': hashtag,
           'addedBy': id,
