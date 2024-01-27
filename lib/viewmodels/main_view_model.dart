@@ -20,11 +20,6 @@ class MainViewModel extends BaseViewModel {
   Future<void> init() async {
     debugPrint('Init in main view model is called');
     isCouple = (await LocalData.getIsCouple())!;
-    // hashtag = (await LocalData.getName())!;
-    // List<String> listName = (await LocalData.getNameAndId())!;
-    // bride = listName[0];
-    // groom = listName[1];
-    // userId = listName[2];
     await getMainDetails();
     List<String> promptAndId = await ApiCalls.getPromptAndId(hashtag);
     prompt = promptAndId.isNotEmpty ? promptAndId[0] : '';
@@ -74,10 +69,6 @@ class MainViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  Future<void> setPrompt() async {
-    notifyListeners();
-  }
-
   List<Map<String, dynamic>> chatHistory = [
     {
       'message': 'How can I help you?',
@@ -115,14 +106,12 @@ class MainViewModel extends BaseViewModel {
         debugPrint(response.statusCode.toString());
         chatHistory.insert(0, {'message': 'Sorry some error occurred', 'isUser': false});
         notifyListeners();
-        // throw Exception('Uh oh! Network Error\nYou are just a bit away, try again and beat the issue.');
       }
     } catch (e) {
       debugPrint(e.toString());
       chatHistory.insert(0, {'message': 'Sorry some error occurred', 'isUser': false});
       notifyListeners();
     }
-
   }
 
   Future<void> saveUpdatePrompt(String newPrompt) async {
@@ -256,7 +245,6 @@ class MainViewModel extends BaseViewModel {
 
   Future<void> savePhotoToDB(String imagePath, String photoCategory) async {
     await ApiCalls.uploadPhoto(imagePath, photoCategory, hashtag, '$bride | $groom');
-    //TODO - make it better
     getPhotoList();
     notifyListeners();
   }

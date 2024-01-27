@@ -17,7 +17,6 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share/share.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:vivah_ai/models/guest.dart';
-import 'package:vivah_ai/providers/shared_pref.dart';
 import '../models/blessing.dart';
 import '../models/ceremony.dart';
 import '../models/photo.dart';
@@ -195,7 +194,7 @@ class ApiCalls {
     if (await File(outputVideo).exists()) {
       await Share.shareFiles(
         [outputVideo],
-        text: 'Sharing it as a video' ?? '',
+        text: 'Sharing it as a video',
       );
     } else {
       debugPrint("Error: Video file does not exist.");
