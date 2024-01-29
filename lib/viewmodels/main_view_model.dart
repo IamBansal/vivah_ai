@@ -19,10 +19,10 @@ class MainViewModel extends BaseViewModel {
   Future<void> init() async {
     debugPrint('Init in main view model is called');
     debugPrint(
-        'Before main call ===> Hashtag: $hashtag and isCouple: $isCouple, bride: $bride, groom: $groom, guest: $guestName');
+        'Before main call ===> Hashtag: $hashtag and isCouple: $isCouple, bride: $bride, groom: $groom, guest: $guestName, userId: $userId');
     if (!isCouple) await getMainDetails();
     debugPrint(
-        'After main call ===> Hashtag: $hashtag and isCouple: $isCouple, bride: $bride, groom: $groom, guest: $guestName');
+        'After main call ===> Hashtag: $hashtag and isCouple: $isCouple, bride: $bride, groom: $groom, guest: $guestName, userId: $userId');
     List<String> promptAndId = await ApiCalls.getPromptAndId(hashtag);
     prompt = promptAndId.isNotEmpty ? promptAndId[0] : '';
     promptId = promptAndId.isNotEmpty ? promptAndId[1] : '';
@@ -32,6 +32,7 @@ class MainViewModel extends BaseViewModel {
     getThumbnails();
     getBlessingsList();
     getGuestList();
+    getStoryPhotoList();
     if (!isCouple) getPersonalInvite();
     notifyListeners();
   }
@@ -40,7 +41,7 @@ class MainViewModel extends BaseViewModel {
   bool isCouple = false;
   String bride = '';
   String groom = '';
-  String userId = '';
+  String userId = (FirebaseAuth.instance.currentUser?.uid)!;
   int selectedIndex = 0;
   String prompt = '';
   String promptId = '';

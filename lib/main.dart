@@ -57,9 +57,14 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
 
+  late MainViewModel model;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model = Provider.of<MainViewModel>(context, listen: false);
+    });
     checkUserLoginStatus();
   }
 
@@ -69,26 +74,15 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (user != null) {
       final firestore = FirebaseFirestore.instance;
-      QuerySnapshot<Map<String, dynamic>> snapshot = await firestore.collection('couple').where('id', isEqualTo : user.uid).get();
-
-      if(snapshot.size == 0) {
-        Timer(const Duration(seconds: 3), () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-          );
-        });
-      } else {
-        Timer(const Duration(seconds: 3), () {
-          Navigator.pushReplacement(
-            context,
-            //TODO - CHANGE THIS isBrideGroom
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-            // MaterialPageRoute(builder: (context) => const InitialDetails()),
-          );
-        });
-      }
-
+      QuerySnapshot<Map<String, dynamic>> snapshot = await firestore.collection('entries').where('userId', isEqualTo : user.uid).get();
+      final data = snapshot.docs[0].data();
+      snapshot.size == 0 ? model.setForGuest(data['hashtag'], 'Guest') : model.setForCouple(data['hashtag'], data['bride'], data['groom']);
+      Timer(const Duration(seconds: 3), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()), //Guest
+        );
+      });
       debugPrint("User is logged in: ${user.email} ${user.phoneNumber}");
     } else {
       Timer(const Duration(seconds: 3), () {
