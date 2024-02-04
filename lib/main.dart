@@ -75,15 +75,38 @@ class _SplashScreenState extends State<SplashScreen> {
     if (user != null) {
       final firestore = FirebaseFirestore.instance;
       QuerySnapshot<Map<String, dynamic>> snapshot = await firestore.collection('entries').where('userId', isEqualTo : user.uid).get();
-      final data = snapshot.docs[0].data();
-      snapshot.size == 0 ? model.setForGuest(data['hashtag'], 'Guest') : model.setForCouple(data['hashtag'], data['bride'], data['groom']);
-      Timer(const Duration(seconds: 3), () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainScreen()), //Guest
-        );
-      });
-      debugPrint("User is logged in: ${user.email} ${user.phoneNumber}");
+      if(snapshot.size == 0){
+        QuerySnapshot<Map<String, dynamic>> snapshotGuest = await firestore.collection('guests').where('userId', isEqualTo : user.uid).limit(1).get();
+        if(snapshotGuest.size != 0) {
+          final data = snapshotGuest.docs[0].data();
+          model.setForGuest(data['hashtag'], data['name']);
+          Timer(const Duration(seconds: 3), () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainScreen()), //Guest
+            );
+          });
+          debugPrint("User is logged in as guest with: ${user.phoneNumber}");
+        } else {
+          Timer(const Duration(seconds: 3), () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const GuestLogin()),
+            );
+          });
+          debugPrint("User is not logged in");
+        }
+      } else {
+        final data = snapshot.docs[0].data();
+        model.setForCouple(data['hashtag'], data['bride'], data['groom']);
+        Timer(const Duration(seconds: 3), () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()), //Guest
+          );
+        });
+        debugPrint("User is logged in as couple with: ${user.email}");
+      }
     } else {
       Timer(const Duration(seconds: 3), () {
         Navigator.pushReplacement(

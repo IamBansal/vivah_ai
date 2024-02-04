@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -245,8 +247,14 @@ class _GuestLoginState extends State<GuestLogin> {
     return snapshot.size != 0;
   }
 
-  void saveAndNavigate() {
-    model.setForGuest(_hashtagController.text, _nameController.text);
+  //TODO - fix it - make it add to DB only once for unique guest, not on each login
+  void saveAndNavigate() async {
+    await FirebaseFirestore.instance.collection('guests').add({
+      'name': _nameController.text,
+      'contact': _phoneController.text,
+      'userId': FirebaseAuth.instance.currentUser?.uid.toString(),
+      'hashtag': _hashtagController.text
+    }).whenComplete(() => model.setForGuest(_hashtagController.text, _nameController.text));
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
