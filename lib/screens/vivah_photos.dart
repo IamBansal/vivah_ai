@@ -163,7 +163,7 @@ class _VivahPhotosScreenState extends State<VivahPhotosScreen> {
               ),
               Text(
                 model.isCouple
-                    ? '${model.bride} | ${model.groom}'
+                    ? '${model.bride} & ${model.groom}'
                     : model.guestName,
                 style: GoogleFonts.carattere(
                     textStyle: const TextStyle(

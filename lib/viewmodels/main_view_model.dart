@@ -122,12 +122,12 @@ class MainViewModel extends BaseViewModel {
       } else {
         debugPrint(response.statusCode.toString());
         chatHistory.insert(
-            0, {'message': 'Sorry some error occurred', 'isUser': false});
+            0, {'message': 'There\'s something I don\'t know.\nContact the concerned one', 'isUser': false});
         notifyListeners();
       }
     } catch (e) {
       debugPrint(e.toString());
-      chatHistory.insert(0, {'message': 'Sorry some error occurred', 'isUser': false});
+      chatHistory.insert(0, {'message': 'There\'s something I don\'t know.\nContact the concerned one', 'isUser': false});
       notifyListeners();
     }
   }
