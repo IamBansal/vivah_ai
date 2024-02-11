@@ -91,14 +91,14 @@ class _CreateInviteState extends State<CreateInvite> {
                                 bottomRight: Radius.circular(14)),
                             child: Image.asset(
                               'assets/static.jpg',
-                              height: MediaQuery.of(context).size.height * 0.6,
-                              width: MediaQuery.of(context).size.width,
+                              // height: MediaQuery.of(context).size.height * 0.6,
+                              // width: MediaQuery.of(context).size.width,
                               fit: BoxFit.cover,
                             )),
                       ),
                       Positioned(
                         left: MediaQuery.of(context).size.width * 0.27,
-                        top: MediaQuery.of(context).size.height * 0.08,
+                        top: MediaQuery.of(context).size.height * 0.11,
                         child: toMakePhotoCall ? FutureBuilder(
                             future: ApiCalls.makePhotoLabAPICall(widget.guest.url),
                             builder: (context, snapshot) {
@@ -153,7 +153,7 @@ class _CreateInviteState extends State<CreateInvite> {
                         )),
                       ),
                       Positioned(
-                        bottom: MediaQuery.of(context).size.height * 0.04,
+                        bottom: MediaQuery.of(context).size.height * 0.08,
                         left: MediaQuery.of(context).size.width * 0.2,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -167,7 +167,7 @@ class _CreateInviteState extends State<CreateInvite> {
                                       fontStyle: FontStyle.italic)),
                             ),
                             SizedBox(
-                              height: 120,
+                              height: 100,
                               width: 230,
                               child: Padding(
                                 padding:
@@ -175,7 +175,7 @@ class _CreateInviteState extends State<CreateInvite> {
                                 child: Text(
                                   _text,
                                   textAlign: TextAlign.center,
-                                  maxLines: 6,
+                                  maxLines: 5,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                       color: Colors.white, fontSize: 13),
