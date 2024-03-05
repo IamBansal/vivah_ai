@@ -4,7 +4,6 @@ import '../constants/viewState.dart';
 class BaseViewModel extends ChangeNotifier {
   ViewState _state = ViewState.idle;
 
-  // ignore: unnecessary_getters_setters
   ViewState get state => _state;
 
   set state(ViewState newState) {
