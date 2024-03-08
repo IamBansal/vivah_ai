@@ -44,12 +44,12 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           textTheme: GoogleFonts.openSansTextTheme(),
         ),
-        home: const MainScreen(),
-        // home: Consumer<MainViewModel>(
-        //     builder: (context, model, child) {
-        //       return const SplashScreen();
-        //     }
-        // ),
+        // home: const MainScreen(),
+        home: Consumer<MainViewModel>(
+            builder: (context, model, child) {
+              return const SplashScreen();
+            }
+        ),
       )
     );
   }

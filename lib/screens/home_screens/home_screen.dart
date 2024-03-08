@@ -894,13 +894,63 @@ class MyPopupMenuButton extends StatelessWidget {
         );
         break;
       case 'delete':
-        await FirebaseAuth.instance.currentUser?.delete()
-            .whenComplete(() => Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const GuestLogin()),
-              (route) => false,
-        ))
-            .onError((error, stackTrace) => debugPrint(error.toString()));
+        showDialog(
+            context: context,
+            builder: (_) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Delete Account!'),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          )
+                        ],
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10.0),
+                        child: Text('Aww, are you sure you want to delete your account?\nAll your data will be lost.'),
+                      ),
+                      Row(
+                        children: [
+                          CustomButton(
+                            label: 'Yes',
+                            width: 100,
+                            onButtonPressed: (context) async {
+                              await FirebaseAuth.instance.currentUser?.delete()
+                                  .whenComplete(() => Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(builder: (context) => const GuestLogin()),
+                                    (route) => false,
+                              ))
+                                  .onError((error, stackTrace) => debugPrint(error.toString()));
+                            },
+                          ),
+                          const SizedBox(
+                            width: 15,
+                          ),
+                          CustomButton(
+                            label: 'No',
+                            width: 100,
+                            onButtonPressed: (context) => Navigator.pop(context),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              );
+            });
         break;
     }
   }

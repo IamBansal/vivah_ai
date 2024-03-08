@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 class CustomButton extends StatefulWidget {
 
   final String label;
+  final double width;
   final Function(BuildContext)? onButtonPressed;
 
-  const CustomButton({super.key, required this.label, this.onButtonPressed});
+  const CustomButton({super.key, required this.label, this.onButtonPressed, this.width = 340});
 
   @override
   State<CustomButton> createState() => _CustomButtonState();
@@ -16,7 +17,7 @@ class _CustomButtonState extends State<CustomButton> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 50,
-      width: 340,
+      width: widget.width,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF4F2E22),
