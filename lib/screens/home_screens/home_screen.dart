@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:vivah_ai/providers/api_calls.dart';
 import 'package:vivah_ai/screens/map_screens/select_location.dart';
+import 'package:vivah_ai/screens/terms_and_policy.dart';
 import 'package:vivah_ai/viewmodels/main_view_model.dart';
 import 'package:vivah_ai/widgets/custom_button.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
@@ -805,6 +806,63 @@ class MyPopupMenuButton extends StatelessWidget {
               ],
             ),
           ),
+          const PopupMenuItem<String>(
+            value: 'terms',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.miscellaneous_services,
+                  color: Color(0xFF33201C),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    'Terms and Services',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const PopupMenuItem<String>(
+            value: 'policy',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.miscellaneous_services,
+                  color: Color(0xFF33201C),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    'Privacy Policy',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const PopupMenuItem<String>(
+            value: 'delete',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.delete_outline,
+                  color: Color(0xFF33201C),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    'Delete Account?',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       );
     });
@@ -821,6 +879,27 @@ class MyPopupMenuButton extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const GuestLogin()),
                   (route) => false,
                 ))
+            .onError((error, stackTrace) => debugPrint(error.toString()));
+        break;
+      case 'terms':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const TermsAndPolicyScreen(isTerms: true)),
+        );
+        break;
+      case 'policy':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const TermsAndPolicyScreen(isTerms: false)),
+        );
+        break;
+      case 'delete':
+        await FirebaseAuth.instance.currentUser?.delete()
+            .whenComplete(() => Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const GuestLogin()),
+              (route) => false,
+        ))
             .onError((error, stackTrace) => debugPrint(error.toString()));
         break;
     }

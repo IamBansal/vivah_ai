@@ -14,6 +14,7 @@ import 'package:vivah_ai/viewmodels/main_view_model.dart';
 import 'package:vivah_ai/widgets/custom_text_field.dart';
 import '../../../main_screen.dart';
 import '../../../widgets/custom_button.dart';
+import '../../terms_and_policy.dart';
 import 'couple_login.dart';
 
 class GuestLogin extends StatefulWidget {
@@ -123,6 +124,46 @@ class _GuestLoginState extends State<GuestLogin> {
                     style: TextStyle(color: Color(0xFF33201C)),
                   ),
                 ),
+              ),
+              Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 28.0),
+                    child: Text(
+                      "All rights reserved | ",
+                      style: TextStyle(color: Color(0xFF33201C)),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 28.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const TermsAndPolicyScreen(isTerms: true)),
+                        );
+                      },
+                      child: const Text(
+                        "Terms & Conditions |",
+                        style: TextStyle(color: Color(0xFF33201C), fontWeight: FontWeight.bold, decoration: TextDecoration.underline,),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 28.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const TermsAndPolicyScreen(isTerms: false)),
+                        );
+                      },
+                      child: const Text(
+                        " Privacy Policy",
+                        style: TextStyle(color: Color(0xFF33201C), fontWeight: FontWeight.bold, decoration: TextDecoration.underline,),),
+                      ),
+                    ),
+                ],
               )
             ],
           ),
