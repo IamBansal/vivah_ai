@@ -2,20 +2,26 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:vivah_ai/screens/auth/login/guest_login.dart';
 import 'package:vivah_ai/viewmodels/main_view_model.dart';
+import 'firebase_options.dart';
 import 'main_screen.dart';
 import 'package:flutter_config/flutter_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
-  await FlutterConfig.loadEnvVariables();
-  await Firebase.initializeApp();
+  if(!kIsWeb) await FlutterConfig.loadEnvVariables();
+  if (kIsWeb) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } else {
+    await Firebase.initializeApp();
+  }
   runApp(
       ChangeNotifierProvider(
         create: (context) => MainViewModel(),
@@ -33,16 +39,17 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => MainViewModel())
       ],
-      child: Consumer<MainViewModel>(
-          builder: (context, model, child) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(
-                textTheme: GoogleFonts.openSansTextTheme(),
-              ),
-              home: const SplashScreen(),
-            );
-          }
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          textTheme: GoogleFonts.openSansTextTheme(),
+        ),
+        home: const MainScreen(),
+        // home: Consumer<MainViewModel>(
+        //     builder: (context, model, child) {
+        //       return const SplashScreen();
+        //     }
+        // ),
       )
     );
   }

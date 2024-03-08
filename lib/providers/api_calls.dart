@@ -38,6 +38,7 @@ class ApiCalls {
         var responseData = await response.stream.bytesToString();
         return json.decode(responseData)['secure_url'];
       } else {
+
         debugPrint(
             'Failed to upload image. Status code: ${response.statusCode}');
         return null;

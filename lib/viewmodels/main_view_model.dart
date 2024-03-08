@@ -41,7 +41,7 @@ class MainViewModel extends BaseViewModel {
   bool isCouple = false;
   String bride = '';
   String groom = '';
-  String userId = (FirebaseAuth.instance.currentUser?.uid)!;
+  String userId = FirebaseAuth.instance.currentUser != null ? (FirebaseAuth.instance.currentUser?.uid)! : '';
   int selectedIndex = 0;
   String prompt = '';
   String promptId = '';
