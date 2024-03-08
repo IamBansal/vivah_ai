@@ -783,8 +783,7 @@ class MyPopupMenuButton extends StatelessWidget {
           color: Color(0xFF33201C),
         ),
         onSelected: (String result) {
-          model.clearAll();
-          handleMenuItemSelected(result, context);
+          handleMenuItemSelected(result, context, model);
         },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
           const PopupMenuItem<String>(
@@ -869,9 +868,10 @@ class MyPopupMenuButton extends StatelessWidget {
   }
 
   Future<void> handleMenuItemSelected(
-      String value, BuildContext context) async {
+      String value, BuildContext context, MainViewModel model) async {
     switch (value) {
       case 'logout':
+        model.clearAll();
         await FirebaseAuth.instance
             .signOut()
             .whenComplete(() => Navigator.pushAndRemoveUntil(
@@ -927,6 +927,7 @@ class MyPopupMenuButton extends StatelessWidget {
                             label: 'Yes',
                             width: 100,
                             onButtonPressed: (context) async {
+                              model.clearAll();
                               await FirebaseAuth.instance.currentUser?.delete()
                                   .whenComplete(() => Navigator.pushAndRemoveUntil(
                                 context,

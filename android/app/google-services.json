@@ -37,6 +37,57 @@
             {
               "client_id": "780447259674-13d6rm2r6kqtohcdlkcoop8utf4eil4e.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "780447259674-3ji405i5ddv5vamckoqadejom7bn48uq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.vivahAi"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780447259674:android:d4cf31ceb1c8f745eb45a3",
+        "android_client_info": {
+          "package_name": "com.mikki.vivah_ai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "780447259674-5rlub7geclbrhj324t75de2trrig3kpq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mikki.vivah_ai",
+            "certificate_hash": "99c72b27f4fe6205282513d557bcf86781d05e4c"
+          }
+        },
+        {
+          "client_id": "780447259674-13d6rm2r6kqtohcdlkcoop8utf4eil4e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKdspSu14X5-WssU1dCMH4uGe-XiQhJUk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "780447259674-13d6rm2r6kqtohcdlkcoop8utf4eil4e.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "780447259674-3ji405i5ddv5vamckoqadejom7bn48uq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.vivahAi"
+              }
             }
           ]
         }

@@ -125,44 +125,44 @@ class _GuestLoginState extends State<GuestLogin> {
                   ),
                 ),
               ),
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 28.0),
+                    padding: EdgeInsets.only(top: 28.0, bottom: 5),
                     child: Text(
-                      "All rights reserved | ",
+                      "All rights reserved",
                       style: TextStyle(color: Color(0xFF33201C)),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 28.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const TermsAndPolicyScreen(isTerms: true)),
-                        );
-                      },
-                      child: const Text(
-                        "Terms & Conditions |",
-                        style: TextStyle(color: Color(0xFF33201C), fontWeight: FontWeight.bold, decoration: TextDecoration.underline,),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const TermsAndPolicyScreen(isTerms: true)),
+                          );
+                        },
+                        child: const Text(
+                          "Terms & Conditions |",
+                          style: TextStyle(color: Color(0xFF33201C), fontWeight: FontWeight.bold, decoration: TextDecoration.underline,),
+                        ),
                       ),
-                    ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const TermsAndPolicyScreen(isTerms: false)),
+                          );
+                        },
+                        child: const Text(
+                          " Privacy Policy",
+                          style: TextStyle(color: Color(0xFF33201C), fontWeight: FontWeight.bold, decoration: TextDecoration.underline,),),
+                        ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 28.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const TermsAndPolicyScreen(isTerms: false)),
-                        );
-                      },
-                      child: const Text(
-                        " Privacy Policy",
-                        style: TextStyle(color: Color(0xFF33201C), fontWeight: FontWeight.bold, decoration: TextDecoration.underline,),),
-                      ),
-                    ),
                 ],
               )
             ],
