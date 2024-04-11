@@ -32,8 +32,6 @@ class TermsAndPolicyScreen extends StatelessWidget {
   static String term = '''
 Welcome to VIVAH_AI (“The Application”). These Terms and Conditions of Use (the “Terms”) are set out to protect the rights of the Application owners and users.
 
-​
-
 These Terms and our Privacy Policy and Cookie Policy constitute a legally binding agreement
 made between the user or viewer of the application, whether personally or on behalf of an entity
 (“you”) and Mikki Technologies Pvt Ltd (“the Company”), a Company incorporated under the
